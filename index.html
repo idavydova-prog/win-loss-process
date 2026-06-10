@@ -111,6 +111,11 @@
 
   .copied-toast { position: fixed; bottom: 24px; right: 24px; background: #2d3748; color: white; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 2000; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
   .copied-toast.show { opacity: 1; }
+
+  .examples-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding: 10px 16px; background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 3px solid #667eea; flex-wrap: wrap; }
+  .examples-label { font-size: 11px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; margin-right: 2px; }
+  .btn-example { background: #ebf4ff; color: #3182ce; border: 1px solid #bee3f8; padding: 5px 14px; font-size: 12px; font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.15s; }
+  .btn-example:hover { background: #dbeafe; border-color: #93c5fd; transform: translateY(-1px); }
 </style>
 </head>
 <body>
@@ -121,6 +126,11 @@
 </div>
 
 <div class="container">
+  <div class="examples-bar">
+    <span class="examples-label">Load Example:</span>
+    <button class="btn-example" onclick="loadExample('gnc')">GNC Holdings</button>
+  </div>
+
   <div class="input-grid">
     <div class="card">
       <div class="card-label">Renewal Opportunity <span class="required">Required</span></div>
@@ -377,10 +387,13 @@ function hasHashtag(list, tag) {
   return list.some(h => h.toLowerCase() === tl);
 }
 
-// Parse a dollar value that may include K / M suffixes, e.g. "$1.76M", "$450K"
+// Parse a dollar value — handles K/M/B suffixes, "USD" prefix, negative values
+// e.g. "$1.76M", "$450K", "USD -1,761,666.70", "-1,761,666.70"
 function parseCurrency(val) {
   if (!val) return null;
-  const m = val.replace(/[$,\s]/g, '').match(/^([\d.]+)([KkMmBb]?)$/);
+  // Strip currency symbols, USD prefix, spaces — keep minus sign and digits
+  const cleaned = val.replace(/USD|[$,\s]/gi, '').trim();
+  const m = cleaned.match(/^(-?[\d.]+)([KkMmBb]?)$/);
   if (!m) return null;
   let n = parseFloat(m[1]);
   if (isNaN(n)) return null;
@@ -388,7 +401,7 @@ function parseCurrency(val) {
   if (suf === 'K') n *= 1000;
   else if (suf === 'M') n *= 1000000;
   else if (suf === 'B') n *= 1000000000;
-  return n;
+  return Math.abs(n); // always return positive magnitude
 }
 
 function parsePercent(val) {
@@ -1037,6 +1050,50 @@ function clearAll() {
   lastFindings = [];
   lastRenewal = null;
   lastRedAccount = null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXAMPLES
+// ─────────────────────────────────────────────────────────────────────────────
+const EXAMPLES = {
+  gnc: {
+    renewal: `Account Name
+GNC Holdings, LLC
+Opportunity Name
+GNC Holdings, LLC Renewal 60114 Commerce Cloud
+Opportunity Owner
+Eric Askew
+Stage
+02 Negotiate
+Close Date
+7/26/2027
+Forecasted Attrition
+USD -1,761,666.70
+Forecasted Renewal % - New
+0.00%
+Premier Attached
+True
+Targeted Clouds
+Commerce Cloud
+CSG Notes
+6/04/26, Raj - #PartialAttrit. Exploring ARI, Delayed SFRA Migration to 2027-concerning, alerted AE team. GNC Leadership Change. Sam Biswas planing to initiate renewal conversation with GNC. AD not assigned, impact renewal time, Red-http://sfdc.co/b4M0qB`,
+    redAccount: '',
+  },
+};
+
+function loadExample(key) {
+  const ex = EXAMPLES[key];
+  if (!ex) return;
+  document.getElementById('renewalInput').value = ex.renewal.trim();
+  document.getElementById('redAccountInput').value = (ex.redAccount || '').trim();
+  // Clear any prior results
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('emailBtn').disabled = true;
+  lastFindings = [];
+  lastRenewal = null;
+  lastRedAccount = null;
+  // Auto-run
+  runValidation();
 }
 </script>
 </body>
