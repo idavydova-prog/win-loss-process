@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PACE Renewal Compliance Validator</title>
+<link rel="stylesheet" href="https://unpkg.com/@salesforce-ux/design-system@2.24.4/assets/styles/salesforce-lightning-design-system.min.css">
+<style>
+  body { background: #f3f3f3; min-height: 100vh; }
+  .app-container { max-width: 960px; margin: 0 auto; padding: 1rem; }
+  .slds-page-header { border-radius: 0.25rem; }
+  .field-group { margin-bottom: 0.75rem; }
+  .results-container { display: none; }
+  .results-container.active { display: block; }
+  .finding-card { border-left: 4px solid; margin-bottom: 0.5rem; }
+  .finding-card.critical { border-left-color: #c23934; }
+  .finding-card.warning { border-left-color: #fe9339; }
+  .finding-card.info { border-left-color: #1b96ff; }
+  .finding-card.passed { border-left-color: #2e844a; }
+  .score-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 1rem; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
+  .score-badge.needs-attention { background: #fddde6; color: #c23934; }
+  .score-badge.minor-issues { background: #fef0cd; color: #8c4b02; }
+  .score-badge.compliant { background: #cdefc4; color: #2e844a; }
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+  .summary-tile { text-align: center; padding: 1rem; border-radius: 0.25rem; background: white; border-top: 3px solid; }
+  .summary-tile.critical { border-top-color: #c23934; }
+  .summary-tile.warning { border-top-color: #fe9339; }
+  .summary-tile.info { border-top-color: #1b96ff; }
+  .summary-tile.passed { border-top-color: #2e844a; }
+  .summary-count { font-size: 2rem; font-weight: 800; line-height: 1; }
+  .summary-tile.critical .summary-count { color: #c23934; }
+  .summary-tile.warning .summary-count { color: #fe9339; }
+  .summary-tile.info .summary-count { color: #1b96ff; }
+  .summary-tile.passed .summary-count { color: #2e844a; }
+  .summary-label { font-size: 0.7rem; color: #706e6b; margin-top: 0.25rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  .fix-box { background: #f3f3f3; border: 1px solid #dddbda; border-radius: 0.25rem; padding: 0.5rem 0.75rem; margin-top: 0.5rem; font-size: 0.8rem; }
+  .fix-label { font-size: 0.65rem; font-weight: 700; color: #706e6b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.25rem; }
+  @media (max-width: 768px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+
+<!-- Page Header -->
+<div class="app-container">
+  <div class="slds-page-header slds-m-bottom_medium">
+    <div class="slds-page-header__row">
+      <div class="slds-page-header__col-title">
+        <div class="slds-media">
+          <div class="slds-media__figure">
+            <span class="slds-icon_container slds-icon-standard-opportunity">
+              <svg class="slds-icon slds-page-header__icon" aria-hidden="true">
+                <use xlink:href="https://unpkg.com/@salesforce-ux/design-system@2.24.4/assets/icons/standard-sprite/svg/symbols.svg#opportunity"></use>
+              </svg>
+            </span>
+          </div>
+          <div class="slds-media__body">
+            <div class="slds-page-header__name">
+              <div class="slds-page-header__name-title">
+                <h1>
+                  <span class="slds-page-header__title slds-truncate">PACE Renewal Compliance Validator</span>
+                </h1>
+              </div>
+            </div>
+            <p class="slds-page-header__name-meta">Validate renewal + red account records against PACE Attrition Hashtag Guidance</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Section -->
+  <div class="slds-card slds-m-bottom_medium">
+    <div class="slds-card__header slds-grid">
+      <header class="slds-media slds-media_center slds-has-flexi-truncate">
+        <div class="slds-media__body">
+          <h2 class="slds-card__header-title">
+            <span class="slds-text-heading_small">Renewal Opportunity</span>
+            <span class="slds-badge slds-badge_inverse slds-m-left_x-small">Required</span>
+          </h2>
+        </div>
+      </header>
+    </div>
+    <div class="slds-card__body slds-card__body_inner">
+      <div class="slds-grid slds-wrap slds-gutters_small">
+        <div class="slds-col slds-size_1-of-2 slds-small-size_1-of-1 field-group">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="accountName">Account Name</label>
+            <div class="slds-form-element__control">
+              <input type="text" id="accountName" class="slds-input" placeholder="e.g. Acme Corp">
+            </div>
+          </div>
+        </div>
+        <div class="slds-col slds-size_1-of-2 slds-small-size_1-of-1 field-group">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="ownerName">CSM Owner</label>
+            <div class="slds-form-element__control">
+              <input type="text" id="ownerName" class="slds-input" placeholder="e.g. Jane Doe">
+            </div>
+          </div>
+        </div>
+        <div class="slds-col slds-size_1-of-2 slds-small-size_1-of-1 field-group">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="stageName">Stage</label>
+            <div class="slds-form-element__control">
+              <select id="stageName" class="slds-select">
+                <option value="">-- Select --</option>
+                <option value="Open">Open</option>
+                <option value="Commit">Commit</option>
+                <option value="Best Case">Best Case</option>
+                <option value="Closed Won">Closed Won</option>
+                <option value="Closed Lost">Closed Lost</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="slds-col slds-size_1-of-2 slds-small-size_1-of-1 field-group">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="closeDate">Close Date</label>
+            <div class="slds-form-element__control">
+              <input type="date" id="closeDate" class="slds-input">
+            </div>
+          </div>
+        </div>
+        <div class="slds-col slds-size_1-of-2 slds-small-size_1-of-1 field-group">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="premierAttached">Premier/Signature Attached?</label>
+            <div class="slds-form-element__control">
+              <select id="premierAttached" class="slds-select">
+                <option value="">-- Select --</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="slds-col slds-size_1-of-2 slds-small-size_1-of-1 field-group">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="forecastedAttrition">Forecasted Attrition ($)</label>
+            <div class="slds-form-element__control">
+              <input type="text" id="forecastedAttrition" class="slds-input" placeholder="e.g. 450000">
+            </div>
+          </div>
+        </div>
+        <div class="slds-col slds-size_1-of-2 slds-small-size_1-of-1 field-group">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="targetedClouds">Targeted Clouds</label>
+            <div class="slds-form-element__control">
+              <input type="text" id="targetedClouds" class="slds-input" placeholder="e.g. Commerce Cloud, Service Cloud">
+            </div>
+          </div>
+        </div>
+        <div class="slds-col slds-size_1-of-2 slds-small-size_1-of-1 field-group">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="attritionReason">Attrition Reason</label>
+            <div class="slds-form-element__control">
+              <input type="text" id="attritionReason" class="slds-input" placeholder="e.g. Customer Relationship">
+            </div>
+          </div>
+        </div>
+        <div class="slds-col slds-size_1-of-1 field-group">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="csgNotes">CSG Notes (full text)</label>
+            <div class="slds-form-element__control">
+              <textarea id="csgNotes" class="slds-textarea" rows="4" placeholder="Paste the CSG Notes field here. Example: 6/1/26 Jane Doe #LicNoAttrit #NoSigRisk, no shelfware, Success Plan created"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Red Account Section -->
+  <div class="slds-card slds-m-bottom_medium">
+    <div class="slds-card__header slds-grid">
+      <header class="slds-media slds-media_center slds-has-flexi-truncate">
+        <div class="slds-media__body">
+          <h2 class="slds-card__header-title">
+            <span class="slds-text-heading_small">Red Account</span>
+            <span class="slds-badge slds-m-left_x-small">Optional</span>
+          </h2>
+        </div>
+      </header>
+    </div>
+    <div class="slds-card__body slds-card__body_inner">
+      <div class="slds-grid slds-wrap slds-gutters_small">
+        <div class="slds-col slds-size_1-of-2 slds-small-size_1-of-1 field-group">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="redStage">Red Account Stage</label>
+            <div class="slds-form-element__control">
+              <select id="redStage" class="slds-select">
+                <option value="">-- No Red Account --</option>
+                <option value="Open">Open</option>
+                <option value="Closed - Resolved">Closed - Resolved</option>
+                <option value="Closed - Unresolved">Closed - Unresolved</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="slds-col slds-size_1-of-2 slds-small-size_1-of-1 field-group">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="redAttrition">Red Acct Forecasted Attrition ($)</label>
+            <div class="slds-form-element__control">
+              <input type="text" id="redAttrition" class="slds-input" placeholder="e.g. 450000">
+            </div>
+          </div>
+        </div>
+        <div class="slds-col slds-size_1-of-1 field-group">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="ecommHeadline">ECOMM Headline</label>
+            <div class="slds-form-element__control">
+              <textarea id="ecommHeadline" class="slds-textarea" rows="2" placeholder="e.g. #SIGTRIAL #ADOPT - Customer exploring competitive alternatives"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="slds-col slds-size_1-of-1 field-group">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="latestUpdate">Latest Update</label>
+            <div class="slds-form-element__control">
+              <textarea id="latestUpdate" class="slds-textarea" rows="2" placeholder="Play status history..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="slds-col slds-size_1-of-2 slds-small-size_1-of-1 field-group">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="competitor">Primary Competitor</label>
+            <div class="slds-form-element__control">
+              <input type="text" id="competitor" class="slds-input" placeholder="e.g. Shopify">
+            </div>
+          </div>
+        </div>
+        <div class="slds-col slds-size_1-of-2 slds-small-size_1-of-1 field-group">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label" for="apmL1">APM L1</label>
+            <div class="slds-form-element__control">
+              <input type="text" id="apmL1" class="slds-input" placeholder="e.g. Commerce">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Bar -->
+  <div class="slds-m-bottom_medium">
+    <button class="slds-button slds-button_brand" onclick="runValidation()">Validate Compliance</button>
+    <button class="slds-button slds-button_neutral slds-m-left_small" onclick="clearAll()">Clear All</button>
+    <button class="slds-button slds-button_neutral slds-m-left_small" onclick="loadSample()">Load Sample Data</button>
+  </div>
+
+  <!-- Results -->
+  <div class="results-container" id="resultsContainer">
+    <div class="slds-card slds-m-bottom_medium">
+      <div class="slds-card__header slds-grid">
+        <header class="slds-media slds-media_center slds-has-flexi-truncate">
+          <div class="slds-media__body">
+            <h2 class="slds-card__header-title">
+              <span class="slds-text-heading_small">Validation Results</span>
+              <span class="score-badge slds-m-left_small" id="overallBadge"></span>
+            </h2>
+          </div>
+        </header>
+      </div>
+      <div class="slds-card__body slds-card__body_inner">
+        <!-- Summary counters -->
+        <div class="summary-grid" id="summaryGrid"></div>
+        <!-- Record strip -->
+        <div class="slds-box slds-m-bottom_medium" id="recordStrip" style="background:#f3f3f3;"></div>
+        <!-- Findings -->
+        <div id="findingsArea"></div>
+      </div>
+    </div>
+
+    <!-- Coaching Email -->
+    <div class="slds-card">
+      <div class="slds-card__header slds-grid">
+        <header class="slds-media slds-media_center slds-has-flexi-truncate">
+          <div class="slds-media__body">
+            <h2 class="slds-card__header-title">
+              <span class="slds-text-heading_small">Coaching Email Draft</span>
+            </h2>
+          </div>
+          <div class="slds-no-flex">
+            <button class="slds-button slds-button_neutral" onclick="copyEmail()">Copy to Clipboard</button>
+          </div>
+        </header>
+      </div>
+      <div class="slds-card__body slds-card__body_inner">
+        <pre id="emailDraft" style="white-space:pre-wrap; font-size:0.85rem; line-height:1.6; font-family:inherit;"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PLAY_HASHTAGS = ['#SIGTRIAL', '#ARI', '#SWAP', '#IMPLEMENT', '#ADOPT', '#RFP', '#REVIVE'];
+const SIG_TAGS = ['#SigRisk', '#NoSigRisk'];
+const LIC_TAGS = ['#LicNoAttrit', '#LicPartialAttrit', '#LicFullAttrit'];
+const AF_TAGS = ['#AFAttrit', '#AfNoRisk'];
+const D360_TAGS = ['#D360Attrit', '#D360NoRisk'];
+const PBI_TAG = '#PBI';
+
+function parseCsgNotes(text) {
+  const t = text.trim();
+  const hashtags = (t.match(/#[A-Za-z0-9_]+/g) || []).map(h => h);
+  const hasDate = /\d{1,2}\/\d{1,2}\/\d{2,4}/.test(t);
+  const hasDollar = /\$[\d,.]+|est\.?\s*\$?[\d,.]+/i.test(t);
+  return { text: t, hashtags, hasDate, hasDollar };
+}
+
+function containsAny(arr, targets) {
+  return targets.some(t => arr.some(h => h.toLowerCase() === t.toLowerCase()));
+}
+
+function findMatching(arr, targets) {
+  return arr.filter(h => targets.some(t => h.toLowerCase() === t.toLowerCase()));
+}
+
+function runValidation() {
+  const data = {
+    accountName: document.getElementById('accountName').value.trim(),
+    ownerName: document.getElementById('ownerName').value.trim(),
+    stageName: document.getElementById('stageName').value,
+    closeDate: document.getElementById('closeDate').value,
+    premierAttached: document.getElementById('premierAttached').value,
+    forecastedAttrition: document.getElementById('forecastedAttrition').value.trim(),
+    targetedClouds: document.getElementById('targetedClouds').value.trim(),
+    attritionReason: document.getElementById('attritionReason').value.trim(),
+    csgNotes: document.getElementById('csgNotes').value.trim(),
+    redStage: document.getElementById('redStage').value,
+    redAttrition: document.getElementById('redAttrition').value.trim(),
+    ecommHeadline: document.getElementById('ecommHeadline').value.trim(),
+    latestUpdate: document.getElementById('latestUpdate').value.trim(),
+    competitor: document.getElementById('competitor').value.trim(),
+    apmL1: document.getElementById('apmL1').value.trim(),
+  };
+
+  const findings = buildFindings(data);
+  renderResults(data, findings);
+}
+
+function buildFindings(data) {
+  const findings = [];
+  const csg = parseCsgNotes(data.csgNotes);
+  const hasRed = data.redStage !== '';
+  const isPremier = data.premierAttached === 'Yes';
+  const clouds = data.targetedClouds.toLowerCase();
+  const hasAF = clouds.includes('agentforce') || clouds.includes('agent');
+  const hasD360 = clouds.includes('data cloud') || clouds.includes('d360') || clouds.includes('data 360');
+  const hasTableau = clouds.includes('tableau');
+
+  // === CRITICAL CHECKS ===
+
+  // 1. CSG Notes empty
+  if (!data.csgNotes) {
+    findings.push({ severity: 'critical', title: 'CSG Notes are empty', category: 'Renewal', found: 'No CSG Notes content found on the renewal opportunity.', fix: 'Add CSG Notes following format: (Date) (CSM Name) (#Hashtag) (Short comment). This is required for all PACE renewals.' });
+  } else {
+    // 2. Date format check
+    if (!csg.hasDate) {
+      findings.push({ severity: 'critical', title: 'CSG Notes missing date stamp', category: 'Format', found: 'No date found in CSG Notes. Required format starts with date.', fix: 'Add date at the beginning of the note, e.g. "6/1/26 Jane Doe #LicNoAttrit..."' });
+    }
+
+    // 3. Signature hashtag check (if Premier attached)
+    if (isPremier) {
+      if (!containsAny(csg.hashtags, SIG_TAGS)) {
+        findings.push({ severity: 'critical', title: 'Missing Signature risk hashtag', category: 'Hashtag', found: 'Premier/Signature is attached but CSG Notes contain neither #SigRisk nor #NoSigRisk.', fix: 'Add #SigRisk (if attrition risk exists) or #NoSigRisk (if Signature expected to renew in full).' });
+      }
+    }
+
+    // 4. License hashtag check
+    if (!containsAny(csg.hashtags, LIC_TAGS)) {
+      findings.push({ severity: 'critical', title: 'Missing license attrition hashtag', category: 'Hashtag', found: 'CSG Notes do not contain #LicNoAttrit, #LicPartialAttrit, or #LicFullAttrit.', fix: 'Every license renewal must include one of: #LicNoAttrit (no known attrition), #LicPartialAttrit (partial), or #LicFullAttrit (full attrition).' });
+    }
+
+    // 5. Attrition amount when risk indicated
+    if (containsAny(csg.hashtags, ['#SigRisk', '#LicPartialAttrit', '#LicFullAttrit'])) {
+      if (!csg.hasDollar) {
+        findings.push({ severity: 'critical', title: 'Attrition risk tagged but no $ amount stated', category: 'Content', found: 'Risk hashtag found but no estimated attrition dollar amount in CSG Notes.', fix: 'When risk is indicated, state estimated attrition amount, e.g. "est. $450K attrition; implementation issues"' });
+      }
+    }
+  }
+
+  // 6. Red Account ↔ #RA cross-check
+  if (hasRed && data.csgNotes && !containsAny(csg.hashtags, ['#RA'])) {
+    findings.push({ severity: 'critical', title: 'Red Account exists but #RA missing from CSG Notes', category: 'Cross-Record', found: 'A Red Account is associated but the renewal CSG Notes do not contain #RA.', fix: 'Add #RA to CSG Notes with a shortened link to the Red Account. Use the custom button to build the link, e.g. "#RA GMRed"' });
+  }
+  if (!hasRed && data.csgNotes && containsAny(csg.hashtags, ['#RA'])) {
+    findings.push({ severity: 'warning', title: '#RA in CSG Notes but no Red Account provided', category: 'Cross-Record', found: 'CSG Notes reference #RA but no Red Account data was entered for validation.', fix: 'Either enter the Red Account details above, or verify the #RA reference is still valid and the Red hasn\'t been closed.' });
+  }
+
+  // === WARNING CHECKS ===
+
+  // 7. AF/D360 hashtag check
+  if (hasAF && data.csgNotes && !containsAny(csg.hashtags, AF_TAGS)) {
+    findings.push({ severity: 'warning', title: 'Agentforce in scope but no AF hashtag', category: 'Hashtag', found: 'Targeted Clouds include Agentforce but CSG Notes have neither #AFAttrit nor #AfNoRisk.', fix: 'Add #AFAttrit (if AF attrition risk) or #AfNoRisk (if AF expected to renew in full).' });
+  }
+  if (hasD360 && data.csgNotes && !containsAny(csg.hashtags, D360_TAGS)) {
+    findings.push({ severity: 'warning', title: 'Data Cloud in scope but no D360 hashtag', category: 'Hashtag', found: 'Targeted Clouds include Data Cloud but CSG Notes have neither #D360Attrit nor #D360NoRisk.', fix: 'Add #D360Attrit (if Data Cloud attrition risk) or #D360NoRisk (if D360 expected to renew in full).' });
+  }
+  if (hasTableau && data.csgNotes && !containsAny(csg.hashtags, [PBI_TAG])) {
+    findings.push({ severity: 'info', title: 'Tableau in scope — consider #PBI if Power BI compete', category: 'Hashtag', found: 'Targeted Clouds include Tableau but no #PBI hashtag found.', fix: 'If there is a Power BI competitive situation, add #PBI to flag Tableau risk.' });
+  }
+
+  // 8. Red Account field checks
+  if (hasRed) {
+    if (!data.ecommHeadline) {
+      findings.push({ severity: 'warning', title: 'ECOMM Headline is empty', category: 'Red Account', found: 'The ECOMM Headline field on the Red Account is blank.', fix: 'Populate ECOMM Headline with active play hashtags (e.g. #SIGTRIAL, #ARI, #SWAP). Reporting is built from this field.' });
+    } else {
+      const headlineHashtags = (data.ecommHeadline.match(/#[A-Za-z0-9_]+/g) || []);
+      if (!headlineHashtags.some(h => PLAY_HASHTAGS.some(p => p.toLowerCase() === h.toLowerCase()))) {
+        findings.push({ severity: 'warning', title: 'ECOMM Headline has no recognized play hashtag', category: 'Red Account', found: `ECOMM Headline: "${data.ecommHeadline}" — no play hashtags (${PLAY_HASHTAGS.join(', ')}) detected.`, fix: 'Add the appropriate play hashtag(s) to the ECOMM Headline. These drive attrition play reporting.' });
+      }
+    }
+
+    if (!data.competitor) {
+      findings.push({ severity: 'warning', title: 'Primary Competitor not populated', category: 'Red Account', found: 'The Primary Competitor field is empty on the Red Account.', fix: 'Enter any known competitor. This identifies the specific threat so teams can craft the right defensive play.' });
+    }
+
+    if (!data.apmL1) {
+      findings.push({ severity: 'warning', title: 'APM L1 not populated', category: 'Red Account', found: 'APM Level 1 product details are missing from the Red Account.', fix: 'Populate APM L1 to identify exactly which cloud/product is at risk. For Agentforce/Data Cloud, select "AI & Data".' });
+    } else if ((hasAF || hasD360) && !data.apmL1.toLowerCase().includes('ai') && !data.apmL1.toLowerCase().includes('data')) {
+      findings.push({ severity: 'warning', title: 'APM L1 may not match AF/D360 scope', category: 'Red Account', found: `APM L1 is "${data.apmL1}" but renewal targets Agentforce/Data Cloud. Expected "AI & Data".`, fix: 'For Agentforce and Data Cloud risks, APM L1 should be "AI & Data". Use L2/L3 to specify the product.' });
+    }
+
+    // Attrition consistency
+    if (data.forecastedAttrition && data.redAttrition) {
+      const renewalAmt = parseFloat(data.forecastedAttrition.replace(/[^0-9.]/g, ''));
+      const redAmt = parseFloat(data.redAttrition.replace(/[^0-9.]/g, ''));
+      if (!isNaN(renewalAmt) && !isNaN(redAmt) && Math.abs(renewalAmt - redAmt) > renewalAmt * 0.1) {
+        findings.push({ severity: 'warning', title: 'Attrition amounts differ > 10% between records', category: 'Cross-Record', found: `Renewal forecasted attrition: $${renewalAmt.toLocaleString()} vs Red Account: $${redAmt.toLocaleString()}`, fix: 'Ensure the forecasted attrition is consistent between the Renewal Opportunity and Red Account. Update whichever is out of date.' });
+      }
+    }
+
+    if (!data.latestUpdate) {
+      findings.push({ severity: 'info', title: 'Latest Update field is empty', category: 'Red Account', found: 'No play status history found in Latest Update.', fix: 'Keep history of plays — submitted, active, rejected. This is where process-related status lives.' });
+    }
+  }
+
+  // === INFO CHECKS ===
+  if (data.csgNotes && !data.ownerName) {
+    findings.push({ severity: 'info', title: 'CSM Owner not entered', category: 'Metadata', found: 'Owner name was not provided for validation.', fix: 'Enter the CSM owner name to verify it matches the name in CSG Notes.' });
+  } else if (data.csgNotes && data.ownerName && !data.csgNotes.toLowerCase().includes(data.ownerName.split(' ').pop().toLowerCase())) {
+    findings.push({ severity: 'info', title: 'CSM name may not match CSG Notes author', category: 'Format', found: `Owner "${data.ownerName}" — last name not found in CSG Notes text.`, fix: 'CSG Notes format requires the CSM name after the date. Verify the correct CSM is noted.' });
+  }
+
+  // === PASSED CHECKS ===
+  if (data.csgNotes && csg.hasDate) {
+    findings.push({ severity: 'passed', title: 'CSG Notes date format correct', category: 'Format', found: 'Date stamp detected in CSG Notes.', fix: '' });
+  }
+  if (data.csgNotes && containsAny(csg.hashtags, LIC_TAGS)) {
+    findings.push({ severity: 'passed', title: 'License attrition hashtag present', category: 'Hashtag', found: `Found: ${findMatching(csg.hashtags, LIC_TAGS).join(', ')}`, fix: '' });
+  }
+  if (isPremier && data.csgNotes && containsAny(csg.hashtags, SIG_TAGS)) {
+    findings.push({ severity: 'passed', title: 'Signature risk hashtag present', category: 'Hashtag', found: `Found: ${findMatching(csg.hashtags, SIG_TAGS).join(', ')}`, fix: '' });
+  }
+  if (hasRed && data.csgNotes && containsAny(csg.hashtags, ['#RA'])) {
+    findings.push({ severity: 'passed', title: '#RA links renewal to Red Account', category: 'Cross-Record', found: '#RA hashtag found in CSG Notes.', fix: '' });
+  }
+  if (hasAF && data.csgNotes && containsAny(csg.hashtags, AF_TAGS)) {
+    findings.push({ severity: 'passed', title: 'Agentforce hashtag present', category: 'Hashtag', found: `Found: ${findMatching(csg.hashtags, AF_TAGS).join(', ')}`, fix: '' });
+  }
+  if (hasD360 && data.csgNotes && containsAny(csg.hashtags, D360_TAGS)) {
+    findings.push({ severity: 'passed', title: 'Data Cloud hashtag present', category: 'Hashtag', found: `Found: ${findMatching(csg.hashtags, D360_TAGS).join(', ')}`, fix: '' });
+  }
+
+  return findings;
+}
+
+function renderResults(data, findings) {
+  const container = document.getElementById('resultsContainer');
+  container.classList.add('active');
+
+  // Counts
+  const counts = { critical: 0, warning: 0, info: 0, passed: 0 };
+  findings.forEach(f => counts[f.severity]++);
+
+  // Overall badge
+  const badge = document.getElementById('overallBadge');
+  if (counts.critical > 0) {
+    badge.textContent = 'NEEDS ATTENTION';
+    badge.className = 'score-badge needs-attention slds-m-left_small';
+  } else if (counts.warning > 0) {
+    badge.textContent = 'MINOR ISSUES';
+    badge.className = 'score-badge minor-issues slds-m-left_small';
+  } else {
+    badge.textContent = 'COMPLIANT';
+    badge.className = 'score-badge compliant slds-m-left_small';
+  }
+
+  // Summary grid
+  document.getElementById('summaryGrid').innerHTML = `
+    <div class="summary-tile critical"><div class="summary-count">${counts.critical}</div><div class="summary-label">Critical</div></div>
+    <div class="summary-tile warning"><div class="summary-count">${counts.warning}</div><div class="summary-label">Warning</div></div>
+    <div class="summary-tile info"><div class="summary-count">${counts.info}</div><div class="summary-label">Info</div></div>
+    <div class="summary-tile passed"><div class="summary-count">${counts.passed}</div><div class="summary-label">Passed</div></div>
+  `;
+
+  // Record strip
+  document.getElementById('recordStrip').innerHTML = `
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:0.5rem; font-size:0.8rem;">
+      <div><strong>Account:</strong> ${data.accountName || '—'}</div>
+      <div><strong>Owner:</strong> ${data.ownerName || '—'}</div>
+      <div><strong>Stage:</strong> ${data.stageName || '—'}</div>
+      <div><strong>Close:</strong> ${data.closeDate || '—'}</div>
+      <div><strong>Attrition:</strong> ${data.forecastedAttrition ? '$' + parseInt(data.forecastedAttrition).toLocaleString() : '—'}</div>
+      <div><strong>Premier:</strong> ${data.premierAttached || '—'}</div>
+      <div><strong>Clouds:</strong> ${data.targetedClouds || '—'}</div>
+      <div><strong>Red Acct:</strong> ${data.redStage || 'None'}</div>
+    </div>
+    <div style="margin-top:0.5rem; font-size:0.75rem; color:#706e6b;"><strong>CSG Notes:</strong> ${data.csgNotes || '(empty)'}</div>
+  `;
+
+  // Findings
+  const severityOrder = ['critical', 'warning', 'info', 'passed'];
+  const icons = { critical: '🔴', warning: '🟠', info: '🔵', passed: '✅' };
+  let html = '';
+  for (const sev of severityOrder) {
+    const group = findings.filter(f => f.severity === sev);
+    if (group.length === 0) continue;
+    html += `<div class="slds-m-bottom_small"><h3 class="slds-text-title_caps slds-m-bottom_x-small">${icons[sev]} ${sev} (${group.length})</h3>`;
+    for (const f of group) {
+      html += `<div class="slds-box finding-card ${sev} slds-m-bottom_x-small">
+        <div style="font-weight:700; font-size:0.85rem;">${f.title}</div>
+        <div style="font-size:0.75rem; color:#706e6b; margin-top:0.15rem;">Category: ${f.category}</div>
+        <div style="font-size:0.8rem; margin-top:0.4rem;">${f.found}</div>
+        ${f.fix ? `<div class="fix-box"><div class="fix-label">Recommended Fix</div>${f.fix}</div>` : ''}
+      </div>`;
+    }
+    html += '</div>';
+  }
+  document.getElementById('findingsArea').innerHTML = html;
+
+  // Coaching email
+  const criticalFindings = findings.filter(f => f.severity === 'critical');
+  const warningFindings = findings.filter(f => f.severity === 'warning');
+  let email = `Hi ${data.ownerName || '[CSM Name]'},\n\n`;
+  email += `I ran a compliance check on the ${data.accountName || '[Account]'} renewal and wanted to flag a few items before your next deal review.\n\n`;
+  if (criticalFindings.length > 0) {
+    email += `MUST FIX (${criticalFindings.length}):\n`;
+    criticalFindings.forEach((f, i) => { email += `${i+1}. ${f.title} — ${f.fix}\n`; });
+    email += '\n';
+  }
+  if (warningFindings.length > 0) {
+    email += `SHOULD FIX (${warningFindings.length}):\n`;
+    warningFindings.forEach((f, i) => { email += `${i+1}. ${f.title} — ${f.fix}\n`; });
+    email += '\n';
+  }
+  if (criticalFindings.length === 0 && warningFindings.length === 0) {
+    email += `Great news — the record looks compliant! No critical or warning issues found.\n\n`;
+  }
+  email += `Let me know if you have questions or need help updating the record.\n\nBest,\n[Your Name]`;
+  document.getElementById('emailDraft').textContent = email;
+
+  container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function clearAll() {
+  document.querySelectorAll('input, textarea, select').forEach(el => {
+    if (el.type === 'select-one') el.selectedIndex = 0;
+    else el.value = '';
+  });
+  document.getElementById('resultsContainer').classList.remove('active');
+}
+
+function loadSample() {
+  document.getElementById('accountName').value = 'Global Retail Inc';
+  document.getElementById('ownerName').value = 'Jane Doe';
+  document.getElementById('stageName').value = 'Open';
+  document.getElementById('closeDate').value = '2026-09-15';
+  document.getElementById('premierAttached').value = 'Yes';
+  document.getElementById('forecastedAttrition').value = '450000';
+  document.getElementById('targetedClouds').value = 'Commerce Cloud, Agentforce';
+  document.getElementById('attritionReason').value = 'Customer Relationship';
+  document.getElementById('csgNotes').value = '6/1/26 Jane Doe #LicPartialAttrit #SigRisk est. $450K attrition; implementation issues, Signature value unclear to new CIO';
+  document.getElementById('redStage').value = 'Open';
+  document.getElementById('redAttrition').value = '500000';
+  document.getElementById('ecommHeadline').value = '#SIGTRIAL - exploring competitive alternatives';
+  document.getElementById('latestUpdate').value = '6/1/26 - SIGTRIAL submitted, pending approval. ARI nomination in progress.';
+  document.getElementById('competitor').value = 'Shopify';
+  document.getElementById('apmL1').value = 'Commerce';
+}
+
+function copyEmail() {
+  const text = document.getElementById('emailDraft').textContent;
+  navigator.clipboard.writeText(text).then(() => alert('Email copied to clipboard!'));
+}
+</script>
+</body>
+</html>

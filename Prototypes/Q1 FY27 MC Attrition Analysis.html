@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q1 FY27 Marketing Cloud — Attrition Analysis</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f6f9; color: #1a1a2e; min-height: 100vh; line-height: 1.5; }
+
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 32px 40px 16px; }
+  .header h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+  .header p { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+  .header-meta { display: flex; gap: 24px; margin-top: 14px; flex-wrap: wrap; }
+  .header-meta-item { font-size: 12px; opacity: 0.85; background: rgba(255,255,255,0.08); padding: 4px 12px; border-radius: 12px; }
+
+  .tab-bar { position: sticky; top: 0; z-index: 100; background: #1a1a2e; padding: 0 40px; display: flex; gap: 0; overflow-x: auto; border-bottom: 2px solid #0f3460; }
+  .tab-btn { padding: 12px 18px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.6); background: none; border: none; cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; transition: all 0.2s; }
+  .tab-btn:hover { color: rgba(255,255,255,0.9); }
+  .tab-btn.active { color: white; border-bottom-color: #4299e1; }
+  .tab-btn .tab-count { font-size: 10px; background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 8px; margin-left: 6px; }
+  .tab-btn.active .tab-count { background: rgba(66,153,225,0.3); }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 28px 40px 60px; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+  @media (max-width: 700px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+  .metric-card { background: white; border-radius: 10px; padding: 18px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-top: 3px solid; }
+  .metric-card.red { border-color: #e53e3e; }
+  .metric-card.orange { border-color: #ed8936; }
+  .metric-card.blue { border-color: #4299e1; }
+  .metric-card.green { border-color: #38a169; }
+  .metric-card.purple { border-color: #805ad5; }
+  .metric-value { font-size: 28px; font-weight: 800; color: #1a202c; }
+  .metric-label { font-size: 11px; color: #718096; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .section { margin-bottom: 32px; }
+  .section-header { font-size: 15px; font-weight: 700; color: #1a202c; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+  .section-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 10px; }
+  .badge-red { background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2; }
+  .badge-orange { background: #fffaf0; color: #dd6b20; border: 1px solid #fbd38d; }
+  .badge-blue { background: #ebf8ff; color: #3182ce; border: 1px solid #bee3f8; }
+  .badge-green { background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4; }
+  .badge-purple { background: #faf5ff; color: #805ad5; border: 1px solid #d6bcfa; }
+
+  .sub-section { margin-top: 28px; padding-top: 20px; border-top: 1px solid #edf2f7; }
+  .sub-section:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+  .sub-header { font-size: 13px; font-weight: 700; color: #4a5568; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+  .record-card { background: white; border-radius: 10px; padding: 18px 20px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid #e2e8f0; }
+  .record-card.logo-loss { border-left-color: #e53e3e; }
+  .record-card.partial-save { border-left-color: #ed8936; }
+  .record-card.sp-downgrade { border-left-color: #805ad5; }
+  .record-card.not-actionable { border-left-color: #a0aec0; }
+
+  .record-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+  .record-title { font-size: 14px; font-weight: 700; color: #1a202c; }
+  .record-amount { font-size: 14px; font-weight: 700; color: #e53e3e; }
+  .record-meta { font-size: 12px; color: #718096; margin-bottom: 8px; line-height: 1.6; }
+  .record-finding { font-size: 13px; color: #4a5568; line-height: 1.6; }
+  .record-finding strong { color: #1a202c; }
+
+  .org62-link { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: #3182ce; text-decoration: none; padding: 3px 10px; background: #ebf8ff; border-radius: 12px; border: 1px solid #bee3f8; transition: all 0.15s; }
+  .org62-link:hover { background: #bee3f8; color: #2c5282; }
+  .org62-link.ra { color: #805ad5; background: #faf5ff; border-color: #d6bcfa; }
+  .org62-link.ra:hover { background: #e9d8fd; color: #553c9a; }
+
+  .links-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+  .insight-box { background: #fffaf0; border: 1px solid #fbd38d; border-radius: 10px; padding: 14px 18px; margin-bottom: 14px; }
+  .insight-box.critical { background: #fff5f5; border-color: #feb2b2; }
+  .insight-box.info { background: #ebf8ff; border-color: #bee3f8; }
+  .insight-label { font-size: 10px; font-weight: 700; color: #dd6b20; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .insight-box.critical .insight-label { color: #e53e3e; }
+  .insight-box.info .insight-label { color: #3182ce; }
+  .insight-text { font-size: 13px; color: #4a5568; line-height: 1.6; }
+
+  .compliance-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .compliance-table th { text-align: left; font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 10px; border-bottom: 2px solid #e2e8f0; }
+  .compliance-table td { padding: 8px 10px; border-bottom: 1px solid #f7fafc; vertical-align: top; }
+  .compliance-table tr:hover { background: #f7fafc; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .status-dot.pass { background: #38a169; }
+  .status-dot.fail { background: #e53e3e; }
+
+  .footer { text-align: center; font-size: 11px; color: #a0aec0; margin-top: 40px; padding-top: 20px; border-top: 1px solid #edf2f7; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Q1 FY27 Marketing Cloud — Attrition Analysis</h1>
+  <p>Win/Loss Workflow Classification &bull; PACE AMER Portfolio</p>
+  <div class="header-meta">
+    <span class="header-meta-item">Period: Feb – Apr 2026</span>
+    <span class="header-meta-item">Cloud: MC ExactTarget / Pardot / Datorama</span>
+    <span class="header-meta-item">Threshold: Attrition &ge; $100K</span>
+    <span class="header-meta-item">Records: 31</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('summary')">Summary</button>
+  <button class="tab-btn" onclick="showTab('notact')">Not Actionable<span class="tab-count">10</span></button>
+  <button class="tab-btn" onclick="showTab('wins')">Wins<span class="tab-count">0</span></button>
+  <button class="tab-btn" onclick="showTab('losses')">Losses<span class="tab-count">21</span></button>
+  <button class="tab-btn" onclick="showTab('compliance')">#Compliance</button>
+  <button class="tab-btn" onclick="showTab('method')">Methodology</button>
+</div>
+
+<div class="container">
+
+<!-- TAB: SUMMARY -->
+<div id="tab-summary" class="tab-panel active">
+  <div class="summary-grid">
+    <div class="metric-card red"><div class="metric-value">$14.6M</div><div class="metric-label">Total Attrition</div></div>
+    <div class="metric-card orange"><div class="metric-value">21</div><div class="metric-label">Actionable</div></div>
+    <div class="metric-card blue"><div class="metric-value">10</div><div class="metric-label">Not Actionable</div></div>
+    <div class="metric-card green"><div class="metric-value">0</div><div class="metric-label">Wins ($0 Attrit)</div></div>
+  </div>
+  <div class="summary-grid">
+    <div class="metric-card red"><div class="metric-value">7</div><div class="metric-label">Logo Losses</div></div>
+    <div class="metric-card orange"><div class="metric-value">14</div><div class="metric-label">Partial Saves</div></div>
+    <div class="metric-card purple"><div class="metric-value">0</div><div class="metric-label">SP Downgrades</div></div>
+    <div class="metric-card blue"><div class="metric-value">10%</div><div class="metric-label">Compliance Rate</div></div>
+  </div>
+  <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; margin-bottom:28px;">
+    <div style="flex:1; min-width:320px;">
+      <div style="background:white; border-radius:12px; padding:22px 26px; box-shadow:0 1px 4px rgba(0,0,0,0.07); border-left:4px solid #1a1a2e;">
+        <div style="font-size:13px; font-weight:700; color:#1a1a2e; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:14px;">Key Insights</div>
+        <ul style="list-style:none; padding:0; margin:0; font-size:14px; color:#2d3748; line-height:2.2;">
+          <li><strong>31 Customers</strong> &gt;$100K attrition</li>
+          <li><strong>68%</strong> of Q1 attrition (Actionable)</li>
+          <li><strong>$14.6M Lost</strong> | <strong>$17.1M Retained</strong></li>
+          <li><strong>12 Logos Lost</strong> | <strong>19 Logos Retained</strong></li>
+          <li><strong>$1.3M</strong> in off-cycle KMODs</li>
+        </ul>
+      </div>
+    </div>
+    <div style="flex:1; min-width:320px;">
+      <div style="background:white; border-radius:12px; padding:22px 26px; box-shadow:0 1px 4px rgba(0,0,0,0.07); border-left:4px solid #4299e1;">
+        <div style="font-size:13px; font-weight:700; color:#4299e1; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:14px;">Additional Context</div>
+        <ul style="list-style:none; padding:0; margin:0; font-size:14px; color:#2d3748; line-height:2.2;">
+          <li><strong>21 Customers</strong> had &gt;$100K Forecasted that netted $0. Peak <strong>-$9.8M</strong> forecast.</li>
+          <li>Reduction in <strong>SuperMessages &amp; SMS</strong></li>
+          <li>Swap MC+ &amp; DC to offset attrition</li>
+          <li>Competitors: <strong>Klaviyo, Fishbowl</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="insight-box critical"><div class="insight-label">Zero Wins</div><div class="insight-text">Per the workflow diagram (Win = $0 Attrit final), no Marketing Cloud attrition event in Q1 FY27 was fully eliminated. Every actionable record resulted in a Loss.</div></div>
+  <div class="insight-box critical"><div class="insight-label">Data Quality Crisis</div><div class="insight-text">Only 3/31 records (10%) are fully compliant with PACE hashtag guidance. 12 records have completely empty CSG Notes. On the Red Account side, only 5 of 31 accounts have a valid offense hashtag in any active ECOMM Headline.</div></div>
+  <div class="insight-box info"><div class="insight-label">Fossil Group Dominates</div><div class="insight-text">Fossil Group alone represents $3.7M (26% of total attrition) — the single largest MC attrition event in Q1 FY27. Combined with Bath &amp; Body Works MC ($1.66M), Landry's ($954K), and JM Family ($916K), the top 4 accounts drive 50% of total attrition.</div></div>
+</div>
+
+<!-- TAB: NOT ACTIONABLE -->
+<div id="tab-notact" class="tab-panel">
+  <div class="section-header">Not Actionable <span class="section-badge badge-blue">10 records &bull; $4.4M</span></div>
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Bath &amp; Body Works, Inc. (MC ExactTarget)</span><span class="record-amount">-$1,662,247</span></div><div class="record-meta">Owner: Eric Askew &bull; Close: Apr 20, 2026 &bull; Prior: $6.36M &bull; New: $0</div><div class="record-finding"><strong>Reason:</strong> "Non-savable (AE confirmed)." Strategic vol reduction 30-32% YoY. TLP Stack 7 trust incident.<br><strong>Red Account:</strong> Precautionary + Lost ("#ADOPT #ARI #SWAP").<br><strong>Compliance:</strong> COMPLIANT — #LicFullAttrit, #NoSigRisk, date, $, #RA with URL.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Zhh7CAAR/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000007UcTEAU/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Phoenix BNBS Fashion, LLC</span><span class="record-amount">-$512,544</span></div><div class="record-meta">Owner: Rachel Cutrell &bull; Close: Mar 6, 2026 &bull; Stage: Dead Attrition</div><div class="record-finding"><strong>Reason:</strong> "#nonactionable." CTO and VP IT departed. Notice of non-renewal.<br><strong>Compliance:</strong> NON-COMPLIANT — #fullattrit invalid; #nonactionable invalid; missing sig.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000A60naAAB/view" class="org62-link" target="_blank">Renewal</a></div></div>
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Otter Products, LLC</span><span class="record-amount">-$502,095</span></div><div class="record-meta">Owner: John Boone (Advisory) &bull; Close: Feb 7, 2026 &bull; Stage: Dead Attrition</div><div class="record-finding"><strong>Reason:</strong> Financial Distress — Downsizing.<br><strong>Red Account:</strong> Lost — "Oncycle risk ($1.7M), turned down compelling offer."<br><strong>Compliance:</strong> NON-COMPLIANT — CSG Notes EMPTY.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017ARd1AAG/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved00000058TBEAY/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Commercial Metals Company</span><span class="record-amount">-$436,221</span></div><div class="record-meta">Owner: Joe Long &bull; Close: Feb 18, 2026 &bull; Type: Off-Cycle Restructure</div><div class="record-finding"><strong>Reason:</strong> Off-Cycle — Relationship Issues.<br><strong>Red Account:</strong> Historical only (2024, Mulesoft).<br><strong>Compliance:</strong> NON-COMPLIANT — CSG Notes EMPTY.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000WDf69AAD/view" class="org62-link" target="_blank">Renewal</a></div></div>
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Arbonne International, LLC</span><span class="record-amount">-$436,055</span></div><div class="record-meta">Owner: Cara Holm &bull; Close: Mar 31, 2026 &bull; Stage: Dead Attrition</div><div class="record-finding"><strong>Reason:</strong> Transfer of Users to New Org.<br><strong>Red Account:</strong> Historical only (2021).<br><strong>Compliance:</strong> NON-COMPLIANT — CSG Notes EMPTY.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000BGF1dAAH/view" class="org62-link" target="_blank">Renewal</a></div></div>
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">PPL Electric Utilities Corporation</span><span class="record-amount">-$302,702</span></div><div class="record-meta">Owner: Graeme Schulman &bull; Close: Feb 25, 2026 &bull; Type: Off-Cycle Restructure</div><div class="record-finding"><strong>Reason:</strong> Migrating all systems to SAP across 3 utilities.<br><strong>Red Account:</strong> Resolved (Jun 2025) — "IT Reinvention to SAP."<br><strong>Compliance:</strong> NON-COMPLIANT — CSG Notes EMPTY.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000VvuEwAAJ/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000004BsvEAE/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Noodles &amp; Company</span><span class="record-amount">-$203,587</span></div><div class="record-meta">Owner: Lindsey Ells &bull; Close: Feb 13, 2026 &bull; Stage: Dead Attrition</div><div class="record-finding"><strong>Reason:</strong> Financial Distress — Downsizing.<br><strong>Red Account:</strong> Historical only (2021).<br><strong>Compliance:</strong> NON-COMPLIANT — CSG Notes EMPTY.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000093FVBAA2/view" class="org62-link" target="_blank">Renewal</a></div></div>
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">The Walman Optical Company</span><span class="record-amount">-$174,750</span></div><div class="record-meta">Owner: Rachel Cutrell &bull; Close: Apr 10, 2026 &bull; Stage: Dead Attrition</div><div class="record-finding"><strong>Reason:</strong> Transfer of Users to New Org.<br><strong>Red Account:</strong> NONE.<br><strong>Compliance:</strong> NON-COMPLIANT — CSG Notes EMPTY.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Bo1vRAAR/view" class="org62-link" target="_blank">Renewal</a></div></div>
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">General Mills, Inc*</span><span class="record-amount">-$108,456</span></div><div class="record-meta">Owner: Robert Peckenpaugh &bull; Close: Apr 30, 2026</div><div class="record-finding"><strong>Reason:</strong> Business Direction Change. "Closed over a year ago — Prebooked order."<br><strong>Red Account:</strong> Precautionary (May 2026).<br><strong>Compliance:</strong> NON-COMPLIANT — No hashtags.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018cmI3AAI/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000009lCbEAI/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Bath &amp; Body Works, Inc. (Datorama)</span><span class="record-amount">-$102,270</span></div><div class="record-meta">Owner: Eric Askew &bull; Close: Apr 29, 2026 &bull; Stage: Dead Attrition</div><div class="record-finding"><strong>Reason:</strong> Restructuring/Internal License Reduction.<br><strong>Red Account:</strong> Same as MC ExactTarget BBW RAs.<br><strong>Compliance:</strong> NON-COMPLIANT — CSG Notes EMPTY.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000CgZIbAAN/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000007UcTEAU/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+</div>
+
+<!-- TAB: WINS -->
+<div id="tab-wins" class="tab-panel">
+  <div class="section-header">Wins <span class="section-badge badge-green">0 records &bull; $0 recovered</span></div>
+  <div style="background:white; border-radius:10px; padding:24px; color:#718096; font-size:13px; box-shadow:0 1px 3px rgba(0,0,0,0.06); text-align:center;">
+    <div style="font-size:36px; margin-bottom:12px; opacity:0.3;">0</div>
+    <div style="font-size:14px; font-weight:600; color:#2d3748; margin-bottom:6px;">No Wins in Q1 FY27</div>
+    <div>Per the workflow diagram (Win = $0 Attrit final), no Marketing Cloud attrition event was fully eliminated this quarter. Every actionable record resulted in a Loss — either Logo Loss or Partial Save.</div>
+  </div>
+</div>
+
+<!-- TAB: LOSSES -->
+<div id="tab-losses" class="tab-panel">
+  <div class="section-header">Losses <span class="section-badge badge-red">21 Actionable &bull; $10.2M total attrition</span></div>
+
+  <!-- Sub-section: Logo Losses -->
+  <div class="sub-section">
+    <div class="sub-header">Logo Losses <span class="section-badge badge-red">7 records &bull; $6.9M</span></div>
+    <div class="record-card logo-loss"><div class="record-header"><span class="record-title">Fossil Group, Inc.</span><span class="record-amount">-$3,737,594</span></div><div class="record-meta">Owner: Cara Holm &bull; Close: Mar 29, 2026 &bull; Stage: Dead Attrition &bull; Products: MC ExactTarget, DMP</div><div class="record-finding"><strong>Classification:</strong> Actionable &rarr; Loss &rarr; Logo Loss<br><strong>Root cause:</strong> Low Perceived ROI. Customer issued RFP without SF knowledge. "Fossil 'Goodbye' completed."<br><strong>Red Account:</strong> Multiple — most recent: Precautionary (May 2026 — Adoption). Earlier: Lost (Apr 2025 — "Poor Adoption/Economic Factors").<br><strong>Compliance:</strong> PASS — #LicFullAttrit, #SigRisk, date stamp present.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017DphYAAS/view" class="org62-link" target="_blank">Renewal Opportunity</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved000000AHHJEA4/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card logo-loss"><div class="record-header"><span class="record-title">Landry's Restaurants Inc.*</span><span class="record-amount">-$953,985</span></div><div class="record-meta">Owner: Eric Askew &bull; Close: Mar 31, 2026 &bull; Products: MC ExactTarget, Datorama</div><div class="record-finding"><strong>Classification:</strong> Actionable &rarr; Loss &rarr; Logo Loss<br><strong>Root cause:</strong> Business Direction Change. Restaurants moving to Fishbowl.<br><strong>Red Account:</strong> Lost (Jan 2026) — "Landry's Restaurants is migrating to Fishbowl."<br><strong>Compliance:</strong> NON-COMPLIANT — #FullAttrit (invalid, should be #LicFullAttrit).</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000NuQAfAAN/view" class="org62-link" target="_blank">Renewal Opportunity</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000007CXVEA2/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card logo-loss"><div class="record-header"><span class="record-title">JM Family Automotive LLC</span><span class="record-amount">-$916,263</span></div><div class="record-meta">Owner: Jean-Yves Roy &bull; Close: Apr 30, 2026 &bull; Products: Core, MC ExactTarget</div><div class="record-finding"><strong>Classification:</strong> Actionable &rarr; Loss &rarr; Logo Loss<br><strong>Root cause:</strong> Salesforce Led — Customer Issue. ARI in development for Mktg &amp; CRM Modernization.<br><strong>Red Account:</strong> Precautionary (Feb 2026). Prior Lost RA (May 2025): "#ARI for Mktg &amp; CRM Modernization."<br><strong>Compliance:</strong> NON-COMPLIANT — #LicPartialAttrit wrong (should be Full); #ARI in CSG Notes; missing sig.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TexblAAB/view" class="org62-link" target="_blank">Renewal Opportunity</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000007smrEAA/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card logo-loss"><div class="record-header"><span class="record-title">Janie and Jack LLC</span><span class="record-amount">-$599,929</span></div><div class="record-meta">Owner: Ramneek Sohi &bull; Close: Apr 30, 2026 &bull; Stage: Dead Attrition</div><div class="record-finding"><strong>Classification:</strong> Actionable &rarr; Loss &rarr; Logo Loss<br><strong>Root cause:</strong> Product Feature Gap. Moving to Klaviyo. ARI declined.<br><strong>Red Account:</strong> Precautionary (Sep 2025) — "#DCCAP #PRECAUTIONARY" (both invalid).<br><strong>Compliance:</strong> NON-COMPLIANT — #LicPartialAttrit wrong (full attrit); missing sig; #RFP in CSG Notes.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019WkLPAA0/view" class="org62-link" target="_blank">Renewal Opportunity</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000005dYbEAI/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card logo-loss"><div class="record-header"><span class="record-title">Revelyst Operations LLC</span><span class="record-amount">-$341,217</span></div><div class="record-meta">Owner: Cara Holm &bull; Close: Apr 30, 2026 &bull; Stage: Dead Attrition</div><div class="record-finding"><strong>Classification:</strong> Actionable &rarr; Loss &rarr; Logo Loss<br><strong>Root cause:</strong> Lack of Internal Expertise. "All brands moving to Klaviyo."<br><strong>Red Account:</strong> Partial Save (Sep 2025) — "Large attrition event, underutilized on GMV."<br><strong>Compliance:</strong> NON-COMPLIANT — Has #LicFullAttrit. Missing sig hashtag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000CkPMJAA3/view" class="org62-link" target="_blank">Renewal Opportunity</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000005YsHEAU/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card logo-loss"><div class="record-header"><span class="record-title">Fanatics, LLC</span><span class="record-amount">-$163,500</span></div><div class="record-meta">Owner: Eric Askew &bull; Close: Apr 30, 2026 &bull; Stage: Dead Attrition</div><div class="record-finding"><strong>Classification:</strong> Actionable &rarr; Loss &rarr; Logo Loss<br><strong>Root cause:</strong> Low Perceived ROI.<br><strong>Red Account:</strong> Precautionary (Apr 2026) — "ARI Adoption Activation Pilot."<br><strong>Compliance:</strong> NON-COMPLIANT — CSG Notes completely EMPTY.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000ThvdSAAR/view" class="org62-link" target="_blank">Renewal Opportunity</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000009ZgxEAE/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card logo-loss"><div class="record-header"><span class="record-title">Mitsubishi Electric Automation</span><span class="record-amount">-$155,492</span></div><div class="record-meta">Owner: Holly Lesperance &bull; Close: Apr 14, 2026 &bull; Stage: Dead Attrition</div><div class="record-finding"><strong>Classification:</strong> Actionable &rarr; Loss &rarr; Logo Loss<br><strong>Root cause:</strong> Product Feature Gap.<br><strong>Red Account:</strong> Precautionary (May 2026) — RA created AFTER attrition closed.<br><strong>Compliance:</strong> NON-COMPLIANT — CSG Notes completely EMPTY.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019WLI4AAO/view" class="org62-link" target="_blank">Renewal Opportunity</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved000000ARF3EAO/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+  </div>
+
+  <!-- Sub-section: Partial Saves -->
+  <div class="sub-section">
+    <div class="sub-header">Partial Saves <span class="section-badge badge-orange">14 records &bull; $3.3M attrition (ACV retained)</span></div>
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">At Home Stores LLC</span><span class="record-amount">-$587,541</span></div><div class="record-meta">Owner: Patti Graham &bull; Close: Mar 21, 2026 &bull; Prior: $3.0M &bull; New: $2.4M (80%)</div><div class="record-finding"><strong>Root cause:</strong> Relationship Issues. Bankruptcy risk. Upgraded to MCE+.<br><strong>Red Account:</strong> Precautionary — "#ADOPT" (VALID).<br><strong>Compliance:</strong> NON-COMPLIANT — "#LicPartrialAttrit" (typo). Missing sig.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000018d8TAAQ/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000009Rx3EAE/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">PetSmart LLC</span><span class="record-amount">-$532,796</span></div><div class="record-meta">Owner: Robert Peckenpaugh &bull; Close: Apr 30, 2026 &bull; Prior: $2.8M &bull; New: $2.3M (81%)</div><div class="record-finding"><strong>Root cause:</strong> Low Perceived ROI. RFP WON. Exploring Agentforce.<br><strong>Red Account:</strong> Open (Jun 2026) — Sev0 Outage on Hyperforce.<br><strong>Compliance:</strong> NON-COMPLIANT — #NoSigAttrit (invalid → #NoSigRisk).</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019IcLaAAK/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved000000AZHREA4/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">Yamaha Motor - North America</span><span class="record-amount">-$425,400</span></div><div class="record-meta">Owner: Alexa Votta &bull; Close: Feb 14, 2026 &bull; Prior: $824K &bull; New: $398K (48%)</div><div class="record-finding"><strong>Root cause:</strong> Lack of Internal Expertise. DC credits 50M → 6M.<br><strong>Red Account:</strong> Precautionary — Agentforce renewal at risk.<br><strong>Compliance:</strong> NON-COMPLIANT — #PartialAttrit (invalid). Missing sig.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000094s4fAAA/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000009mS1EAI/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">JustFoodForDogs</span><span class="record-amount">-$272,992</span></div><div class="record-meta">Owner: Holly Lesperance &bull; Close: Feb 13, 2026 &bull; Prior: $580K &bull; New: $307K (53%)</div><div class="record-finding"><strong>Root cause:</strong> Low Perceived ROI. Pricing concerns.<br><strong>Red Account:</strong> NONE.<br><strong>Compliance:</strong> NON-COMPLIANT — No hashtags. No date format. Missing sig.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000936lGAAQ/view" class="org62-link" target="_blank">Renewal</a></div></div>
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">Mary Kay Inc.</span><span class="record-amount">-$248,429</span></div><div class="record-meta">Owner: Rachel Cutrell &bull; Close: Feb 14, 2026 &bull; Prior: $1.37M &bull; New: $1.12M (82%)</div><div class="record-finding"><strong>Root cause:</strong> Message reduction — MK no longer buying messaging upfront.<br><strong>Red Account:</strong> Partial Save — "Only Purchase 6 Months of Super Messages."<br><strong>Compliance:</strong> COMPLIANT — #LicPartialAttrit, #NoSigRisk, date stamp.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AiT24AAF/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved00000068R7EAI/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">Regal Rexnord Corporation*</span><span class="record-amount">-$232,877</span></div><div class="record-meta">Owner: Tyler Santuro &bull; Close: Apr 14, 2026 &bull; Prior: $3.89M &bull; New: $3.79M (97%)</div><div class="record-finding"><strong>Root cause:</strong> Low Success Plan Utilization. Exploring Signature swap.<br><strong>Red Account:</strong> Precautionary — "#AgFStage4" (not valid).<br><strong>Compliance:</strong> NON-COMPLIANT — Missing sig hashtag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018Wbv3AAC/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved000000ATaDEAW/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">The RealReal (MC ExactTarget)</span><span class="record-amount">-$157,046</span></div><div class="record-meta">Owner: Ramneek Sohi &bull; Close: Apr 30, 2026 &bull; Prior: $1.61M &bull; New: $1.46M (90%)</div><div class="record-finding"><strong>Root cause:</strong> Low consumption. Finds Sig valuable. Interest in DC + MC Next.<br><strong>Red Account:</strong> Precautionary — "Low consumption" + "Supermessages Low (~75%)"<br><strong>Compliance:</strong> NON-COMPLIANT — Missing license hashtag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019Id3CAAS/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000009yOLEAY/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">Foley Family Wines</span><span class="record-amount">-$157,385</span></div><div class="record-meta">Owner: Holly Lesperance &bull; Close: Feb 14, 2026 &bull; Prior: $225K &bull; New: $67K (30%)</div><div class="record-finding"><strong>Root cause:</strong> Financial Distress, Downsizing.<br><strong>Red Account:</strong> Lost (Apr 2025) — "Positioning to Not Renew MC in FY27."<br><strong>Compliance:</strong> NON-COMPLIANT — CSG Notes EMPTY.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000009595WAAQ/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000003LEPEA2/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">Ball Corporation</span><span class="record-amount">-$112,626</span></div><div class="record-meta">Owner: Lauren Hemighaus &bull; Close: Feb 14, 2026 &bull; Prior: $975K &bull; New: $811K (83%)</div><div class="record-finding"><strong>Root cause:</strong> Inadequate Architecture. Dropping CRMA → EE. "Sold a ferrari but want a chevy."<br><strong>Red Account:</strong> Precautionary — "Change of Strategic Direction."<br><strong>Compliance:</strong> NON-COMPLIANT — #PartialAttrit (invalid). Missing sig.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017AfETAA0/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000009IVZEA2/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">Fox Restaurant Concepts LLC</span><span class="record-amount">-$109,581</span></div><div class="record-meta">Owner: Eric Askew &bull; Close: Feb 13, 2026 &bull; Prior: $396K &bull; New: $287K (72%)</div><div class="record-finding"><strong>Root cause:</strong> Business Direction Change. Right-sizing, adding MC+.<br><strong>Red Account:</strong> Precautionary — "#DCCAP" (not valid).<br><strong>Compliance:</strong> NON-COMPLIANT — #partialattrit (invalid). Missing sig.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AiQmDAAV/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000005brlEAA/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">BI-LO, LLC</span><span class="record-amount">-$105,894</span></div><div class="record-meta">Owner: Eric Askew &bull; Close: Mar 31, 2026 &bull; Prior: $666K &bull; New: $560K (84%)</div><div class="record-finding"><strong>Root cause:</strong> Low Perceived ROI. Suggested Sig add-on.<br><strong>Red Account:</strong> Historical only (2019).<br><strong>Compliance:</strong> NON-COMPLIANT — No hashtags. Missing license and sig.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000BGc6EAAT/view" class="org62-link" target="_blank">Renewal</a></div></div>
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">Bethlehem Shared Services (MC)</span><span class="record-amount">-$104,751</span></div><div class="record-meta">Owner: Jana Long &bull; Close: Apr 29, 2026 &bull; Prior: $1.02M &bull; New: $919K (90%)</div><div class="record-finding"><strong>Root cause:</strong> Third Party Issue. May attrit Data Cloud.<br><strong>Red Account:</strong> Lost — "#ARI" (VALID).<br><strong>Compliance:</strong> NON-COMPLIANT — #PartialAttrit (invalid). #ARI in CSG Notes.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Ch1EtAAJ/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000007sZxEAI/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">The RealReal (Pardot)</span><span class="record-amount">-$103,330</span></div><div class="record-meta">Owner: Ramneek Sohi &bull; Close: Apr 30, 2026 &bull; Prior: $704K &bull; New: $600K (85%)</div><div class="record-finding"><strong>Root cause:</strong> Technical debt. Pressure from lower-cost providers.<br><strong>Red Account:</strong> Partial Save — "#RFP" (VALID).<br><strong>Compliance:</strong> NON-COMPLIANT — #LicFullAttrit wrong (85% retained). #ARI in CSG Notes.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019Id3EAAS/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000006WTREA2/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">MBI Inc.</span><span class="record-amount">-$102,902</span></div><div class="record-meta">Owner: Jana Long &bull; Close: Feb 28, 2026 &bull; Prior: $519K &bull; New: $416K (80%)</div><div class="record-finding"><strong>Root cause:</strong> Low Perceived ROI.<br><strong>Red Account:</strong> NONE.<br><strong>Compliance:</strong> NON-COMPLIANT — No date, no sig, no context (hashtag alone).</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019us7fAAA/view" class="org62-link" target="_blank">Renewal</a></div></div>
+  </div>
+
+  <!-- Sub-section: SP Downgrades -->
+  <div class="sub-section">
+    <div class="sub-header">SP Downgrades <span class="section-badge badge-purple">0 records</span></div>
+    <div style="background:white; border-radius:10px; padding:18px 20px; color:#718096; font-size:13px; box-shadow:0 1px 3px rgba(0,0,0,0.06);">No Signature/Premier downgrades in Q1 FY27 Marketing Cloud.</div>
+  </div>
+</div>
+
+<!-- TAB: COMPLIANCE CENTER -->
+<div id="tab-compliance" class="tab-panel">
+  <div class="section-header">#Compliance <span class="section-badge badge-red">Overall: 10% Renewal Compliant &bull; 16% RA ECOMM Valid</span></div>
+
+  <!-- Sub-section: Red Account Compliance -->
+  <div class="sub-section">
+    <div class="sub-header">Red Account Validation</div>
+
+    <div class="insight-box critical"><div class="insight-label">Missing Red Accounts — No Visibility (4 accounts)</div><div class="insight-text">These accounts attrited with NO Red Account (or only historical/resolved RAs from years prior):<br><br>&bull; <strong>JustFoodForDogs</strong> — $273K partial save <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000936lGAAQ/view" class="org62-link" target="_blank" style="margin-left:8px">View</a><br>&bull; <strong>MBI Inc.</strong> — $103K partial save <a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019us7fAAA/view" class="org62-link" target="_blank" style="margin-left:8px">View</a><br>&bull; <strong>The Walman Optical</strong> — $175K logo loss <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Bo1vRAAR/view" class="org62-link" target="_blank" style="margin-left:8px">View</a><br>&bull; <strong>Commercial Metals</strong> — $436K off-cycle <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000WDf69AAD/view" class="org62-link" target="_blank" style="margin-left:8px">View</a></div></div>
+
+    <div class="insight-box"><div class="insight-label">ECOMM Headline Offense Hashtags — 5/31 Valid (16%)</div><div class="insight-text">Per PACE Hashtag Guidance, every Red Account ECOMM Headline must contain at least one valid offense hashtag (#SIGTRIAL, #ARI, #SWAP, #IMPLEMENT, #ADOPT, #RFP, #REVIVE). Only 5 accounts have a valid offense hashtag — a slight improvement over Commerce Cloud (0%), but still critically low.</div></div>
+
+    <div class="insight-box info"><div class="insight-label">Accounts WITH Valid Offense Hashtags</div><div class="insight-text">&bull; <strong>At Home Stores</strong> — #ADOPT <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000009Rx3EAE/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>Bath &amp; Body Works</strong> — #ADOPT #ARI #SWAP <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000006bjFEAQ/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>Bethlehem Shared Services</strong> — #ARI <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000007sZxEAI/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>JM Family Automotive</strong> — #ARI <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000003XqfEAE/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>The RealReal</strong> — #RFP <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000006WTREA2/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a></div></div>
+
+    <div class="insight-box critical"><div class="insight-label">Invalid Hashtags Found in ECOMM Headlines</div><div class="insight-text">&bull; <strong>Janie and Jack</strong> — #DCCAP, #PRECAUTIONARY <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000005dYbEAI/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>At Home Stores</strong> — #PRECAUTIONARY (Sep 2025) <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000005fgrEAA/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>Bath &amp; Body Works</strong> — #PRECAUTIONARY (Feb 2026) <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000007UcTEAU/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>Fox Restaurant</strong> — #DCCAP <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000005brlEAA/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>Fanatics Holdings</strong> — #SigAttritRisk (not valid; use #SigRisk in CSG Notes instead) <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000006Yi9EAE/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>Fossil</strong> — #AgFStage4 (not valid) <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved000000AHHJEA4/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>Regal Rexnord</strong> — #AgFStage4 (not valid) <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved000000ATaDEAW/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>The RealReal</strong> — #AgFStage4 (not valid) <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000009yOLEAY/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a></div></div>
+
+    <div class="insight-box critical"><div class="insight-label">Latest Update — Empty or Template-Only (7 Red Accounts)</div><div class="insight-text">Per PACE Guidance, Latest Update must contain history of plays — submitted, active, rejected — and explain what was attempted.<br><br>&bull; <strong>Ball Corporation</strong> — Precautionary, no play history <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000009IVZEA2/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>At Home Stores</strong> — Partial Save stage, Latest Update blank <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000005fgrEAA/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>Fanatics Holdings</strong> — Financial &amp; Contractual, no updates <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000006Yi9EAE/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>Fanatics LLC</strong> — ARI Adoption Pilot, no updates <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000009ZgxEAE/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>General Mills</strong> — Leadership Escalation, no updates <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000009UwXEAU/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>Mitsubishi Electric</strong> — Policy &amp; Compliance RAs, all empty <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved000000ARF3EAO/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>Fossil</strong> — Adoption RA, Latest Update is blank template (no actual content) <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved000000AHHJEA4/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a></div></div>
+
+    <div class="insight-box"><div class="insight-label">Closure Summary — Incomplete on Closed/Partial-Save RA (1 account)</div><div class="insight-text">Per PACE Guidance, CSM and Escalation Manager must partner to populate Closure Summary at time of closure — confirms what worked and documents what didn't.<br><br>&bull; <strong>At Home Stores</strong> — Partial Save stage but Closure Summary = "TBD" (not populated per guidance) <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000005fgrEAA/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a></div></div>
+
+    <div class="insight-box info"><div class="insight-label">Competitor Fields — Known Competitor Not Captured (3 accounts)</div><div class="insight-text">Per PACE Guidance, Competitor fields identify the specific threat so teams can craft the right defensive play. Populate if a known competitor exists.<br><br>&bull; <strong>Otter Products</strong> — Closure summary mentions "moving to Shopify" but Competitor fields are blank <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved00000058TBEAY/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>Landry's</strong> — Closure summary confirms "migrating to Fishbowl" but Competitor fields are blank <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000007CXVEA2/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a><br>&bull; <strong>JM Family Automotive</strong> — ECOMM Headline states "replace Hubspot" but Competitor fields are blank <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000003XqfEAE/view" class="org62-link ra" target="_blank" style="margin-left:8px">View RA</a></div></div>
+
+    <div class="insight-box info"><div class="insight-label">APM (L1, L2, L3) — All Populated</div><div class="insight-text">All active Red Accounts have APM product details populated, correctly identifying which cloud/product is at risk. No gaps found.</div></div>
+  </div>
+
+  <!-- Sub-section: Renewal Compliance -->
+  <div class="sub-section">
+    <div class="sub-header">Renewal Opportunity CSG Notes <span class="section-badge badge-red">3/31 Compliant (10%)</span></div>
+
+    <table class="compliance-table"><thead><tr><th>Account</th><th>Status</th><th>Issues</th><th>Record</th></tr></thead><tbody>
+      <tr><td>Fossil Group</td><td><span class="status-dot pass"></span>Pass</td><td>#RFP in CSG Notes (INFO)</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017DphYAAS/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Mary Kay</td><td><span class="status-dot pass"></span>Pass</td><td>—</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AiT24AAF/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Bath &amp; Body Works (MC)</td><td><span class="status-dot pass"></span>Pass</td><td>—</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Zhh7CAAR/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Ball Corporation</td><td><span class="status-dot fail"></span>Fail</td><td>#PartialAttrit → #LicPartialAttrit; missing sig</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017AfETAA0/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Regal Rexnord</td><td><span class="status-dot fail"></span>Fail</td><td>Missing sig hashtag</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018Wbv3AAC/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>PetSmart</td><td><span class="status-dot fail"></span>Fail</td><td>#NoSigAttrit → #NoSigRisk</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019IcLaAAK/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>The RealReal (MC)</td><td><span class="status-dot fail"></span>Fail</td><td>Missing license hashtag</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019Id3CAAS/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>The RealReal (Pardot)</td><td><span class="status-dot fail"></span>Fail</td><td>#LicFullAttrit wrong (85% retained); missing sig; #ARI</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019Id3EAAS/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Mitsubishi Electric</td><td><span class="status-dot fail"></span>Fail</td><td>EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019WLI4AAO/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Janie and Jack</td><td><span class="status-dot fail"></span>Fail</td><td>#LicPartialAttrit wrong (full); missing sig; #RFP</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019WkLPAA0/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>MBI Inc.</td><td><span class="status-dot fail"></span>Fail</td><td>No date; no sig; no context</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019us7fAAA/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Fox Restaurant</td><td><span class="status-dot fail"></span>Fail</td><td>#partialattrit invalid; missing sig</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AiQmDAAV/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>At Home Stores</td><td><span class="status-dot fail"></span>Fail</td><td>#LicPartrialAttrit (typo); missing sig</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000018d8TAAQ/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>JustFoodForDogs</td><td><span class="status-dot fail"></span>Fail</td><td>No hashtags; no sig; no date</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000936lGAAQ/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Noodles &amp; Company</td><td><span class="status-dot fail"></span>Fail</td><td>EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000093FVBAA2/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Yamaha Motor</td><td><span class="status-dot fail"></span>Fail</td><td>#PartialAttrit invalid; missing sig</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000094s4fAAA/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Foley Family Wines</td><td><span class="status-dot fail"></span>Fail</td><td>EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000009595WAAQ/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Phoenix BNBS</td><td><span class="status-dot fail"></span>Fail</td><td>#fullattrit invalid; #nonactionable invalid; missing sig</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000A60naAAB/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Arbonne</td><td><span class="status-dot fail"></span>Fail</td><td>EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000BGF1dAAH/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>BI-LO</td><td><span class="status-dot fail"></span>Fail</td><td>No hashtags; no sig</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000BGc6EAAT/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Walman Optical</td><td><span class="status-dot fail"></span>Fail</td><td>EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Bo1vRAAR/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Bath &amp; Body (Datorama)</td><td><span class="status-dot fail"></span>Fail</td><td>EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000CgZIbAAN/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Bethlehem Shared Svc</td><td><span class="status-dot fail"></span>Fail</td><td>#PartialAttrit invalid; #ARI in CSG Notes</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Ch1EtAAJ/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Revelyst</td><td><span class="status-dot fail"></span>Fail</td><td>Missing sig hashtag</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000CkPMJAA3/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Landry's</td><td><span class="status-dot fail"></span>Fail</td><td>#FullAttrit → #LicFullAttrit</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000NuQAfAAN/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>JM Family</td><td><span class="status-dot fail"></span>Fail</td><td>#LicPartialAttrit wrong (full); #ARI; missing sig</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TexblAAB/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Fanatics</td><td><span class="status-dot fail"></span>Fail</td><td>EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000ThvdSAAR/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>PPL Electric</td><td><span class="status-dot fail"></span>Fail</td><td>EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000VvuEwAAJ/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Commercial Metals</td><td><span class="status-dot fail"></span>Fail</td><td>EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000WDf69AAD/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>Otter Products</td><td><span class="status-dot fail"></span>Fail</td><td>EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017ARd1AAG/view" class="org62-link" target="_blank">View</a></td></tr>
+      <tr><td>General Mills</td><td><span class="status-dot fail"></span>Fail</td><td>No hashtags</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018cmI3AAI/view" class="org62-link" target="_blank">View</a></td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<!-- TAB: METHODOLOGY -->
+<div id="tab-method" class="tab-panel">
+  <div class="section-header">Methodology <span class="section-badge badge-purple">Definitions &amp; Divergence</span></div>
+
+  <!-- Category Definitions -->
+  <div class="sub-section">
+    <div class="sub-header">Category Definitions (per Win/Loss Workflow Diagram)</div>
+    <div style="background:white; border-radius:10px; padding:20px 24px; box-shadow:0 1px 3px rgba(0,0,0,0.06); margin-bottom:20px;">
+      <table class="compliance-table">
+        <thead><tr><th style="width:140px">Category</th><th style="width:180px">Criteria</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr style="border-left:4px solid #a0aec0"><td style="font-weight:700">Not Actionable</td><td>Swing = $0</td><td>Attrition was confirmed and non-savable — no CSM lever existed. Includes off-cycle restructures, financial distress, org transfers, and AE-confirmed non-savable events. Exits the workflow before Win/Loss classification.</td></tr>
+          <tr style="border-left:4px solid #38a169"><td style="font-weight:700">Wins</td><td>Actionable + $0 Attrit FINAL</td><td>Risk was identified (Forecasted Attrition > $0) and the CSM fully eliminated the attrition — final outcome is $0 lost. The customer renewed flat or grew.</td></tr>
+          <tr style="border-left:4px solid #e53e3e"><td style="font-weight:700">Losses</td><td>Actionable + >$0 Attrit FINAL</td><td>Risk was identified and the outcome was a loss. Sub-classified into:<br><strong>&bull; Logo Loss</strong> — Prior ACV fully attrited; customer is gone.<br><strong>&bull; Partial Save</strong> — Some ACV retained, some attrited; customer stays at lower spend.<br><strong>&bull; SP Downgrade</strong> — Signature/Premier tier removed but license ACV retained.</td></tr>
+          <tr style="border-left:4px solid #e53e3e"><td style="font-weight:700">#Compliance</td><td><a href="https://salesforce.enterprise.slack.com/docs/T2E6RHTM0/F0APZKWHHJ6" target="_blank" style="color:#3182ce; text-decoration:underline;">PACE Attrition Hashtag Guidance</a></td><td>Validation against the <strong>PACE Attrition Hashtag Guidance</strong> document. Each record is checked across two objects:<br><strong>&bull; Red Account:</strong><br>&nbsp;&nbsp;— <em>ECOMM Headline:</em> Must contain valid offense hashtag(s) for active/completed plays (#SIGTRIAL, #ARI, #SWAP, #IMPLEMENT, #ADOPT, #RFP, #REVIVE). If play is rejected/declined, hashtag must be removed and noted in Latest Update.<br>&nbsp;&nbsp;— <em>Latest Update:</em> Must contain history of plays — submitted, active, rejected — and explain what was attempted.<br>&nbsp;&nbsp;— <em>Closure Summary:</em> Must be populated at time of closure (CSM + Escalation Manager). Confirms what worked and documents what didn't.<br>&nbsp;&nbsp;— <em>Competitor:</em> Primary &amp; Other Competitor fields must be populated if a known competitor exists.<br>&nbsp;&nbsp;— <em>APM (L1, L2, L3):</em> Must identify which cloud/product is at risk. For Agentforce/Data Cloud, APM L1 = AI &amp; Data.<br><strong>&bull; Renewal Opportunity:</strong><br>&nbsp;&nbsp;— <em>CSG Notes:</em> Must follow format: (Date) (CSM Name) (License hashtag) (Signature hashtag if Premier) (comment).<br>&nbsp;&nbsp;— Valid defense hashtags: #LicNoAttrit, #LicPartialAttrit, #LicFullAttrit, #SigRisk, #NoSigRisk, #RA, #AFAttrit, #AfNoRisk, #D360Attrit, #D360NoRisk, #PBI.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Report generated June 12, 2026 &bull; Data source: Org62 SOQL (PACE AMER, Marketing Cloud) &bull; Classification per Win/Loss Workflow Diagram
+</div>
+
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'instant'});
+}
+</script>
+</body>
+</html>

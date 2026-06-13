@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q2 FY27 Core &mdash; Attrition Analysis</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f6f9; color: #1a1a2e; min-height: 100vh; line-height: 1.5; }
+
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 32px 40px 16px; }
+  .header h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+  .header p { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+  .header-meta { display: flex; gap: 24px; margin-top: 14px; flex-wrap: wrap; }
+  .header-meta-item { font-size: 12px; opacity: 0.85; background: rgba(255,255,255,0.08); padding: 4px 12px; border-radius: 12px; }
+
+  .tab-bar { position: sticky; top: 0; z-index: 100; background: #1a1a2e; padding: 0 40px; display: flex; gap: 0; overflow-x: auto; border-bottom: 2px solid #0f3460; }
+  .tab-btn { padding: 12px 18px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.6); background: none; border: none; cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; transition: all 0.2s; }
+  .tab-btn:hover { color: rgba(255,255,255,0.9); }
+  .tab-btn.active { color: white; border-bottom-color: #4299e1; }
+  .tab-btn .tab-count { font-size: 10px; background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 8px; margin-left: 6px; }
+  .tab-btn.active .tab-count { background: rgba(66,153,225,0.3); }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 28px 40px 60px; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+  @media (max-width: 700px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+  .metric-card { background: white; border-radius: 10px; padding: 18px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-top: 3px solid; }
+  .metric-card.red { border-color: #e53e3e; }
+  .metric-card.orange { border-color: #ed8936; }
+  .metric-card.blue { border-color: #4299e1; }
+  .metric-card.green { border-color: #38a169; }
+  .metric-card.purple { border-color: #805ad5; }
+  .metric-value { font-size: 28px; font-weight: 800; color: #1a202c; }
+  .metric-label { font-size: 11px; color: #718096; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .section { margin-bottom: 32px; }
+  .section-header { font-size: 15px; font-weight: 700; color: #1a202c; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+  .section-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 10px; }
+  .badge-red { background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2; }
+  .badge-orange { background: #fffaf0; color: #dd6b20; border: 1px solid #fbd38d; }
+  .badge-blue { background: #ebf8ff; color: #3182ce; border: 1px solid #bee3f8; }
+  .badge-green { background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4; }
+  .badge-purple { background: #faf5ff; color: #805ad5; border: 1px solid #d6bcfa; }
+
+  .sub-section { margin-top: 28px; padding-top: 20px; border-top: 1px solid #edf2f7; }
+  .sub-section:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+  .sub-header { font-size: 13px; font-weight: 700; color: #4a5568; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+  .record-card { background: white; border-radius: 10px; padding: 18px 20px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid #e2e8f0; }
+  .record-card.logo-loss { border-left-color: #e53e3e; }
+  .record-card.partial-save { border-left-color: #ed8936; }
+  .record-card.sp-downgrade { border-left-color: #805ad5; }
+  .record-card.not-actionable { border-left-color: #a0aec0; }
+  .record-card.win { border-left-color: #38a169; }
+
+  .record-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+  .record-title { font-size: 14px; font-weight: 700; color: #1a202c; }
+  .record-amount { font-size: 14px; font-weight: 700; color: #e53e3e; }
+  .record-amount.green { color: #38a169; }
+  .record-meta { font-size: 12px; color: #718096; margin-bottom: 8px; line-height: 1.6; }
+  .record-finding { font-size: 13px; color: #4a5568; line-height: 1.6; }
+  .record-finding strong { color: #1a202c; }
+
+  .org62-link { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: #3182ce; text-decoration: none; padding: 3px 10px; background: #ebf8ff; border-radius: 12px; border: 1px solid #bee3f8; transition: all 0.15s; }
+  .org62-link:hover { background: #bee3f8; color: #2c5282; }
+  .org62-link.ra { color: #805ad5; background: #faf5ff; border-color: #d6bcfa; }
+  .org62-link.ra:hover { background: #e9d8fd; color: #553c9a; }
+
+  .links-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+  .insight-box { background: #fffaf0; border: 1px solid #fbd38d; border-radius: 10px; padding: 14px 18px; margin-bottom: 14px; }
+  .insight-box.critical { background: #fff5f5; border-color: #feb2b2; }
+  .insight-box.info { background: #ebf8ff; border-color: #bee3f8; }
+  .insight-label { font-size: 10px; font-weight: 700; color: #dd6b20; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .insight-box.critical .insight-label { color: #e53e3e; }
+  .insight-box.info .insight-label { color: #3182ce; }
+  .insight-text { font-size: 13px; color: #4a5568; line-height: 1.6; }
+
+  .compliance-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .compliance-table th { text-align: left; font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 10px; border-bottom: 2px solid #e2e8f0; }
+  .compliance-table td { padding: 8px 10px; border-bottom: 1px solid #f7fafc; vertical-align: top; }
+  .compliance-table tr:hover { background: #f7fafc; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .status-dot.pass { background: #38a169; }
+  .status-dot.fail { background: #e53e3e; }
+  .status-dot.partial { background: #ed8936; }
+
+  .footer { text-align: center; font-size: 11px; color: #a0aec0; margin-top: 40px; padding-top: 20px; border-top: 1px solid #edf2f7; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Q2 FY27 Core &mdash; Attrition Analysis</h1>
+  <p>Win/Loss Workflow Classification &bull; PACE AMER Portfolio</p>
+  <div class="header-meta">
+    <span class="header-meta-item">Period: Q2 FY27 (May&ndash;Jul 2026)</span>
+    <span class="header-meta-item">Cloud: Core</span>
+    <span class="header-meta-item">Threshold: Attrition &ge; $100K</span>
+    <span class="header-meta-item">Records: 51</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('summary')">Summary</button>
+  <button class="tab-btn" onclick="showTab('notact')">Not Actionable<span class="tab-count">24</span></button>
+  <button class="tab-btn" onclick="showTab('wins')">Wins<span class="tab-count">15</span></button>
+  <button class="tab-btn" onclick="showTab('losses')">Losses<span class="tab-count">12</span></button>
+  <button class="tab-btn" onclick="showTab('compliance')">#Compliance</button>
+  <button class="tab-btn" onclick="showTab('method')">Methodology</button>
+</div>
+
+<div class="container">
+
+<!-- TAB: SUMMARY -->
+<div id="tab-summary" class="tab-panel active">
+  <div class="summary-grid">
+    <div class="metric-card red"><div class="metric-value">$23.2M</div><div class="metric-label">Total Forecasted Attrition</div></div>
+    <div class="metric-card orange"><div class="metric-value">27</div><div class="metric-label">Actionable</div></div>
+    <div class="metric-card blue"><div class="metric-value">24</div><div class="metric-label">Not Actionable</div></div>
+    <div class="metric-card green"><div class="metric-value">15</div><div class="metric-label">Wins</div></div>
+  </div>
+  <div class="summary-grid">
+    <div class="metric-card red"><div class="metric-value">4</div><div class="metric-label">Logo Losses</div></div>
+    <div class="metric-card orange"><div class="metric-value">6</div><div class="metric-label">Partial Saves</div></div>
+    <div class="metric-card purple"><div class="metric-value">2</div><div class="metric-label">SP Downgrades</div></div>
+    <div class="metric-card blue"><div class="metric-value">8%</div><div class="metric-label">Compliance Rate</div></div>
+  </div>
+  <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; margin-bottom:28px;">
+    <div style="flex:1; min-width:320px;">
+      <div style="background:white; border-radius:12px; padding:22px 26px; box-shadow:0 1px 4px rgba(0,0,0,0.07); border-left:4px solid #1a1a2e;">
+        <div style="font-size:13px; font-weight:700; color:#1a1a2e; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:14px;">Key Insights</div>
+        <ul style="list-style:none; padding:0; margin:0; font-size:14px; color:#2d3748; line-height:2.2;">
+          <li><strong>51 Records</strong> &gt;$100K attrition in Q2</li>
+          <li><strong>$7.2M Saved</strong> &mdash; 15 Wins renewed at full ACV</li>
+          <li><strong>$5.0M at risk</strong> from 12 actionable losses/partial saves/downgrades</li>
+          <li><strong>$11.0M Not Actionable</strong> &mdash; structural/bankruptcy/no CSG</li>
+          <li><strong>8% Compliance</strong> (4/51 records fully compliant)</li>
+        </ul>
+      </div>
+    </div>
+    <div style="flex:1; min-width:320px;">
+      <div style="background:white; border-radius:12px; padding:22px 26px; box-shadow:0 1px 4px rgba(0,0,0,0.07); border-left:4px solid #4299e1;">
+        <div style="font-size:13px; font-weight:700; color:#4299e1; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:14px;">Additional Context</div>
+        <ul style="list-style:none; padding:0; margin:0; font-size:14px; color:#2d3748; line-height:2.2;">
+          <li>18 of 51 records have <strong>completely empty CSG Notes</strong> (35%)</li>
+          <li>29/35 Premier records missing sig hashtag (83% gap)</li>
+          <li>9 invalid hashtag instances found across 6 types</li>
+          <li>Saks.com ($4.5M) &mdash; bankruptcy, largest single Not Actionable</li>
+          <li>FL P&amp;L Support ($798K) &mdash; largest Win with active Red Account</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="insight-box critical"><div class="insight-label">Critically Low Compliance (8%)</div><div class="insight-text">Only 4 of 51 records (Stanley Black &amp; Decker, Rich Products, Hibbett, TARGET) are fully compliant. 18 records have completely empty CSG Notes. Common issues: #NoAttrit, #FullAttrit, #fullattrit (all invalid); missing license/sig hashtags; offense tags in wrong location (#ARI in CSG Notes on Saks.com).</div></div>
+  <div class="insight-box info"><div class="insight-label">Multi-Cloud Overlap</div><div class="insight-text">Several records have multi-cloud Targeted_Clouds__c values: 84.51&deg; (Core;Pardot;Salesforce Industry), Rich Products (Core;MC ExactTarget), CSI Compressco (Core;Pardot), Niantic (Core;Slack), Stanley B&amp;D (Core;Slack), Peloton (Core;Slack), Cryogenic (Core;Pardot), Tonal (Core;Own), minted. (Core). They appear in Core report because Core is in scope.</div></div>
+</div>
+
+<!-- TAB: NOT ACTIONABLE -->
+<div id="tab-notact" class="tab-panel">
+  <div class="section-header">Not Actionable <span class="section-badge badge-blue">24 records &bull; ~$11.0M</span></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Saks.com LLC</span><span class="record-amount">-$4,470,000</span></div><div class="record-meta">Close: Jun 30 &bull; Stage: 02 Negotiate &bull; Type: Off-Cycle Restructure/Cancellation &bull; Reason: Financial Distress &ndash; Bankruptcy</div><div class="record-finding"><strong>CSG:</strong> "#ARI 3/18/26: Confirming forecasted attrition # on this oppty."<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; #ARI is offense tag (belongs in ECOMM only), no license tag, no date in standard format.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TQPgQAAX/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Caterpillar Inc.</span><span class="record-amount">-$1,000,000</span></div><div class="record-meta">Close: Jun 30 &bull; Stage: 02 Negotiate &bull; Type: Off-Cycle Restructure/Cancellation &bull; Reason: Restructuring</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000YQ3BZAA1/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Dupont Electronics Specialty</span><span class="record-amount">-$842,604</span></div><div class="record-meta">Close: Jun 23 &bull; Stage: 04 Pending &bull; Prior: $842,604 &bull; New: $0 &bull; Rate: 0% &bull; Premier Attached &bull; Reason: Limited Life Licenses</div><div class="record-finding"><strong>CSG:</strong> "5/22/26 CSAL GY #LicFullAttrit - known attrition of $800K+".<br><strong>Compliance:</strong> PARTIAL &mdash; valid license tag + date, missing sig tag (Premier).</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Fer8DAAR/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Niantic, Inc.</span><span class="record-amount">-$558,720</span></div><div class="record-meta">Close: May 16 &bull; Stage: Dead Attrition &bull; Prior: $558,720 &bull; New: $0 &bull; Reason: Business Direction Change</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019X3jfAAC/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">American Bath Group</span><span class="record-amount">-$451,355</span></div><div class="record-meta">Close: Jun 30 &bull; Stage: 01 Initiate &bull; Prior: $451,355 &bull; New: $0 &bull; Rate: 0% &bull; Premier Attached &bull; Reason: Transfer of Users to New Org</div><div class="record-finding"><strong>CSG:</strong> "5/5 RP csal migrating to second org".<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; no hashtags, no standard format.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019RVmDAAW/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Albemarle Corporation</span><span class="record-amount">-$363,379</span></div><div class="record-meta">Close: Jun 4 &bull; Stage: 05 Closed &bull; Type: Off-Cycle Restructure/Cancellation</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000dieOHAAY/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">TOTO USA, Inc.</span><span class="record-amount">-$331,559</span></div><div class="record-meta">Close: May 31 &bull; Stage: 05 Closed &bull; Prior: $471,614 &bull; New: $278,910 &bull; Rate: 59.14% &bull; Premier Attached &bull; Reason: Product</div><div class="record-finding"><strong>CSG:</strong> "4/9: RP CSAL non-actionable #fullattrit may keep a portion $100k while they migrate or a 9 month contract."<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; #fullattrit invalid (&rarr; #LicFullAttrit), missing sig tag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE5sbAAD/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Winston Brands</span><span class="record-amount">-$329,396</span></div><div class="record-meta">Close: Jun 14 &bull; Stage: Dead Attrition &bull; Prior: $329,396 &bull; New: $0 &bull; Reason: Out of Business/Bankruptcy</div><div class="record-finding"><strong>CSG:</strong> "3/2/2026 CSAL CChau #FullAttrit - company bankrupt out of business."<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; #FullAttrit invalid (&rarr; #LicFullAttrit).</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000F4aAkAAJ/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">The Mosaic Company</span><span class="record-amount">-$300,000</span></div><div class="record-meta">Close: May 14 &bull; Stage: Dead Attrition &bull; Prior: $300,000 &bull; New: $0 &bull; Premier Attached &bull; Reason: Business Change &amp; Distress</div><div class="record-finding"><strong>CSG:</strong> "3/19/26 BPH: #SigRisk #Non-Actionable Procurement sent notice of non-renewal. Economic issues..."<br><strong>Compliance:</strong> PARTIAL &mdash; #SigRisk valid, date present. Missing license tag. #Non-Actionable is invalid.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQc70AAD/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Vertex Energy</span><span class="record-amount">-$298,520</span></div><div class="record-meta">Close: Jul 31 &bull; Stage: 04 Pending &bull; Prior: $298,520 &bull; New: $0 &bull; Rate: 0% &bull; Premier Attached &bull; Reason: Implementation</div><div class="record-finding"><strong>CSG:</strong> "3/5/2026 CSAL CChau #FullAttrit #LicFullAttrit - customer and RVP confirmed full attrit."<br><strong>Compliance:</strong> PARTIAL &mdash; #LicFullAttrit valid, date present. #FullAttrit is redundant invalid tag. Missing sig tag (Premier).</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I2w3yAAB/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Dupont Specialty Products</span><span class="record-amount">-$240,744</span></div><div class="record-meta">Close: Jun 23 &bull; Stage: 04 Pending &bull; Prior: $240,744 &bull; New: $0 &bull; Rate: 0% &bull; Premier Attached &bull; Reason: Limited Life Licenses (divestiture)</div><div class="record-finding"><strong>CSG:</strong> "5/22/26 CSAL GY #LicPartialAttrit - known attrition from divestiture."<br><strong>Compliance:</strong> PARTIAL &mdash; date present, tag present. WARNING: #LicPartialAttrit on full-attrition record (Rate=0%, ACV=$0) should be #LicFullAttrit. Missing sig tag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FerZdAAJ/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">CECO Environmental</span><span class="record-amount">-$212,790</span></div><div class="record-meta">Close: May 14 &bull; Stage: Dead Attrition &bull; Prior: $212,790 &bull; New: $0 &bull; Reason: Product</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019X0BtAAK/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Ingersoll Rand</span><span class="record-amount">-$190,428</span></div><div class="record-meta">Close: Jun 2 &bull; Stage: Dead Attrition &bull; Prior: $190,428 &bull; New: $0 &bull; Reason: Unspecified</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000atwzVAAQ/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Generator Supercenter</span><span class="record-amount">-$179,110</span></div><div class="record-meta">Close: Jun 19 &bull; Stage: 04 Pending &bull; Prior: $179,110 &bull; New: $0 &bull; Rate: 0% &bull; Reason: Competitive &ndash; In-House Solution</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FCEpmAAH/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Arcadia</span><span class="record-amount">-$150,317</span></div><div class="record-meta">Close: Jul 30 &bull; Stage: 03 Agreed &bull; Prior: $150,317 &bull; New: $0 &bull; Rate: 0% &bull; Reason: Contract Transfer to Reseller</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TddyVAAR/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Sysco Corporation (Off-Cycle)</span><span class="record-amount">-$143,739</span></div><div class="record-meta">Close: May 8 &bull; Stage: 05 Closed &bull; Type: Off-Cycle Restructure/Cancellation</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Z5mawAAB/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Nike, Inc.</span><span class="record-amount">-$143,263</span></div><div class="record-meta">Close: Jul 31 &bull; Stage: 02 Negotiate &bull; Prior: $231,750 &bull; New: $88,487 &bull; Rate: 38.18% &bull; Premier Attached &bull; Reason: Downsizing</div><div class="record-finding"><strong>CSG Notes:</strong> Empty. No documented engagement = not actionable.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I3EFNAA3/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">CSI Compressco LP</span><span class="record-amount">-$142,201</span></div><div class="record-meta">Close: May 14 &bull; Stage: Dead Attrition &bull; Prior: $142,201 &bull; New: $0 &bull; Premier Attached &bull; Reason: Implementation</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQe0jAAD/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Hyundai Autoever</span><span class="record-amount">-$140,340</span></div><div class="record-meta">Close: Jul 30 &bull; Stage: 01 Initiate &bull; Prior: $140,340 &bull; New: $0 &bull; Rate: 0% &bull; Premier Attached &bull; Reason: Business Direction Change</div><div class="record-finding"><strong>CSG:</strong> "6/8/26 CSAL CCap #LicFullAttrit; no longer using this instance."<br><strong>Compliance:</strong> PARTIAL &mdash; valid tag + date, missing sig tag (Premier).</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I3SWsAAN/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">GR Energy Services</span><span class="record-amount">-$123,833</span></div><div class="record-meta">Close: Jul 27 &bull; Stage: 04 Pending &bull; Prior: $123,833 &bull; New: $0 &bull; Rate: 0% &bull; Premier Attached &bull; Reason: Internal Enablement Issues</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000HYO7lAAH/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Clockspring/Henkel</span><span class="record-amount">-$119,767</span></div><div class="record-meta">Close: Jun 13 &bull; Stage: 05 Closed &bull; Prior: $211,260 &bull; New: $91,493 &bull; Rate: 43.31% &bull; Premier Attached &bull; Reason: Pricing Change</div><div class="record-finding"><strong>CSG Notes:</strong> Empty. No documented engagement.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019R8JGAA0/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Grace Other</span><span class="record-amount">-$112,378</span></div><div class="record-meta">Close: Jun 2 &bull; Stage: Dead Attrition &bull; Prior: $112,378 &bull; New: $0 &bull; Reason: Transfer of Users to New Org</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Tq0JNAAZ/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Arconic Corporation</span><span class="record-amount">-$109,961</span></div><div class="record-meta">Close: Jul 30 &bull; Stage: 02 Negotiate &bull; Type: Off-Cycle Non Coterminous Order &bull; Reason: Restructuring</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Sd6VFAAZ/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">Penney OpCo LLC</span><span class="record-amount">-$107,700</span></div><div class="record-meta">Close: Jul 30 &bull; Stage: 04 Pending &bull; Prior: $107,700 &bull; New: $0 &bull; Rate: 0% &bull; Premier Attached &bull; Reason: Low Perceived ROI</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bJnLAAU/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+</div>
+
+<!-- TAB: WINS -->
+<div id="tab-wins" class="tab-panel">
+  <div class="section-header">Wins <span class="section-badge badge-green">15 records &bull; ~$7.2M risk eliminated</span></div>
+
+  <div class="record-card win"><div class="record-header"><span class="record-title">Sysco Corporation (Main)</span><span class="record-amount green">$1,800K saved</span></div><div class="record-meta">Close: Jun 30 &bull; Stage: 01 Initiate &bull; Prior: $18,228,326 &bull; New: $22,639,918 &bull; Rate: 100% &bull; Premier Attached</div><div class="record-finding"><strong>CSG:</strong> "5/11/26 AF - #LicNoAttrit - Implementation is underway with Infosys. Swapped $340K Loyalty Mgmt for Agentforce. Want to keep attrition risk until Agentforce is being consumed."<br><strong>Compliance:</strong> PARTIAL &mdash; #LicNoAttrit valid + date. Missing sig tag (Premier). INFO: AF mention but no #AfNoRisk.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019RWQgAAO/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card win"><div class="record-header"><span class="record-title">84.51&deg; LLC</span><span class="record-amount green">$944K saved</span></div><div class="record-meta">Close: May 28 &bull; Stage: 05 Closed &bull; Prior: $1,027,771 &bull; New: $1,027,771 &bull; Rate: 100% &bull; Premier Attached</div><div class="record-finding"><strong>CSG:</strong> "1/8/26 : #NoAttrit, utilization in 80s% no risk identified".<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; #NoAttrit invalid (&rarr; #LicNoAttrit), missing sig tag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE8yXAAT/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card win"><div class="record-header"><span class="record-title">FL P&amp;L Support</span><span class="record-amount green">$798K saved</span></div><div class="record-meta">Close: Jun 14 &bull; Stage: 02 Negotiate &bull; Prior: $798,000 &bull; New: $798,000 &bull; Rate: 100% &bull; Premier Attached</div><div class="record-finding"><strong>CSG:</strong> "6/18/26 Fernando Blaubach #SigRisk Red Account - 30 day extension executed..."<br><strong>Compliance:</strong> PARTIAL &mdash; #SigRisk valid + date. Missing license tag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000brmyrAAA/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card win"><div class="record-header"><span class="record-title">The Scotts Company</span><span class="record-amount green">$720K saved</span></div><div class="record-meta">Close: Jul 31 &bull; Stage: 02 Negotiate &bull; Prior: $719,864 &bull; New: $0 (stale forecast) &bull; Rate: 0% (stale) &bull; Premier Attached</div><div class="record-finding"><strong>CSG:</strong> "05/22- SS- #LicNoAttrit. Customer confirmed with AE and CSM they will be keeping Signature Success for Core as value has been shown across all clouds." NOTE: Classified as Win based on explicit CSM confirmation overriding stale forecast.<br><strong>Compliance:</strong> PARTIAL &mdash; #LicNoAttrit valid + date. Missing sig tag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000M5vQnAAJ/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card win"><div class="record-header"><span class="record-title">Rich Products</span><span class="record-amount green">$592K saved</span></div><div class="record-meta">Close: May 29 &bull; Stage: 05 Closed &bull; Prior: $653,705 &bull; New: $653,705 &bull; Rate: 100% &bull; Premier Attached</div><div class="record-finding"><strong>CSG:</strong> "5/6/2026 Phil Nowak #SigRisk #LicPartialAttrit $396,304.88 attrition risk..."<br><strong>Compliance:</strong> COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EBzGEAA1/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card win"><div class="record-header"><span class="record-title">Tonal Systems</span><span class="record-amount green">$456K saved</span></div><div class="record-meta">Close: Jul 7 &bull; Stage: 01 Initiate &bull; Prior: $455,745 &bull; New: $0 (stale) &bull; Rate: 0% (stale) &bull; Premier Attached &bull; License Status: Will Renew (Flat)</div><div class="record-finding"><strong>CSG:</strong> "2/13/2026 CSAL CChau #NoAttrit #LicNoAttrit - working with AD and RM to confirm risk status". NOTE: Classified as Win because License_Renewal_Status = "Will Renew (Flat)" + #LicNoAttrit.<br><strong>Compliance:</strong> PARTIAL &mdash; #LicNoAttrit valid + date. #NoAttrit is invalid redundant tag. Missing sig tag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000GSsibAAD/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card win"><div class="record-header"><span class="record-title">Yanmar</span><span class="record-amount green">$400K saved</span></div><div class="record-meta">Close: Jul 29 &bull; Stage: 02 Negotiate &bull; Prior: $768,856 &bull; New: $768,856 &bull; Rate: 100% &bull; Premier Attached</div><div class="record-finding"><strong>CSG:</strong> "5/5: RP CSAL confirming with AD team on sentiment".<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; no hashtags, no standard format.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018k6ixAAA/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card win"><div class="record-header"><span class="record-title">TARGET</span><span class="record-amount green">$374K saved</span></div><div class="record-meta">Close: Jul 30 &bull; Stage: 02 Negotiate &bull; Prior: $1,245,708 &bull; New: $1,245,708 &bull; Rate: 100% &bull; Premier Attached</div><div class="record-finding"><strong>CSG:</strong> "6/9 MC - No reduction confirmed at this time per Praveen through AE. #LicNoAttrit #NoSigRisk".<br><strong>Compliance:</strong> COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000HzG65AAF/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card win"><div class="record-header"><span class="record-title">Duke Energy</span><span class="record-amount green">$300K saved</span></div><div class="record-meta">Close: Jul 29 &bull; Stage: 02 Negotiate &bull; Prior: $1,151,538 &bull; New: $1,151,538 &bull; Rate: 100% &bull; Premier Attached</div><div class="record-finding"><strong>CSG:</strong> "6/8/26 CSAL CCap #LicPartialAttrit; Communities logins & members, and Service Cloud. AT working on mitigating. Full swing."<br><strong>Compliance:</strong> PARTIAL &mdash; #LicPartialAttrit valid + date. Missing sig tag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019ecHuAAI/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card win"><div class="record-header"><span class="record-title">FL P&amp;L Sandbox</span><span class="record-amount green">$194K saved</span></div><div class="record-meta">Close: Jun 14 &bull; Stage: 02 Negotiate &bull; Prior: $193,815 &bull; New: $193,815 &bull; Rate: 100%</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000brLc6AAE/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card win"><div class="record-header"><span class="record-title">Hibbett Retail</span><span class="record-amount green">$155K saved</span></div><div class="record-meta">Close: Jul 13 &bull; Stage: 02 Negotiate &bull; Prior: $590,892 &bull; New: $590,892 &bull; Rate: 100% &bull; Premier Attached</div><div class="record-finding"><strong>CSG:</strong> "18/05/2026 Luke Gallagher #LicNoAttrit #NoSigRisk Hibbett fully bought into AGF and seeing great results".<br><strong>Compliance:</strong> COMPLIANT. INFO: AF mention without #AfNoRisk tag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Gna9CAAR/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card win"><div class="record-header"><span class="record-title">HF Sinclair</span><span class="record-amount green">$150K saved</span></div><div class="record-meta">Close: Jul 31 &bull; Stage: 01 Initiate &bull; Prior: $596,990 &bull; New: $596,990 &bull; Rate: 100% &bull; Premier Attached</div><div class="record-finding"><strong>CSG:</strong> "6/8/26 CSAL CCap #LicPartialAttrit; Will lose Heroku, mitigating through other addons. $60k in swing. Expected to ER."<br><strong>Compliance:</strong> PARTIAL &mdash; valid tag + date. Missing sig tag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018kBR9AAM/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card win"><div class="record-header"><span class="record-title">Cryogenic Industries</span><span class="record-amount green">$113K saved</span></div><div class="record-meta">Close: Jul 14 &bull; Stage: 01 Initiate &bull; Prior: $863,164 &bull; New: $906,322 &bull; Rate: 100% &bull; Premier Attached</div><div class="record-finding"><strong>CSG:</strong> "5/5 RP CSAL slight risk here, new points of contact and low adoption. will swarm this for fy27".<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; no hashtags.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018jj6IAAQ/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card win"><div class="record-header"><span class="record-title">Coca-Cola North America</span><span class="record-amount green">$105K saved</span></div><div class="record-meta">Close: Jul 25 &bull; Stage: 04 Pending &bull; Prior: $104,867 &bull; New: $104,867 &bull; Rate: 100% &bull; Premier Attached</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TGcOoAAL/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+  <div class="record-card win"><div class="record-header"><span class="record-title">TT Electronics</span><span class="record-amount green">$100K saved</span></div><div class="record-meta">Close: Jul 14 &bull; Stage: 01 Initiate &bull; Prior: $299,145 &bull; New: $299,145 &bull; Rate: 100%</div><div class="record-finding"><strong>CSG Notes:</strong> Empty.<br><strong>Compliance:</strong> NON-COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000GhChRAAV/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+</div>
+
+<!-- TAB: LOSSES -->
+<div id="tab-losses" class="tab-panel">
+  <div class="section-header">Losses <span class="section-badge badge-red">12 Actionable &bull; ~$5.0M</span></div>
+
+  <!-- Sub-section: Logo Losses -->
+  <div class="sub-section">
+    <div class="sub-header">Logo Losses <span class="section-badge badge-red">4 records &bull; ~$1.7M</span></div>
+
+    <div class="record-card logo-loss"><div class="record-header"><span class="record-title">Imperial Dade</span><span class="record-amount">-$664,131</span></div><div class="record-meta">Close: May 1 &bull; Stage: Dead Attrition &bull; Prior: $664,131 &bull; New: $0 &bull; Premier Attached &bull; Reason: Customer Relationship</div><div class="record-finding"><strong>CSG:</strong> "4/14/26 CSAL GY #LicFullAttrit - requesting ROR, president has said that trust was eroded by previous team."<br><strong>Compliance:</strong> PARTIAL &mdash; valid license tag + date. Missing sig tag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019WkEmAAK/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+    <div class="record-card logo-loss"><div class="record-header"><span class="record-title">Belden Inc.</span><span class="record-amount">-$397,764</span></div><div class="record-meta">Close: Jul 14 &bull; Stage: 01 Initiate &bull; Prior: $397,764 &bull; New: $0 &bull; Rate: 0% &bull; Premier Attached</div><div class="record-finding"><strong>CSG:</strong> "6/8/26 CSAL CCap #LicPartialAttrit; Known attrition. Finalized strategy: accepting attrition to meet their $3M budget while implementing 50% price increases. $610k attrition spread across oppties."<br><strong>Compliance:</strong> PARTIAL &mdash; valid tag + date. Missing sig tag. NOTE: #LicPartialAttrit on Logo Loss &mdash; attrition spread across multiple oppties explains this.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000052rBpAAI/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+    <div class="record-card logo-loss"><div class="record-header"><span class="record-title">minted. LLC</span><span class="record-amount">-$340,104</span></div><div class="record-meta">Close: Jul 30 &bull; Stage: 02 Negotiate &bull; Prior: $851,955 &bull; New: $0 &bull; Rate: 0% &bull; Premier Attached &bull; Reason: Lack of Internal Expertise</div><div class="record-finding"><strong>CSG:</strong> "5/15/26 Jack Kiatmysack #LicPartialAttrit Agentforce and service skus at risk, customer using Sierra. Account team exploring commercial options to swap seats for flex credits."<br><strong>Compliance:</strong> PARTIAL &mdash; valid tag + date. Missing sig tag. INFO: "Agentforce...at risk" &rarr; should have #AFAttrit.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I11HSAAZ/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+    <div class="record-card logo-loss"><div class="record-header"><span class="record-title">Stanley Black &amp; Decker</span><span class="record-amount">-$262,258</span></div><div class="record-meta">Close: May 8 &bull; Stage: 05 Closed &bull; Prior: $280,493 &bull; New: $0 &bull; Reason: Business Direction Change</div><div class="record-finding"><strong>CSG:</strong> "2/27/26 AGilb - Slack is attrition risk plan to offer signature swap and co-term with main renewal in Jan 2027. #LicFullAttrit".<br><strong>Compliance:</strong> COMPLIANT.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000D6ahFAAR/view" class="org62-link" target="_blank">Renewal</a></div></div>
+  </div>
+
+  <!-- Sub-section: Partial Saves -->
+  <div class="sub-section">
+    <div class="sub-header">Partial Saves <span class="section-badge badge-orange">6 records &bull; ~$3.0M</span></div>
+
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">Specialized Bicycle</span><span class="record-amount">-$1,500,000</span></div><div class="record-meta">Close: Jul 14 &bull; Stage: 02 Negotiate &bull; Prior: $3,351,594 &bull; New: $1,664,259 &bull; Rate: 49.66% &bull; Premier Attached &bull; Reason: Business Direction Change</div><div class="record-finding"><strong>CSG:</strong> "6/9/26 Jack K #LicPartialAttrit - full attrition on MCE (Klayvio & Mailchimp), Retail store mgmt...and Mulesoft. Partial risk on CRMA and Core due to cost cutting measures."<br><strong>Compliance:</strong> PARTIAL &mdash; valid tag + date. Missing sig tag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018jj1jAAA/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">Fossil Group</span><span class="record-amount">-$454,588</span></div><div class="record-meta">Close: Jun 13 &bull; Stage: 05 Closed &bull; Prior: $779,592 &bull; New: $325,004 &bull; Rate: 41.69% &bull; Premier Attached &bull; Reason: Low Perceived ROI</div><div class="record-finding"><strong>CSG:</strong> "4/13 JSC #LicPartialAttrit: RM sent out a quote recently. Expecting to move from full attrit to partial attrit. Will likely renew at $325K".<br><strong>Compliance:</strong> PARTIAL &mdash; valid tag + date. Missing sig tag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wGQ0AAM/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">Ambient Enterprises</span><span class="record-amount">-$343,524</span></div><div class="record-meta">Close: Jul 31 &bull; Stage: 02 Negotiate &bull; Prior: $445,524 &bull; New: $102,000 &bull; Rate: 22.89% &bull; Premier Attached &bull; Reason: Competitive &ndash; In-House Solution</div><div class="record-finding"><strong>CSG:</strong> "5/5: RP CSAL all companies have said they are fully attriting and moving to an internal - may be able to save part of this if they dont migrate quickly enough."<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; no hashtags.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I3EX7AAN/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">Carhartt, Inc.</span><span class="record-amount">-$296,016</span></div><div class="record-meta">Close: Jul 31 &bull; Stage: 02 Negotiate &bull; Prior: $851,948 &bull; New: $555,932 &bull; Rate: 65.25% &bull; Premier Attached &bull; Reason: Internal Enablement Issues</div><div class="record-finding"><strong>CSG:</strong> "4/26 JSC - #LicPartialAttrit Hedging potential risk due to low adoption of Einstein for Service. Attrit not confirmed by customer. Sales expect full renewal."<br><strong>Compliance:</strong> PARTIAL &mdash; valid tag + date. Missing sig tag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I2LR2AAN/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">JM Family Automotive</span><span class="record-amount">-$212,366</span></div><div class="record-meta">Close: May 31 &bull; Stage: 05 Closed &bull; Prior: $232,304 &bull; New: $19,939 &bull; Rate: 8.58% &bull; Premier Attached &bull; Reason: Competitive</div><div class="record-finding"><strong>CSG:</strong> "5/5: RP CSAL confirmed partial attrit have known about it for a while implementation".<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; no hashtags.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EDsaQAAT/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">Peloton Interactive</span><span class="record-amount">-$198,436</span></div><div class="record-meta">Close: Jun 23 &bull; Stage: 02 Negotiate &bull; Prior: $1,022,868 &bull; New: $824,432 &bull; Rate: 80.6% &bull; Reason: Adoption</div><div class="record-finding"><strong>CSG:</strong> "Signature Slack".<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; essentially empty (2 words, no hashtags, no date, no substance).</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FejSPAAZ/view" class="org62-link" target="_blank">Renewal</a></div></div>
+  </div>
+
+  <!-- Sub-section: SP Downgrades -->
+  <div class="sub-section">
+    <div class="sub-header">SP Downgrades <span class="section-badge badge-purple">2 records &bull; ~$265K</span></div>
+
+    <div class="record-card sp-downgrade"><div class="record-header"><span class="record-title">Waste Management</span><span class="record-amount">-$140,000</span></div><div class="record-meta">Close: Jul 30 &bull; Stage: 02 Negotiate &bull; Prior: $140,000 &bull; New: $0 &bull; Rate: 0% &bull; Premier Attached &bull; Type: Renewal 1 Support &bull; Reason: Pricing</div><div class="record-finding"><strong>CSG:</strong> "5/5 SA: Per 2/18 Bi-weekly, Urusa stated that WM SBS will not be renewing Signature in Aug. due to budget constraints. Per ADs, Urusa maybe hedging her bets on budget. #FullAttrit".<br><strong>Classification:</strong> SP Downgrade &mdash; Signature dropped, licenses retained.<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; #FullAttrit invalid (&rarr; #LicNoAttrit + #SigRisk for SP Downgrade), no valid tags.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I02x7AAB/view" class="org62-link" target="_blank">Renewal</a></div></div>
+
+    <div class="record-card sp-downgrade"><div class="record-header"><span class="record-title">Audio Enhancement</span><span class="record-amount">-$125,000</span></div><div class="record-meta">Close: Jul 27 &bull; Stage: 04 Pending &bull; Prior: $125,000 &bull; New: $0 &bull; Rate: 0% &bull; Premier Attached &bull; Type: Renewal 1 Support &bull; Reason: Business Direction Change</div><div class="record-finding"><strong>CSG:</strong> "4/30/2026 - RR - #SigRisk #PrecautionaryRed. Lost $120K w/ partner Coastal, budget constrained. Dropping Signature. Active engagements underway to retain. Working w/ customer on path to keep platform value & right-size."<br><strong>Classification:</strong> SP Downgrade &mdash; platform retained, Sig dropped.<br><strong>Compliance:</strong> PARTIAL &mdash; #SigRisk valid + date. #PrecautionaryRed is invalid. Missing license tag (#LicNoAttrit for SP Downgrade).</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Hm3LDAAZ/view" class="org62-link" target="_blank">Renewal</a></div></div>
+  </div>
+</div>
+
+<!-- TAB: COMPLIANCE -->
+<div id="tab-compliance" class="tab-panel">
+  <div class="section-header">#Compliance <span class="section-badge badge-orange">8% Compliant (4/51)</span></div>
+
+  <!-- Invalid Hashtags -->
+  <div class="sub-section">
+    <div class="sub-header">Invalid Hashtags Found</div>
+    <div class="insight-box critical"><div class="insight-label">9 Invalid Hashtag Instances (6 Types)</div><div class="insight-text"><strong>#NoAttrit</strong> &mdash; 84.51&deg; LLC, Tonal Systems (should be #LicNoAttrit)<br><strong>#fullattrit</strong> &mdash; TOTO USA (should be #LicFullAttrit or #LicPartialAttrit)<br><strong>#FullAttrit</strong> &mdash; Winston Brands, Vertex Energy, Waste Management (should be #LicFullAttrit)<br><strong>#Non-Actionable</strong> &mdash; The Mosaic Company (not a valid PACE hashtag)<br><strong>#PrecautionaryRed</strong> &mdash; Audio Enhancement (not a valid renewal tag; belongs in Red Account context only)</div></div>
+  </div>
+
+  <!-- Tag Mismatch WARNING -->
+  <div class="sub-section">
+    <div class="sub-header">Tag Mismatch WARNING</div>
+    <div class="insight-box"><div class="insight-label">License Tag Mismatch</div><div class="insight-text"><strong>Dupont Specialty Products</strong> &mdash; #LicPartialAttrit on full-attrition record (Rate=0%, ACV=$0 from divestiture). Should be #LicFullAttrit.</div></div>
+  </div>
+
+  <!-- AF/D360 Decision Tree Gaps -->
+  <div class="sub-section">
+    <div class="sub-header">AF/D360 Decision Tree Gaps (INFO)</div>
+    <div class="insight-box info"><div class="insight-label">4 Accounts with AF/DC in Scope, Missing AF Tags</div><div class="insight-text"><strong>Rich Products</strong> &mdash; AF/DC courtesy extension through Aug 2026 &rarr; needs AF tag<br><strong>Sysco Corporation (Main)</strong> &mdash; Swapped $340K Loyalty Mgmt for Agentforce &rarr; needs #AfNoRisk<br><strong>Hibbett Retail</strong> &mdash; "Hibbett fully bought into AGF and seeing great results" &rarr; needs #AfNoRisk<br><strong>minted. LLC</strong> &mdash; "Agentforce...at risk" &rarr; needs #AFAttrit</div></div>
+  </div>
+
+  <!-- Missing Sig Tag (Premier-Attached) -->
+  <div class="sub-section">
+    <div class="sub-header">Missing Sig Tag (Premier-Attached)</div>
+    <div class="insight-box critical"><div class="insight-label">29 of 35 Premier Records Missing Sig Hashtag (83%)</div><div class="insight-text">Only 6 records have valid sig tags: Mosaic (#SigRisk), Rich Products (#SigRisk), FL P&amp;L Support (#SigRisk), Hibbett (#NoSigRisk), Audio Enhancement (#SigRisk), TARGET (#NoSigRisk). The remaining 29 Premier-attached records are missing required #SigRisk or #NoSigRisk hashtag.</div></div>
+  </div>
+
+  <!-- CSG Notes Compliance Table -->
+  <div class="sub-section">
+    <div class="sub-header">CSG Notes Compliance Table</div>
+    <table class="compliance-table">
+      <thead><tr><th>Account</th><th>Attrition</th><th>License Tag</th><th>Sig Tag</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Sysco (Main)</td><td>+$4.4M</td><td>#LicNoAttrit</td><td>Missing</td><td>5/11/26</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>Saks.com</td><td>-$4.5M</td><td>Missing</td><td>N/A</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Specialized Bicycle</td><td>-$1.5M</td><td>#LicPartialAttrit</td><td>Missing</td><td>6/9/26</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>Caterpillar</td><td>-$1.0M</td><td>Missing</td><td>N/A</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>84.51&deg;</td><td>-$944K</td><td>#NoAttrit (INVALID)</td><td>Missing</td><td>1/8/26</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Dupont Electronics</td><td>-$843K</td><td>#LicFullAttrit</td><td>Missing</td><td>5/22/26</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>FL P&amp;L Support</td><td>-$798K</td><td>Missing</td><td>#SigRisk</td><td>6/18/26</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>The Scotts</td><td>-$720K</td><td>#LicNoAttrit</td><td>Missing</td><td>5/22</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>Imperial Dade</td><td>-$664K</td><td>#LicFullAttrit</td><td>Missing</td><td>4/14/26</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>Rich Products</td><td>-$592K</td><td>#LicPartialAttrit</td><td>#SigRisk</td><td>5/6/2026</td><td><span class="status-dot pass"></span>PASS</td></tr>
+        <tr><td>Niantic</td><td>-$559K</td><td>Missing</td><td>N/A</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Tonal</td><td>-$456K</td><td>#LicNoAttrit</td><td>Missing</td><td>2/13/2026</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>Fossil</td><td>-$455K</td><td>#LicPartialAttrit</td><td>Missing</td><td>4/13</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>American Bath</td><td>-$451K</td><td>Missing</td><td>Missing</td><td>5/5</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Yanmar</td><td>-$400K</td><td>Missing</td><td>Missing</td><td>5/5</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Belden</td><td>-$398K</td><td>#LicPartialAttrit</td><td>Missing</td><td>6/8/26</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>TARGET</td><td>-$374K</td><td>#LicNoAttrit</td><td>#NoSigRisk</td><td>6/9</td><td><span class="status-dot pass"></span>PASS</td></tr>
+        <tr><td>Albemarle</td><td>-$363K</td><td>Missing</td><td>N/A</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Ambient</td><td>-$344K</td><td>Missing</td><td>Missing</td><td>5/5</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>minted.</td><td>-$340K</td><td>#LicPartialAttrit</td><td>Missing</td><td>5/15/26</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>TOTO</td><td>-$332K</td><td>#fullattrit (INVALID)</td><td>Missing</td><td>4/9</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Winston</td><td>-$329K</td><td>#FullAttrit (INVALID)</td><td>N/A</td><td>3/2/2026</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Duke Energy</td><td>-$300K</td><td>#LicPartialAttrit</td><td>Missing</td><td>6/8/26</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>Mosaic</td><td>-$300K</td><td>Missing</td><td>#SigRisk</td><td>3/19/26</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>Vertex</td><td>-$299K</td><td>#LicFullAttrit</td><td>Missing</td><td>3/5/2026</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>Carhartt</td><td>-$296K</td><td>#LicPartialAttrit</td><td>Missing</td><td>4/26</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>Stanley B&amp;D</td><td>-$262K</td><td>#LicFullAttrit</td><td>N/A</td><td>2/27/26</td><td><span class="status-dot pass"></span>PASS</td></tr>
+        <tr><td>Dupont Specialty</td><td>-$241K</td><td>#LicPartialAttrit</td><td>Missing</td><td>5/22/26</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>CECO</td><td>-$213K</td><td>Missing</td><td>N/A</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>JM Family</td><td>-$212K</td><td>Missing</td><td>Missing</td><td>5/5</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Peloton</td><td>-$198K</td><td>Missing</td><td>Missing</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>FL P&amp;L Sandbox</td><td>-$194K</td><td>Missing</td><td>N/A</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Ingersoll Rand</td><td>-$190K</td><td>Missing</td><td>N/A</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Generator</td><td>-$179K</td><td>Missing</td><td>N/A</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Hibbett</td><td>-$155K</td><td>#LicNoAttrit</td><td>#NoSigRisk</td><td>18/05/2026</td><td><span class="status-dot pass"></span>PASS</td></tr>
+        <tr><td>HF Sinclair</td><td>-$150K</td><td>#LicPartialAttrit</td><td>Missing</td><td>6/8/26</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>Arcadia</td><td>-$150K</td><td>Missing</td><td>N/A</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Sysco (Off-Cycle)</td><td>-$144K</td><td>Missing</td><td>N/A</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Nike</td><td>-$143K</td><td>Missing</td><td>Missing</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>CSI Compressco</td><td>-$142K</td><td>Missing</td><td>Missing</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Hyundai</td><td>-$140K</td><td>#LicFullAttrit</td><td>Missing</td><td>6/8/26</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>Waste Management</td><td>-$140K</td><td>Missing</td><td>#FullAttrit (INVALID)</td><td>5/5</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Audio Enhancement</td><td>-$125K</td><td>Missing</td><td>#SigRisk</td><td>4/30/2026</td><td><span class="status-dot partial"></span>PARTIAL</td></tr>
+        <tr><td>GR Energy</td><td>-$124K</td><td>Missing</td><td>Missing</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Clockspring</td><td>-$120K</td><td>Missing</td><td>Missing</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Cryogenic</td><td>-$113K</td><td>Missing</td><td>Missing</td><td>5/5</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Grace</td><td>-$112K</td><td>Missing</td><td>N/A</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Arconic</td><td>-$110K</td><td>Missing</td><td>N/A</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Penney OpCo</td><td>-$108K</td><td>Missing</td><td>Missing</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>Coca-Cola</td><td>-$105K</td><td>Missing</td><td>Missing</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+        <tr><td>TT Electronics</td><td>-$100K</td><td>Missing</td><td>N/A</td><td>N/A</td><td><span class="status-dot fail"></span>FAIL</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB: METHODOLOGY -->
+<div id="tab-method" class="tab-panel">
+  <div class="section-header">Methodology</div>
+  <div style="background:white; border-radius:10px; padding:20px 24px; box-shadow:0 1px 3px rgba(0,0,0,0.06); font-size:13px; line-height:1.8; color:#4a5568;">
+    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c; width:160px;">Risk</td><td style="padding:10px 12px;">Forecasted Attrition &gt; $0</td></tr>
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c;">Actionable</td><td style="padding:10px 12px;">Swing &gt; $0 (realistic opportunity to save existed &mdash; active plays, CSM engagement)</td></tr>
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c;">Not Actionable</td><td style="padding:10px 12px;">Swing = $0 (explicit "non-actionable" tag, structural business failure, no CSG Notes/engagement)</td></tr>
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c;">Win</td><td style="padding:10px 12px;">$0 Attrit FINAL &mdash; risk fully eliminated (100% renewal rate)</td></tr>
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c;">Logo Loss</td><td style="padding:10px 12px;">Prior ACV fully attrited &mdash; customer departed product ($0 new ACV)</td></tr>
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c;">Partial Save</td><td style="padding:10px 12px;">Some ACV retained, some attrited (renewal rate &gt; 0% but &lt; 100%)</td></tr>
+      <tr><td style="padding:10px 12px; font-weight:700; color:#1a202c;">SP Downgrade</td><td style="padding:10px 12px;">Signature/Premier tier removed, license retained</td></tr>
+    </table>
+    <div style="margin-top:18px; padding-top:14px; border-top:1px solid #edf2f7;">
+      <strong>Compliance Reference:</strong> <a href="https://salesforce.enterprise.slack.com/docs/T7KUQ9FLZ/F07F7V4FHPF" target="_blank" style="color:#3182ce;">PACE Attrition Hashtag Guidance (Slack Canvas)</a>
+    </div>
+    <div style="margin-top:12px; padding-top:12px; border-top:1px solid #edf2f7;">
+      <strong>Multi-Cloud Note:</strong> Records with multiple clouds in Targeted_Clouds__c (e.g., Core;Pardot) may appear in both Core and Marketing Cloud reports. This is intentional &mdash; the record is relevant to both cloud stories.
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">Generated by Win/Loss Process &bull; Core &bull; Q2 FY27 (May&ndash;Jul 2026) &bull; PACE AMER</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>

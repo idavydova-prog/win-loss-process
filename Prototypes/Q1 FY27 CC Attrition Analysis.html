@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q1 FY27 Commerce Cloud — Attrition Analysis</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f6f9; color: #1a1a2e; min-height: 100vh; line-height: 1.5; }
+
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 32px 40px; }
+  .header h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+  .header p { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+  .header-meta { display: flex; gap: 24px; margin-top: 14px; flex-wrap: wrap; }
+  .header-meta-item { font-size: 12px; opacity: 0.85; background: rgba(255,255,255,0.08); padding: 4px 12px; border-radius: 12px; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 28px 40px 60px; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+  @media (max-width: 700px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+  .metric-card { background: white; border-radius: 10px; padding: 18px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-top: 3px solid; }
+  .metric-card.red { border-color: #e53e3e; }
+  .metric-card.orange { border-color: #ed8936; }
+  .metric-card.blue { border-color: #4299e1; }
+  .metric-card.green { border-color: #38a169; }
+  .metric-card.purple { border-color: #805ad5; }
+  .metric-value { font-size: 28px; font-weight: 800; color: #1a202c; }
+  .metric-label { font-size: 11px; color: #718096; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .section { margin-bottom: 32px; }
+  .section-header { font-size: 15px; font-weight: 700; color: #1a202c; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+  .section-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 10px; }
+  .badge-red { background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2; }
+  .badge-orange { background: #fffaf0; color: #dd6b20; border: 1px solid #fbd38d; }
+  .badge-blue { background: #ebf8ff; color: #3182ce; border: 1px solid #bee3f8; }
+  .badge-green { background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4; }
+  .badge-purple { background: #faf5ff; color: #805ad5; border: 1px solid #d6bcfa; }
+
+  .record-card { background: white; border-radius: 10px; padding: 18px 20px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid #e2e8f0; }
+  .record-card.logo-loss { border-left-color: #e53e3e; }
+  .record-card.partial-save { border-left-color: #ed8936; }
+  .record-card.sp-downgrade { border-left-color: #805ad5; }
+  .record-card.not-actionable { border-left-color: #a0aec0; }
+  .record-card.compliant { border-left-color: #38a169; }
+  .record-card.non-compliant { border-left-color: #e53e3e; }
+
+  .record-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+  .record-title { font-size: 14px; font-weight: 700; color: #1a202c; }
+  .record-amount { font-size: 14px; font-weight: 700; color: #e53e3e; }
+  .record-meta { font-size: 12px; color: #718096; margin-bottom: 8px; line-height: 1.6; }
+  .record-finding { font-size: 13px; color: #4a5568; line-height: 1.6; }
+  .record-finding strong { color: #1a202c; }
+
+  .org62-link { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: #3182ce; text-decoration: none; padding: 3px 10px; background: #ebf8ff; border-radius: 12px; border: 1px solid #bee3f8; transition: all 0.15s; }
+  .org62-link:hover { background: #bee3f8; color: #2c5282; }
+  .org62-link.ra { color: #805ad5; background: #faf5ff; border-color: #d6bcfa; }
+  .org62-link.ra:hover { background: #e9d8fd; color: #553c9a; }
+
+  .links-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+  .insight-box { background: #fffaf0; border: 1px solid #fbd38d; border-radius: 10px; padding: 14px 18px; margin-bottom: 14px; }
+  .insight-box.critical { background: #fff5f5; border-color: #feb2b2; }
+  .insight-box.info { background: #ebf8ff; border-color: #bee3f8; }
+  .insight-label { font-size: 10px; font-weight: 700; color: #dd6b20; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .insight-box.critical .insight-label { color: #e53e3e; }
+  .insight-box.info .insight-label { color: #3182ce; }
+  .insight-text { font-size: 13px; color: #4a5568; line-height: 1.6; }
+
+  .compliance-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .compliance-table th { text-align: left; font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; border-bottom: 2px solid #e2e8f0; }
+  .compliance-table td { padding: 10px 12px; border-bottom: 1px solid #f7fafc; vertical-align: top; }
+  .compliance-table tr:hover { background: #f7fafc; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .status-dot.pass { background: #38a169; }
+  .status-dot.fail { background: #e53e3e; }
+
+  .footer { text-align: center; font-size: 11px; color: #a0aec0; margin-top: 40px; padding-top: 20px; border-top: 1px solid #edf2f7; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Q1 FY27 Commerce Cloud — Attrition Analysis</h1>
+  <p>Win/Loss Workflow Classification &bull; PACE AMER Portfolio</p>
+  <div class="header-meta">
+    <span class="header-meta-item">Period: Feb – Apr 2026</span>
+    <span class="header-meta-item">Cloud: Commerce Cloud / B2B Commerce / Order Management</span>
+    <span class="header-meta-item">Threshold: Attrition &ge; $100K</span>
+    <span class="header-meta-item">Records: 17</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Summary Metrics -->
+  <div class="summary-grid">
+    <div class="metric-card red">
+      <div class="metric-value">$13.4M</div>
+      <div class="metric-label">Total Attrition</div>
+    </div>
+    <div class="metric-card orange">
+      <div class="metric-value">10</div>
+      <div class="metric-label">Actionable</div>
+    </div>
+    <div class="metric-card blue">
+      <div class="metric-value">7</div>
+      <div class="metric-label">Not Actionable</div>
+    </div>
+    <div class="metric-card green">
+      <div class="metric-value">0</div>
+      <div class="metric-label">Wins ($0 Attrit)</div>
+    </div>
+  </div>
+
+  <div class="summary-grid">
+    <div class="metric-card red">
+      <div class="metric-value">3</div>
+      <div class="metric-label">Logo Losses</div>
+    </div>
+    <div class="metric-card orange">
+      <div class="metric-value">5</div>
+      <div class="metric-label">Partial Saves</div>
+    </div>
+    <div class="metric-card purple">
+      <div class="metric-value">2</div>
+      <div class="metric-label">SP Downgrades</div>
+    </div>
+    <div class="metric-card blue">
+      <div class="metric-value">12%</div>
+      <div class="metric-label">Compliance Rate</div>
+    </div>
+  </div>
+
+  <!-- Key Insights -->
+  <div class="section">
+    <div class="section-header">Key Insights</div>
+    <div class="insight-box critical">
+      <div class="insight-label">Zero Wins</div>
+      <div class="insight-text">Per the workflow diagram (Win = $0 Attrit final), no attrition event in Q1 FY27 Commerce Cloud was fully eliminated. Every actionable record resulted in a Loss — either a complete logo churn, a partial save, or a Signature/Premier downgrade.</div>
+    </div>
+    <div class="insight-box">
+      <div class="insight-label">Competitive Threat: Shopify</div>
+      <div class="insight-text">Shopify is the named competitor in 3 of the 17 records: Cole Haan ($1.7M — logo loss), Lands' End ($300K — bridge), PartyCity.com ($472K — lost). Combined: $2.4M in confirmed Shopify-driven attrition.</div>
+    </div>
+    <div class="insight-box critical">
+      <div class="insight-label">Data Quality Crisis</div>
+      <div class="insight-text">88% of records (15/17) are non-compliant with PACE hashtag guidance on the renewal side. On the Red Account side, <strong>0 of 12</strong> ECOMM Headlines contain a valid offense hashtag — no offensive plays are formally tracked. 6 accounts have completely empty CSG Notes. 3 accounts that ended in full logo loss had NO Red Account and NO CSG Notes — these were visibility blind spots.</div>
+    </div>
+    <div class="insight-box info">
+      <div class="insight-label">Story Threshold</div>
+      <div class="insight-text">Only 7 of 17 records meet the diagram's story process threshold (&gt;$500K Premier / &gt;$250K Signature). These 7 represent $12.1M (91%) of total attrition and should be prioritized for formal Win/Loss stories.</div>
+    </div>
+  </div>
+
+  <!-- SECTION: LOGO LOSSES -->
+  <div class="section">
+    <div class="section-header">Logo Losses <span class="section-badge badge-red">3 records &bull; $3.4M</span></div>
+
+    <div class="record-card logo-loss">
+      <div class="record-header">
+        <span class="record-title">Cole Haan LLC</span>
+        <span class="record-amount">-$1,650,074</span>
+      </div>
+      <div class="record-meta">Owner: Ramneek Sohi &bull; Close: Mar 31, 2026 &bull; Stage: Dead Attrition &bull; Prior ACV: $1,650,074</div>
+      <div class="record-finding">
+        <strong>Classification:</strong> Actionable &rarr; Loss &rarr; Logo Loss<br>
+        <strong>Tactic attempted:</strong> SWAP (Competitive) — Failed<br>
+        <strong>Root cause:</strong> Customer migrated to Shopify. CC cited as not keeping pace with platform needs. Personalization pricing surfaced as extra cost at renewal — key driver.<br>
+        <strong>Red Account:</strong> Stage = Lost (a4Ved0000004rDpEAI) — Competitive, Forecasted Attrition matches renewal.<br>
+        <strong>Compliance:</strong> COMPLIANT — #LicFullAttrit, #RA present with URL, date stamp present.
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000008QdkHAAS/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+        <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000004rDpEAI/view" class="org62-link ra" target="_blank">Red Account</a>
+      </div>
+    </div>
+
+    <div class="record-card logo-loss">
+      <div class="record-header">
+        <span class="record-title">YETI Coolers, LLC</span>
+        <span class="record-amount">-$2,007,929</span>
+      </div>
+      <div class="record-meta">Owner: Patti Graham &bull; Close: Feb 28, 2026 &bull; Stage: 05 Closed &bull; Prior ACV: $5,890,654 &bull; New ACV: $0</div>
+      <div class="record-finding">
+        <strong>Classification:</strong> Actionable &rarr; Loss &rarr; Logo Loss (requires validation)<br>
+        <strong>Tactic attempted:</strong> SALES (Early Renewal)<br>
+        <strong>Root cause:</strong> Product-Market Fit Mismatch/Oversold. Forecasted ACV = $0 on this opty, but CSG Notes state: "YETI has pre-signed a 3 year renewal including Commerce Cloud Signature."<br>
+        <strong>VALIDATION NEEDED:</strong> New deal likely lives on a separate Opportunity. If confirmed, reclassify as Partial Save.<br>
+        <strong>Red Account:</strong> Stage = Precautionary (a4Ved0000006BiLEAU) — Financial &amp; Contractual<br>
+        <strong>Compliance:</strong> NON-COMPLIANT — Uses #PartialAttrit (invalid, should be #LicPartialAttrit) and #NoSigAttrit (invalid, should be #NoSigRisk).
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017UtgbAAC/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+        <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000006BiLEAU/view" class="org62-link ra" target="_blank">Red Account</a>
+      </div>
+    </div>
+
+    <div class="record-card logo-loss">
+      <div class="record-header">
+        <span class="record-title">Land O'Lakes - Purina Animal Feed</span>
+        <span class="record-amount">-$143,360</span>
+      </div>
+      <div class="record-meta">Owner: Robert Peckenpaugh &bull; Close: Apr 30, 2026 &bull; Stage: Dead Attrition &bull; Prior ACV: $143,360</div>
+      <div class="record-finding">
+        <strong>Classification:</strong> Actionable &rarr; Loss &rarr; Logo Loss<br>
+        <strong>Tactic applicable:</strong> ADOPT (Product roadmap engagement)<br>
+        <strong>Root cause:</strong> Product Feature Gap. Full attrition of B2B Commerce license.<br>
+        <strong>Red Account:</strong> NONE — No active Red Account found for this account.<br>
+        <strong>Compliance:</strong> NON-COMPLIANT — CSG Notes completely EMPTY. No hashtags, no date, no documentation.
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019WqZXAA0/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: PARTIAL SAVES -->
+  <div class="section">
+    <div class="section-header">Partial Saves <span class="section-badge badge-orange">5 records &bull; $5.6M attrition (with ACV retained)</span></div>
+
+    <div class="record-card partial-save">
+      <div class="record-header">
+        <span class="record-title">Under Armour, Inc.</span>
+        <span class="record-amount">-$2,290,058</span>
+      </div>
+      <div class="record-meta">Owner: Seth Wilson &bull; Close: Feb 3, 2026 &bull; Stage: 05 Closed &bull; Type: Off-Cycle Restructure/Cancellation</div>
+      <div class="record-finding">
+        <strong>Classification:</strong> Actionable &rarr; Loss &rarr; Partial Save (restructured)<br>
+        <strong>Tactic:</strong> SALES (Contract restructure) — contract fully approved, new quote issued.<br>
+        <strong>Root cause:</strong> Product-Market Fit Mismatch/Oversold. Primary risk: oversold/cost savings. Attrition absorbed into restructured deal.<br>
+        <strong>Red Account:</strong> Stage = Partial Save (a4Ved0000003KztEAE) — $800K forecasted attrition from E1.0 → E2.0 migration.<br>
+        <strong>Compliance:</strong> NON-COMPLIANT — Uses #PartAttrit (invalid, should be #LicPartialAttrit).
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FlbGPAAZ/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+        <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000003KztEAE/view" class="org62-link ra" target="_blank">Red Account</a>
+      </div>
+    </div>
+
+    <div class="record-card partial-save">
+      <div class="record-header">
+        <span class="record-title">Tapestry, Inc.</span>
+        <span class="record-amount">-$2,000,000</span>
+      </div>
+      <div class="record-meta">Owner: Cara Holm &bull; Close: Feb 2, 2026 &bull; Stage: 05 Closed &bull; Type: Off-Cycle Non Coterminous Order</div>
+      <div class="record-finding">
+        <strong>Classification:</strong> Actionable &rarr; Loss &rarr; Partial Save (restructured)<br>
+        <strong>Tactic:</strong> SALES (GMV restructure) — Sales negotiated restructured agreement.<br>
+        <strong>Root cause:</strong> Product-Market Fit Mismatch/Oversold. GMV commit lowered, rate reduced over time. Multi-phase: $3M (Jul 2025), $2M (Feb 2026), $6M (Jul 2027).<br>
+        <strong>Red Account:</strong> Historical only — most recent relevant RA (a4V0M0000000A2OUAU) Stage = Lost (2016, Adoption).<br>
+        <strong>Compliance:</strong> NON-COMPLIANT — Uses #partialattrit (invalid, should be #LicPartialAttrit).
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Cyqb7AAB/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+      </div>
+    </div>
+
+    <div class="record-card partial-save">
+      <div class="record-header">
+        <span class="record-title">Vista Outdoor Operations LLC (Revelyst)</span>
+        <span class="record-amount">-$953,841</span>
+      </div>
+      <div class="record-meta">Owner: Patti Graham &bull; Close: Mar 12, 2026 &bull; Stage: 05 Closed &bull; Prior ACV: $1,555,461 &bull; New ACV: $240,900 (15% retained)</div>
+      <div class="record-finding">
+        <strong>Classification:</strong> Actionable &rarr; Loss &rarr; Partial Save (15%)<br>
+        <strong>Tactic:</strong> SALES (Renegotiation) — retained $241K of $1.6M.<br>
+        <strong>Root cause:</strong> Product-Market Fit Mismatch/Oversold. Large underutilization on GMV; M&amp;A-driven brand spin-offs.<br>
+        <strong>Red Account:</strong> Stage = Partial Save (a4Ved0000005YsHEAU) — "Large attrition event, underutilized on GMV."<br>
+        <strong>Compliance:</strong> NON-COMPLIANT — CSG Notes completely EMPTY.
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000VgQlrAAF/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+        <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000005YsHEAU/view" class="org62-link ra" target="_blank">Red Account</a>
+      </div>
+    </div>
+
+    <div class="record-card partial-save">
+      <div class="record-header">
+        <span class="record-title">PartyCity.com, LLC</span>
+        <span class="record-amount">-$471,702</span>
+      </div>
+      <div class="record-meta">Owner: Jana Long &bull; Close: Mar 27, 2026 &bull; Stage: 05 Closed &bull; Prior ACV: $479,502 &bull; New ACV: $7,800 (2% retained)</div>
+      <div class="record-finding">
+        <strong>Classification:</strong> Actionable &rarr; Loss &rarr; Partial Save (2%)<br>
+        <strong>Tactic:</strong> SALES (Bridge deal) — 12-month contract with 2 months of utilization.<br>
+        <strong>Root cause:</strong> Financial Distress — Need to Cut Costs. Signature offboarded. Moving Commerce Cloud to Shopify due to budget issues.<br>
+        <strong>Red Account:</strong> Stage = Lost (a4Ved0000006P0XEAU) — "Ad Populum is moving Commerce Cloud to Shopify due to budget issues."<br>
+        <strong>Compliance:</strong> COMPLIANT — #SigRisk, #LicFullAttrit, date stamp present.
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000B5KvpAAF/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+        <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000006P0XEAU/view" class="org62-link ra" target="_blank">Red Account</a>
+      </div>
+    </div>
+
+    <div class="record-card partial-save">
+      <div class="record-header">
+        <span class="record-title">Kendra Scott LLC</span>
+        <span class="record-amount">-$116,228</span>
+      </div>
+      <div class="record-meta">Owner: Jean-Yves Roy &bull; Close: Feb 28, 2026 &bull; Stage: 05 Closed &bull; Prior ACV: $1,910,228 &bull; New ACV: $1,794,000 (94% retained)</div>
+      <div class="record-finding">
+        <strong>Classification:</strong> Actionable &rarr; Loss &rarr; Partial Save (94%)<br>
+        <strong>Tactic:</strong> SALES (Pricing adjustment) — well-managed reduction.<br>
+        <strong>Root cause:</strong> Dissatisfaction with Pricing Tier/Term Length. Shift from SFRA to Composable by Q1 2026. C-suite changes reduced engagement.<br>
+        <strong>Red Account:</strong> Stage = Resolved (a4Ved0000000junEAA) — Competitive threat to Shopify, addressed.<br>
+        <strong>Compliance:</strong> NON-COMPLIANT — Uses #NoAttrit (invalid, should be #LicNoAttrit).
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019W10RAAS/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+        <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000000junEAA/view" class="org62-link ra" target="_blank">Red Account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: SP DOWNGRADES -->
+  <div class="section">
+    <div class="section-header">Signature/Premier Downgrades <span class="section-badge badge-purple">2 records &bull; $811K</span></div>
+
+    <div class="record-card sp-downgrade">
+      <div class="record-header">
+        <span class="record-title">Nebraska Furniture Mart, Inc.</span>
+        <span class="record-amount">-$654,969</span>
+      </div>
+      <div class="record-meta">Owner: Cara Holm &bull; Close: Feb 14, 2026 &bull; Stage: Dead Attrition &bull; Type: Off-Cycle Ramp Down</div>
+      <div class="record-finding">
+        <strong>Classification:</strong> Actionable &rarr; Loss &rarr; SP Downgrade<br>
+        <strong>Tactic:</strong> SALES (Signature retention) — did not succeed.<br>
+        <strong>Root cause:</strong> Packaging Change. NFM decided not to renew Signature for next year. No major planned activities on CC for 2026. Funding issues, focus on in-store experience.<br>
+        <strong>Red Account:</strong> Stage = Resolved (a4Ved0000000yqbEAA, Nov 2024) — Timing gap: RA resolved before the attrition event.<br>
+        <strong>Compliance:</strong> NON-COMPLIANT — Uses #PartialAttrit and #SigAttrit (both invalid; should be #LicPartialAttrit and #SigRisk).
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000007qNkTAAU/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+        <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000000yqbEAA/view" class="org62-link ra" target="_blank">Red Account</a>
+      </div>
+    </div>
+
+    <div class="record-card sp-downgrade">
+      <div class="record-header">
+        <span class="record-title">SLT Lending SPV, Inc</span>
+        <span class="record-amount">-$156,411</span>
+      </div>
+      <div class="record-meta">Owner: Jana Long &bull; Close: Mar 31, 2026 &bull; Stage: 05 Closed &bull; Prior ACV: $1,475,269 &bull; New ACV: $1,318,858 (89% retained)</div>
+      <div class="record-finding">
+        <strong>Classification:</strong> Actionable &rarr; Loss &rarr; SP Downgrade<br>
+        <strong>Tactic:</strong> ADOPT (CSS+ value demonstration)<br>
+        <strong>Root cause:</strong> Low Success Plan Utilization (Lack of Knowledge). Customer wants a well-rounded TA on their ecosystem instead of multiple architect engagements via Signature.<br>
+        <strong>Red Account:</strong> Stage = Precautionary (a4Ved0000002bTJEAY) — "GMV usage is below 60%."<br>
+        <strong>Compliance:</strong> NON-COMPLIANT — Has #SigRisk but missing license hashtag (#LicPartialAttrit needed).
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000A2zWHAAZ/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+        <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000002bTJEAY/view" class="org62-link ra" target="_blank">Red Account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: NOT ACTIONABLE -->
+  <div class="section">
+    <div class="section-header">Not Actionable <span class="section-badge badge-blue">7 records &bull; $2.9M</span></div>
+
+    <div class="record-card not-actionable">
+      <div class="record-header">
+        <span class="record-title">Otto Environmental Systems</span>
+        <span class="record-amount">-$1,771,625</span>
+      </div>
+      <div class="record-meta">Owner: Bad Debt Hold &bull; Close: Apr 27, 2026 &bull; Stage: Dead Attrition &bull; Type: Off-Cycle Bad Debt</div>
+      <div class="record-finding">
+        <strong>Reason:</strong> Bad Debt — Financial Distress, Need to Cut Costs. CSM noted "non actionable."<br>
+        <strong>Red Account:</strong> Precautionary (a4Ved0000007NxZEAU, Feb 2026)<br>
+        <strong>Compliance:</strong> NON-COMPLIANT — Uses #fullattrit (should be #LicFullAttrit), no date stamp.
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000W7vbpAAB/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+        <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000007NxZEAU/view" class="org62-link ra" target="_blank">Red Account</a>
+      </div>
+    </div>
+
+    <div class="record-card not-actionable">
+      <div class="record-header">
+        <span class="record-title">Lands' End, Inc.</span>
+        <span class="record-amount">-$300,125</span>
+      </div>
+      <div class="record-meta">Owner: Rachel Cutrell &bull; Close: Apr 30, 2026 &bull; Stage: 05 Closed &bull; Prior ACV: $1,601,250 &bull; New ACV: $1,301,125</div>
+      <div class="record-finding">
+        <strong>Reason:</strong> CSG Sign-off — Lost RFP to Shopify/SAP. CSM explicitly marked #nonactionable. Bridge renewal in play to take smaller attrition now, larger next FY.<br>
+        <strong>Red Account:</strong> Resolved (a4Ved00000071dhEAA, Jan 2026) — "Commerce Cloud ($700K AOV) Confirmed Lost to Shopify/SAP."<br>
+        <strong>Compliance:</strong> NON-COMPLIANT — Missing license hashtag (should have #LicPartialAttrit given partial attrition). Uses #RFP which is an offense hashtag belonging in Red Account headline, not CSG Notes.
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017eulVAAQ/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+        <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved00000071dhEAA/view" class="org62-link ra" target="_blank">Red Account</a>
+      </div>
+    </div>
+
+    <div class="record-card not-actionable">
+      <div class="record-header">
+        <span class="record-title">Claire's Stores, Inc.</span>
+        <span class="record-amount">-$218,080</span>
+      </div>
+      <div class="record-meta">Owner: Jean-Yves Roy &bull; Close: Feb 26, 2026 &bull; Stage: Dead Attrition &bull; Prior ACV: $218,080</div>
+      <div class="record-finding">
+        <strong>Reason:</strong> Bankruptcy — Customer in bankruptcy, will not be keeping OMS.<br>
+        <strong>Red Account:</strong> Multiple — Open (a4Ved0000005Al7EAE, Aug 2025) "Bankruptcy leading to attrition"; Precautionary (a4Ved0000007qmfEAE, Feb 2026).<br>
+        <strong>Compliance:</strong> NON-COMPLIANT — Missing license hashtag (needs #LicFullAttrit).
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000009hX8PAAU/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+        <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000005Al7EAE/view" class="org62-link ra" target="_blank">Red Account</a>
+      </div>
+    </div>
+
+    <div class="record-card not-actionable">
+      <div class="record-header">
+        <span class="record-title">Gap Inc.</span>
+        <span class="record-amount">-$188,000</span>
+      </div>
+      <div class="record-meta">Owner: Rachel Cutrell &bull; Close: Mar 31, 2026 &bull; Stage: Dead Attrition &bull; Prior ACV: $188,000</div>
+      <div class="record-finding">
+        <strong>Reason:</strong> Business Direction Change — Product No Longer Relevant.<br>
+        <strong>Red Account:</strong> NONE — No active Red Account. Only historical resolved RAs from 2014-2015.<br>
+        <strong>Compliance:</strong> NON-COMPLIANT — CSG Notes completely EMPTY.
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000BGrLNAA1/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+      </div>
+    </div>
+
+    <div class="record-card not-actionable">
+      <div class="record-header">
+        <span class="record-title">Riboli Family Wines</span>
+        <span class="record-amount">-$183,334</span>
+      </div>
+      <div class="record-meta">Owner: Jean-Yves Roy &bull; Close: Feb 14, 2026 &bull; Stage: Dead Attrition &bull; Prior ACV: $183,334</div>
+      <div class="record-finding">
+        <strong>Reason:</strong> Financial Distress — Downsizing/Reduced Workforce.<br>
+        <strong>Red Account:</strong> Resolved (a4V3y000002ydh7EAA, 2022) — Timing gap: RA from 2022, attrition in Feb 2026.<br>
+        <strong>Compliance:</strong> NON-COMPLIANT — CSG Notes completely EMPTY.
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000095DdnAAE/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+      </div>
+    </div>
+
+    <div class="record-card not-actionable">
+      <div class="record-header">
+        <span class="record-title">Dunham's Athleisure Corporation</span>
+        <span class="record-amount">-$153,198</span>
+      </div>
+      <div class="record-meta">Owner: Jean-Yves Roy &bull; Close: Feb 14, 2026 &bull; Stage: Dead Attrition &bull; Prior ACV: $153,198</div>
+      <div class="record-finding">
+        <strong>Reason:</strong> Policy Change — New Security Policies/Requirements.<br>
+        <strong>Red Account:</strong> NONE — No Red Account found.<br>
+        <strong>Compliance:</strong> NON-COMPLIANT — CSG Notes completely EMPTY.
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000000q0wnAAA/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+      </div>
+    </div>
+
+    <div class="record-card not-actionable">
+      <div class="record-header">
+        <span class="record-title">Hallmark Cards, Incorporated</span>
+        <span class="record-amount">-$100,000</span>
+      </div>
+      <div class="record-meta">Owner: Jean-Yves Roy &bull; Close: Feb 14, 2026 &bull; Stage: Dead Attrition &bull; Prior ACV: $100,000</div>
+      <div class="record-finding">
+        <strong>Reason:</strong> Business Direction Change — Product No Longer Relevant.<br>
+        <strong>Red Account:</strong> Lost (a4Ved0000002DnZEAU, Feb 2025) — "Signature Success Attrition Risk."<br>
+        <strong>Compliance:</strong> NON-COMPLIANT — CSG Notes completely EMPTY.
+      </div>
+      <div class="links-row">
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000095IjuAAE/view" class="org62-link" target="_blank">Renewal Opportunity</a>
+        <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000002DnZEAU/view" class="org62-link ra" target="_blank">Red Account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: COMPLIANCE -->
+  <div class="section">
+    <div class="section-header">Compliance Scorecard <span class="section-badge badge-red">2/17 Compliant (12%)</span></div>
+
+    <table class="compliance-table">
+      <thead>
+        <tr><th>Account</th><th>Status</th><th>Issues</th><th>Record</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Cole Haan</td><td><span class="status-dot pass"></span>Pass</td><td>—</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000008QdkHAAS/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>PartyCity.com</td><td><span class="status-dot pass"></span>Pass</td><td>—</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000B5KvpAAF/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>Under Armour</td><td><span class="status-dot fail"></span>Fail</td><td>#PartAttrit → use #LicPartialAttrit</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FlbGPAAZ/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>YETI Coolers</td><td><span class="status-dot fail"></span>Fail</td><td>#PartialAttrit → #LicPartialAttrit; #NoSigAttrit → #NoSigRisk</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017UtgbAAC/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>Tapestry</td><td><span class="status-dot fail"></span>Fail</td><td>#partialattrit → #LicPartialAttrit</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Cyqb7AAB/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>Otto Environmental</td><td><span class="status-dot fail"></span>Fail</td><td>#fullattrit → #LicFullAttrit; no date stamp</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000W7vbpAAB/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>Vista Outdoor</td><td><span class="status-dot fail"></span>Fail</td><td>CSG Notes EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000VgQlrAAF/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>Nebraska Furn. Mart</td><td><span class="status-dot fail"></span>Fail</td><td>#PartialAttrit → #LicPartialAttrit; #SigAttrit → #SigRisk</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000007qNkTAAU/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>Lands' End</td><td><span class="status-dot fail"></span>Fail</td><td>Missing license hashtag; #RFP in CSG Notes (belongs in RA headline)</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017eulVAAQ/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>Claire's Stores</td><td><span class="status-dot fail"></span>Fail</td><td>Missing license hashtag</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000009hX8PAAU/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>Gap Inc.</td><td><span class="status-dot fail"></span>Fail</td><td>CSG Notes EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000BGrLNAA1/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>Riboli Family Wines</td><td><span class="status-dot fail"></span>Fail</td><td>CSG Notes EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000095DdnAAE/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>SLT Lending SPV</td><td><span class="status-dot fail"></span>Fail</td><td>Missing license hashtag (has #SigRisk only)</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000A2zWHAAZ/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>Dunham's Athleisure</td><td><span class="status-dot fail"></span>Fail</td><td>CSG Notes EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000000q0wnAAA/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>Land O'Lakes</td><td><span class="status-dot fail"></span>Fail</td><td>CSG Notes EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019WqZXAA0/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>Kendra Scott</td><td><span class="status-dot fail"></span>Fail</td><td>#NoAttrit → #LicNoAttrit</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019W10RAAS/view" class="org62-link" target="_blank">View</a></td></tr>
+        <tr><td>Hallmark Cards</td><td><span class="status-dot fail"></span>Fail</td><td>CSG Notes EMPTY</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000095IjuAAE/view" class="org62-link" target="_blank">View</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SECTION: RED ACCOUNT GAPS -->
+  <div class="section">
+    <div class="section-header">Red Account Gaps <span class="section-badge badge-red">3 Missing &bull; 2 Timing Gaps</span></div>
+
+    <div class="insight-box critical">
+      <div class="insight-label">Missing Red Accounts — Blind Spots</div>
+      <div class="insight-text">
+        These 3 accounts attrited with NO active Red Account and NO CSG Notes. Leadership had no visibility into the risk before it materialized:<br><br>
+        &bull; <strong>Gap Inc.</strong> — $188K logo loss
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000BGrLNAA1/view" class="org62-link" target="_blank" style="margin-left:8px">View Renewal</a><br>
+        &bull; <strong>Dunham's Athleisure</strong> — $153K logo loss
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000000q0wnAAA/view" class="org62-link" target="_blank" style="margin-left:8px">View Renewal</a><br>
+        &bull; <strong>Land O'Lakes</strong> — $143K logo loss
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019WqZXAA0/view" class="org62-link" target="_blank" style="margin-left:8px">View Renewal</a>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      <div class="insight-label">Timing Gaps — RA Resolved Before Attrition</div>
+      <div class="insight-text">
+        &bull; <strong>Nebraska Furniture Mart</strong> — RA resolved Nov 2024; attrition hit Feb 2026. $655K SP downgrade.
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000007qNkTAAU/view" class="org62-link" target="_blank" style="margin-left:8px">View Renewal</a><br>
+        &bull; <strong>Riboli Family Wines</strong> — RA resolved 2022; attrition hit Feb 2026. $183K logo loss.
+        <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000095DdnAAE/view" class="org62-link" target="_blank" style="margin-left:8px">View Renewal</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: ECOMM HEADLINE COMPLIANCE -->
+  <div class="section">
+    <div class="section-header">Red Account ECOMM Headline Compliance <span class="section-badge badge-red">0/12 Have Valid Offense Hashtag</span></div>
+
+    <div class="insight-box critical">
+      <div class="insight-label">Critical Finding</div>
+      <div class="insight-text">
+        Per PACE Hashtag Guidance, every Red Account ECOMM Headline must contain at least one valid offense hashtag (#SIGTRIAL, #ARI, #SWAP, #IMPLEMENT, #ADOPT, #RFP, #REVIVE). <strong>Zero of the 12 Red Accounts</strong> in this dataset are compliant. This means no offensive play is formally tracked for any of these attrition events.
+      </div>
+    </div>
+
+    <table class="compliance-table">
+      <thead>
+        <tr><th>Red Account</th><th>Stage</th><th>ECOMM Headline</th><th>Issue</th><th>Record</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Cole Haan</td>
+          <td>Lost</td>
+          <td style="font-size:11px; max-width:300px">#LicFullAttrit Migrated to Shopify; CC cited as not keeping pace...</td>
+          <td><span class="status-dot fail"></span>Defense hashtag in wrong field (#LicFullAttrit belongs in CSG Notes); No offense hashtag</td>
+          <td><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000004rDpEAI/view" class="org62-link ra" target="_blank">View RA</a></td>
+        </tr>
+        <tr>
+          <td>Under Armour</td>
+          <td>Partial Save</td>
+          <td style="font-size:11px; max-width:300px">Under Armour, Inc. - $800K in forecasted attrition caused by completion of account migration from E1.0 to E2.0.</td>
+          <td><span class="status-dot fail"></span>No offense hashtag</td>
+          <td><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000003KztEAE/view" class="org62-link ra" target="_blank">View RA</a></td>
+        </tr>
+        <tr>
+          <td>YETI Coolers</td>
+          <td>Precautionary</td>
+          <td style="font-size:11px; max-width:300px">#PRECAUTIONARY #RA https://sfdc.co/b7Dbfw</td>
+          <td><span class="status-dot fail"></span>Invalid hashtag (#PRECAUTIONARY); #RA is a defense hashtag (wrong field); No offense hashtag</td>
+          <td><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000006BiLEAU/view" class="org62-link ra" target="_blank">View RA</a></td>
+        </tr>
+        <tr>
+          <td>Vista Outdoor / Revelyst</td>
+          <td>Partial Save</td>
+          <td style="font-size:11px; max-width:300px">Large attrition event, underutilized on GMV</td>
+          <td><span class="status-dot fail"></span>No offense hashtag</td>
+          <td><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000005YsHEAU/view" class="org62-link ra" target="_blank">View RA</a></td>
+        </tr>
+        <tr>
+          <td>PartyCity / Ad Populum</td>
+          <td>Lost</td>
+          <td style="font-size:11px; max-width:300px">Ad Populum is moving Commerce Cloud to Shopify due to budget issues</td>
+          <td><span class="status-dot fail"></span>No offense hashtag (should have #SWAP — competitive)</td>
+          <td><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000006P0XEAU/view" class="org62-link ra" target="_blank">View RA</a></td>
+        </tr>
+        <tr>
+          <td>SLT Lending SPV</td>
+          <td>Precautionary</td>
+          <td style="font-size:11px; max-width:300px">SLT Lending SPV, Inc- GMV (Gross Merchandise Value) usage is below 60%</td>
+          <td><span class="status-dot fail"></span>No offense hashtag (should have #ADOPT — shelfware)</td>
+          <td><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000002bTJEAY/view" class="org62-link ra" target="_blank">View RA</a></td>
+        </tr>
+        <tr>
+          <td>Claire's Stores</td>
+          <td>Open</td>
+          <td style="font-size:11px; max-width:300px">Bankruptcy leading to attrition</td>
+          <td><span class="status-dot fail"></span>No offense hashtag</td>
+          <td><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000005Al7EAE/view" class="org62-link ra" target="_blank">View RA</a></td>
+        </tr>
+        <tr>
+          <td>Lands' End</td>
+          <td>Resolved</td>
+          <td style="font-size:11px; max-width:300px">Lands' End Commerce Cloud ($700K AOV) Confirmed Lost to Shopify/SAP | Bridge Renewal Strategy...</td>
+          <td><span class="status-dot fail"></span>No offense hashtag (should have #SWAP or #RFP — lost to competitor)</td>
+          <td><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved00000071dhEAA/view" class="org62-link ra" target="_blank">View RA</a></td>
+        </tr>
+        <tr>
+          <td>Nebraska Furn. Mart</td>
+          <td>Resolved</td>
+          <td style="font-size:11px; max-width:300px">Near term Signature attrition risk of $185K in FY25 and Commerce Cloud full attrition risk of $1.4M in FY27</td>
+          <td><span class="status-dot fail"></span>No offense hashtag</td>
+          <td><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000000yqbEAA/view" class="org62-link ra" target="_blank">View RA</a></td>
+        </tr>
+        <tr>
+          <td>Otto Environmental</td>
+          <td>Precautionary</td>
+          <td style="font-size:11px; max-width:300px">Red Account</td>
+          <td><span class="status-dot fail"></span>No substance — headline is just "Red Account"; No offense hashtag</td>
+          <td><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000007NxZEAU/view" class="org62-link ra" target="_blank">View RA</a></td>
+        </tr>
+        <tr>
+          <td>Hallmark Cards</td>
+          <td>Lost</td>
+          <td style="font-size:11px; max-width:300px">Signature Success Attrition Risk in April of FY26</td>
+          <td><span class="status-dot fail"></span>No offense hashtag (should have #SIGTRIAL — Signature attrition)</td>
+          <td><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000002DnZEAU/view" class="org62-link ra" target="_blank">View RA</a></td>
+        </tr>
+        <tr>
+          <td>Kendra Scott</td>
+          <td>Resolved</td>
+          <td style="font-size:11px; max-width:300px">Adoption risk on B2C Commerce as well as competitor threat to Shopify is putting $1.7M at risk in FY27.</td>
+          <td><span class="status-dot fail"></span>No offense hashtag (should have #ADOPT and/or #SWAP — adoption + competitive)</td>
+          <td><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000000junEAA/view" class="org62-link ra" target="_blank">View RA</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    Report generated June 12, 2026 &bull; Data source: Org62 SOQL (validated 17/17 match to Tableau Global Readiness Dashboard) &bull; Classification per Win/Loss Workflow Diagram
+  </div>
+
+</div>
+</body>
+</html>

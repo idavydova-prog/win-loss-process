@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PACE Renewal Validator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 24px 32px; }
+  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .header p { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+
+  .container { max-width: 860px; margin: 0 auto; padding: 28px 32px; }
+
+  .how-it-works { background: white; border-radius: 12px; padding: 18px 22px; margin-bottom: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); border-left: 4px solid #4299e1; }
+  .how-title { font-size: 12px; font-weight: 700; color: #4299e1; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .how-steps { display: flex; gap: 0; align-items: center; flex-wrap: wrap; gap: 6px; }
+  .how-step { display: flex; align-items: center; gap: 7px; font-size: 13px; color: #4a5568; }
+  .how-num { width: 22px; height: 22px; background: #ebf4ff; color: #3182ce; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .how-arrow { color: #cbd5e0; font-size: 16px; margin: 0 2px; }
+
+  .url-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 14px; }
+  .card-label { font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .url-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 10px; }
+  .url-badge.required { background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2; }
+  .url-badge.optional { background: #f7fafc; color: #718096; border: 1px solid #e2e8f0; }
+  .url-input-row { display: flex; align-items: center; gap: 10px; }
+  .url-input-row input[type=url] { flex: 1; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #2d3748; background: #fafafa; transition: border-color 0.2s; }
+  .url-input-row input[type=url]:focus { outline: none; border-color: #4299e1; background: white; }
+  .url-input-row input[type=url]::placeholder { color: #a0aec0; }
+
+  .action-bar { display: flex; gap: 12px; margin-bottom: 0; align-items: center; flex-wrap: wrap; }
+  .btn { padding: 11px 28px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+  .btn-primary { background: #4299e1; color: white; }
+  .btn-primary:hover { background: #3182ce; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(66,153,225,0.4); }
+  .btn-secondary { background: white; color: #4a5568; border: 1.5px solid #e2e8f0; }
+  .btn-secondary:hover { background: #f7fafc; }
+
+  /* ── Result panel shown after copy ── */
+  .result-panel { display: none; margin-top: 22px; }
+  .result-panel.active { display: block; }
+
+  .copied-banner { background: #f0fff4; border: 1px solid #9ae6b4; border-radius: 12px; padding: 20px 24px; margin-bottom: 18px; }
+  .copied-banner-title { font-size: 15px; font-weight: 700; color: #276749; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .copied-banner-body { font-size: 13px; color: #2f855a; line-height: 1.6; }
+  .copied-banner-body strong { color: #276749; }
+
+  .next-steps { background: white; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); margin-bottom: 16px; }
+  .next-steps-title { font-size: 12px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
+  .next-step-row { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+  .next-step-row:last-child { margin-bottom: 0; }
+  .step-num { width: 28px; height: 28px; background: #ebf4ff; color: #3182ce; border-radius: 50%; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-body { flex: 1; }
+  .step-title { font-size: 13px; font-weight: 600; color: #2d3748; margin-bottom: 3px; }
+  .step-desc { font-size: 12px; color: #718096; line-height: 1.5; }
+  .step-shortcut { display: inline-flex; align-items: center; gap: 5px; background: #edf2f7; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 10px; font-size: 12px; color: #4a5568; font-family: Monaco, Menlo, monospace; margin-top: 5px; }
+
+  .prompt-preview { background: white; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+  .prompt-preview-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .prompt-preview-title { font-size: 12px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; }
+  .btn-recopy { background: #ebf4ff; color: #3182ce; border: 1px solid #bee3f8; padding: 6px 14px; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; transition: background 0.15s; }
+  .btn-recopy:hover { background: #dbeafe; }
+  .prompt-text { font-size: 12px; font-family: Monaco, Menlo, monospace; color: #4a5568; background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; max-height: 200px; overflow-y: auto; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: #2d3748; color: white; padding: 11px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 2000; opacity: 0; transition: opacity 0.25s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>PACE Renewal Compliance Validator</h1>
+  <p>Enter Org62 URLs — one click generates your validation prompt for Claude Code</p>
+</div>
+
+<div class="container">
+
+  <!-- How it works -->
+  <div class="how-it-works">
+    <div class="how-title">How it works</div>
+    <div class="how-steps">
+      <div class="how-step"><div class="how-num">1</div> Paste your Org62 URLs below</div>
+      <div class="how-arrow">→</div>
+      <div class="how-step"><div class="how-num">2</div> Click Validate — prompt is copied</div>
+      <div class="how-arrow">→</div>
+      <div class="how-step"><div class="how-num">3</div> Paste into Claude Code (⌘V)</div>
+      <div class="how-arrow">→</div>
+      <div class="how-step"><div class="how-num">4</div> Claude fetches Org62 &amp; returns report</div>
+    </div>
+  </div>
+
+  <!-- URL inputs -->
+  <div class="url-card">
+    <div class="card-label">
+      Renewal Opportunity URL
+      <span class="url-badge required">Required</span>
+    </div>
+    <div class="url-input-row">
+      <input type="url" id="renewalUrl"
+        placeholder="https://org62.lightning.force.com/lightning/r/Opportunity/006.../view">
+    </div>
+  </div>
+
+  <div class="url-card">
+    <div class="card-label">
+      Red Account URL
+      <span class="url-badge optional">Optional</span>
+    </div>
+    <div class="url-input-row">
+      <input type="url" id="redAccountUrl"
+        placeholder="https://org62.lightning.force.com/lightning/r/Red_Account__c/a00.../view">
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button class="btn btn-primary" onclick="validate()">
+      <span>⚡</span> Validate
+    </button>
+    <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+  </div>
+
+  <!-- Result panel (shown after copy) -->
+  <div class="result-panel" id="resultPanel">
+
+    <div class="copied-banner">
+      <div class="copied-banner-title">✓ Prompt copied to clipboard</div>
+      <div class="copied-banner-body">
+        Your validation prompt is ready. <strong>Switch to Claude Code and paste</strong> — Claude will fetch the record directly from Org62 and return the full compliance report with findings and a coaching email.
+      </div>
+    </div>
+
+    <div class="next-steps">
+      <div class="next-steps-title">Next steps</div>
+      <div class="next-step-row">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Switch to Claude Code</div>
+          <div class="step-desc">Open your Claude Code window or the Claude app.</div>
+        </div>
+      </div>
+      <div class="next-step-row">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Paste the prompt</div>
+          <div class="step-desc">Click in the Claude Code input and paste.</div>
+          <div class="step-shortcut">⌘ V</div>
+        </div>
+      </div>
+      <div class="next-step-row">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Press Enter</div>
+          <div class="step-desc">Claude fetches both Org62 records and runs all PACE compliance checks automatically. The report and coaching email appear in seconds.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="prompt-preview">
+      <div class="prompt-preview-header">
+        <div class="prompt-preview-title">Prompt that was copied</div>
+        <button class="btn-recopy" onclick="recopy()">Copy again</button>
+      </div>
+      <div class="prompt-text" id="promptPreview"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentPrompt = '';
+
+function buildPrompt(renewalUrl, redUrl) {
+  const lines = [
+    'Please validate this renewal opportunity against the PACE Attrition Hashtag Guidance.',
+    '',
+    'Renewal Opportunity URL: ' + renewalUrl,
+  ];
+  if (redUrl) lines.push('Red Account URL: ' + redUrl);
+  lines.push('');
+  lines.push(
+    'Steps:',
+    '1. Extract the Salesforce record ID from each URL.',
+    '2. Query Org62 for the Renewal Opportunity using:',
+    '   SELECT Id, Name, Account.Name, Owner.Name, StageName, CloseDate,',
+    '          Forecasted_Attrition__c, Forecasted_Renewal_Rate__c,',
+    '          IsPremier_Attached__c, Targeted_Clouds__c,',
+    '          License_Renewal_Status__c, License_At_Risk_Reason__c,',
+    '          ACV_Reason_Detail__c, SEM_Notes__c,',
+    '          Forecasted_Annual_Contract_Value__c',
+    '   FROM Opportunity WHERE Id = \'[ID]\' LIMIT 1',
+  );
+  if (redUrl) {
+    lines.push(
+      '3. Query Org62 for the Red Account using:',
+      '   SELECT Id, Name, Stage__c, ECOMM_Headline__c, Latest_Updates__c,',
+      '          Reason_for_Closure__c, Primary_Competitor__c, Other_Competitor__c,',
+      '          APM_Level_1__c, APM_Level_2__c, Key_Risk_Category__c,',
+      '          Forecasted_Attrition__c',
+      '   FROM Red_Account__c WHERE Id = \'[ID]\' LIMIT 1',
+    );
+  }
+  lines.push(
+    (redUrl ? '4' : '3') + '. Run all PACE compliance checks and return:',
+    '   - A record summary strip (account, owner, stage, attrition, renewal rate, premier attached, CSG Notes verbatim)',
+    '   - Findings grouped by: 🔴 Critical → 🟠 Warning → 🔵 Info → ✅ Passed',
+    '   - Each finding: title, category, what was found, recommended fix',
+    '   - Overall badge: NEEDS ATTENTION / MINOR ISSUES / COMPLIANT',
+    '   - A ready-to-send coaching email to the CSM',
+  );
+  return lines.join('\n');
+}
+
+function validate() {
+  const renewalUrl = document.getElementById('renewalUrl').value.trim();
+  const redUrl = document.getElementById('redAccountUrl').value.trim();
+
+  if (!renewalUrl) {
+    showToast('Please enter a Renewal Opportunity URL.');
+    return;
+  }
+  if (!renewalUrl.includes('org62') && !renewalUrl.includes('salesforce.com')) {
+    showToast('URL doesn\'t look like an Org62 link. Please check and try again.');
+    return;
+  }
+
+  currentPrompt = buildPrompt(renewalUrl, redUrl);
+
+  navigator.clipboard.writeText(currentPrompt).then(() => {
+    document.getElementById('promptPreview').textContent = currentPrompt;
+    document.getElementById('resultPanel').classList.add('active');
+    document.getElementById('resultPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showToast('✓ Copied to clipboard');
+  }).catch(() => {
+    // Fallback: show the prompt so user can copy manually
+    document.getElementById('promptPreview').textContent = currentPrompt;
+    document.getElementById('resultPanel').classList.add('active');
+    document.getElementById('resultPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showToast('Could not auto-copy — select the prompt below and copy manually.');
+  });
+}
+
+function recopy() {
+  if (!currentPrompt) return;
+  navigator.clipboard.writeText(currentPrompt).then(() => showToast('✓ Copied again'));
+}
+
+function clearAll() {
+  document.getElementById('renewalUrl').value = '';
+  document.getElementById('redAccountUrl').value = '';
+  document.getElementById('resultPanel').classList.remove('active');
+  currentPrompt = '';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

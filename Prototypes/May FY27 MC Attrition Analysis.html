@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>May FY27 Marketing Cloud — Attrition Analysis</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f6f9; color: #1a1a2e; min-height: 100vh; line-height: 1.5; }
+
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 32px 40px 16px; }
+  .header h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+  .header p { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+  .header-meta { display: flex; gap: 24px; margin-top: 14px; flex-wrap: wrap; }
+  .header-meta-item { font-size: 12px; opacity: 0.85; background: rgba(255,255,255,0.08); padding: 4px 12px; border-radius: 12px; }
+
+  .tab-bar { position: sticky; top: 0; z-index: 100; background: #1a1a2e; padding: 0 40px; display: flex; gap: 0; overflow-x: auto; border-bottom: 2px solid #0f3460; }
+  .tab-btn { padding: 12px 18px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.6); background: none; border: none; cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; transition: all 0.2s; }
+  .tab-btn:hover { color: rgba(255,255,255,0.9); }
+  .tab-btn.active { color: white; border-bottom-color: #4299e1; }
+  .tab-btn .tab-count { font-size: 10px; background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 8px; margin-left: 6px; }
+  .tab-btn.active .tab-count { background: rgba(66,153,225,0.3); }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 28px 40px 60px; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+  @media (max-width: 700px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+  .metric-card { background: white; border-radius: 10px; padding: 18px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-top: 3px solid; }
+  .metric-card.red { border-color: #e53e3e; }
+  .metric-card.orange { border-color: #ed8936; }
+  .metric-card.blue { border-color: #4299e1; }
+  .metric-card.green { border-color: #38a169; }
+  .metric-card.purple { border-color: #805ad5; }
+  .metric-value { font-size: 28px; font-weight: 800; color: #1a202c; }
+  .metric-label { font-size: 11px; color: #718096; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .section { margin-bottom: 32px; }
+  .section-header { font-size: 15px; font-weight: 700; color: #1a202c; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+  .section-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 10px; }
+  .badge-red { background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2; }
+  .badge-orange { background: #fffaf0; color: #dd6b20; border: 1px solid #fbd38d; }
+  .badge-blue { background: #ebf8ff; color: #3182ce; border: 1px solid #bee3f8; }
+  .badge-green { background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4; }
+  .badge-purple { background: #faf5ff; color: #805ad5; border: 1px solid #d6bcfa; }
+
+  .sub-section { margin-top: 28px; padding-top: 20px; border-top: 1px solid #edf2f7; }
+  .sub-section:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+  .sub-header { font-size: 13px; font-weight: 700; color: #4a5568; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+  .record-card { background: white; border-radius: 10px; padding: 18px 20px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid #e2e8f0; }
+  .record-card.logo-loss { border-left-color: #e53e3e; }
+  .record-card.partial-save { border-left-color: #ed8936; }
+  .record-card.sp-downgrade { border-left-color: #805ad5; }
+  .record-card.not-actionable { border-left-color: #a0aec0; }
+
+  .record-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+  .record-title { font-size: 14px; font-weight: 700; color: #1a202c; }
+  .record-amount { font-size: 14px; font-weight: 700; color: #e53e3e; }
+  .record-meta { font-size: 12px; color: #718096; margin-bottom: 8px; line-height: 1.6; }
+  .record-finding { font-size: 13px; color: #4a5568; line-height: 1.6; }
+  .record-finding strong { color: #1a202c; }
+
+  .org62-link { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: #3182ce; text-decoration: none; padding: 3px 10px; background: #ebf8ff; border-radius: 12px; border: 1px solid #bee3f8; transition: all 0.15s; }
+  .org62-link:hover { background: #bee3f8; color: #2c5282; }
+  .org62-link.ra { color: #805ad5; background: #faf5ff; border-color: #d6bcfa; }
+  .org62-link.ra:hover { background: #e9d8fd; color: #553c9a; }
+
+  .links-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+  .insight-box { background: #fffaf0; border: 1px solid #fbd38d; border-radius: 10px; padding: 14px 18px; margin-bottom: 14px; }
+  .insight-box.critical { background: #fff5f5; border-color: #feb2b2; }
+  .insight-box.info { background: #ebf8ff; border-color: #bee3f8; }
+  .insight-label { font-size: 10px; font-weight: 700; color: #dd6b20; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .insight-box.critical .insight-label { color: #e53e3e; }
+  .insight-box.info .insight-label { color: #3182ce; }
+  .insight-text { font-size: 13px; color: #4a5568; line-height: 1.6; }
+
+  .compliance-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .compliance-table th { text-align: left; font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 10px; border-bottom: 2px solid #e2e8f0; }
+  .compliance-table td { padding: 8px 10px; border-bottom: 1px solid #f7fafc; vertical-align: top; }
+  .compliance-table tr:hover { background: #f7fafc; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .status-dot.pass { background: #38a169; }
+  .status-dot.fail { background: #e53e3e; }
+
+  .footer { text-align: center; font-size: 11px; color: #a0aec0; margin-top: 40px; padding-top: 20px; border-top: 1px solid #edf2f7; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>May FY27 Marketing Cloud &mdash; Attrition Analysis</h1>
+  <p>Win/Loss Workflow Classification &bull; PACE AMER Portfolio</p>
+  <div class="header-meta">
+    <span class="header-meta-item">Period: May 2026</span>
+    <span class="header-meta-item">Cloud: MC ExactTarget / Pardot / Datorama</span>
+    <span class="header-meta-item">Threshold: Attrition &ge; $100K</span>
+    <span class="header-meta-item">Records: 6</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('summary')">Summary</button>
+  <button class="tab-btn" onclick="showTab('notact')">Not Actionable<span class="tab-count">1</span></button>
+  <button class="tab-btn" onclick="showTab('wins')">Wins<span class="tab-count">0</span></button>
+  <button class="tab-btn" onclick="showTab('losses')">Losses<span class="tab-count">5</span></button>
+  <button class="tab-btn" onclick="showTab('compliance')">#Compliance</button>
+  <button class="tab-btn" onclick="showTab('method')">Methodology</button>
+</div>
+
+<div class="container">
+
+<!-- TAB: SUMMARY -->
+<div id="tab-summary" class="tab-panel active">
+  <div class="summary-grid">
+    <div class="metric-card red"><div class="metric-value">$4.1M</div><div class="metric-label">Total Attrition</div></div>
+    <div class="metric-card orange"><div class="metric-value">5</div><div class="metric-label">Actionable</div></div>
+    <div class="metric-card blue"><div class="metric-value">1</div><div class="metric-label">Not Actionable</div></div>
+    <div class="metric-card green"><div class="metric-value">0</div><div class="metric-label">Wins ($0 Attrit)</div></div>
+  </div>
+  <div class="summary-grid">
+    <div class="metric-card red"><div class="metric-value">2</div><div class="metric-label">Logo Losses</div></div>
+    <div class="metric-card orange"><div class="metric-value">1</div><div class="metric-label">Partial Saves</div></div>
+    <div class="metric-card purple"><div class="metric-value">2</div><div class="metric-label">SP Downgrades</div></div>
+    <div class="metric-card blue"><div class="metric-value">17%</div><div class="metric-label">Compliance Rate</div></div>
+  </div>
+  <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; margin-bottom:28px;">
+    <div style="flex:1; min-width:320px;">
+      <div style="background:white; border-radius:12px; padding:22px 26px; box-shadow:0 1px 4px rgba(0,0,0,0.07); border-left:4px solid #1a1a2e;">
+        <div style="font-size:13px; font-weight:700; color:#1a1a2e; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:14px;">Key Insights</div>
+        <ul style="list-style:none; padding:0; margin:0; font-size:14px; color:#2d3748; line-height:2.2;">
+          <li><strong>6 Customers</strong> &gt;$100K attrition in May</li>
+          <li><strong>$4.1M Total</strong> | Chamberlain drives 46%</li>
+          <li><strong>2 Logo Losses</strong> ($2.03M) | Braze primary competitor</li>
+          <li><strong>2 SP Downgrades</strong> ($892K) | budget-driven</li>
+          <li><strong>1/6</strong> records compliant (17%)</li>
+        </ul>
+      </div>
+    </div>
+    <div style="flex:1; min-width:320px;">
+      <div style="background:white; border-radius:12px; padding:22px 26px; box-shadow:0 1px 4px rgba(0,0,0,0.07); border-left:4px solid #4299e1;">
+        <div style="font-size:13px; font-weight:700; color:#4299e1; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:14px;">Additional Context</div>
+        <ul style="list-style:none; padding:0; margin:0; font-size:14px; color:#2d3748; line-height:2.2;">
+          <li><strong>Chamberlain</strong> ($1.89M): Full MC + Datorama attrit; moved to Braze</li>
+          <li><strong>Rich Products</strong> ($592K): Sig + AF/DC lost despite ARI attempt</li>
+          <li><strong>84.51&deg;</strong> ($944K): Transfer of users to new org &mdash; structural</li>
+          <li><strong>Hickory Farms</strong>: Lost 3 of 4 BUs; only Wicked Good Cupcakes remains</li>
+          <li>Competitors: <strong>Braze</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="insight-box critical"><div class="insight-label">Chamberlain Group &mdash; Largest Single Event</div><div class="insight-text">The Chamberlain Group accounts for $1.89M (46% of May MC attrition). Full MC ExactTarget + Datorama contract attrited after CIO meeting failed to save. ARI was approved but ultimately insufficient. Competitor: Braze. Red Account closed as "Lost" on 5/22.</div></div>
+  <div class="insight-box info"><div class="insight-label">Budget-Driven SP Downgrades</div><div class="insight-text">Both SP Downgrades (Rich Products $592K, American Electric Power $300K) are driven by budget/cost pressure, not competitive displacement. Rich Products had extensive ARI/SCI motion that reached executive level but still could not save Signature. American Electric Power lost due to leadership turnover (5+ execs in 90 days).</div></div>
+</div>
+
+<!-- TAB: NOT ACTIONABLE -->
+<div id="tab-notact" class="tab-panel">
+  <div class="section-header">Not Actionable <span class="section-badge badge-blue">1 record &bull; $944K</span></div>
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">84.51&deg; LLC (Core, Pardot, Salesforce Industry)</span><span class="record-amount">-$944,398</span></div><div class="record-meta">Owner: Rachel Cutrell &bull; Close: May 28, 2026 &bull; Stage: 05 Closed &bull; Prior: $1.03M &bull; Renewal Rate: 100%</div><div class="record-finding"><strong>Reason:</strong> Business Direction Change &mdash; Transfer of Users to New Org. Structural move.<br><strong>CSG Notes (1/8/26):</strong> "#NoAttrit, utilization in 80s% no risk identified" &mdash; notes pre-date the attrition event. This was an unexpected structural shift.<br><strong>Red Account:</strong> NONE active.<br><strong>Classification rationale:</strong> Renewal Rate = 100% (structural forecasting attrition, not real loss). CSG tagged #NoAttrit when risk appeared zero. Transfer-driven &mdash; not savable.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE8yXAAT/view" class="org62-link" target="_blank">Renewal</a></div></div>
+</div>
+
+<!-- TAB: WINS -->
+<div id="tab-wins" class="tab-panel">
+  <div class="section-header">Wins <span class="section-badge badge-green">0 records &bull; $0 recovered</span></div>
+  <div style="background:white; border-radius:10px; padding:24px; color:#718096; font-size:13px; box-shadow:0 1px 3px rgba(0,0,0,0.06); text-align:center;">
+    <div style="font-size:36px; margin-bottom:12px; opacity:0.3;">0</div>
+    <div style="font-size:14px; font-weight:600; color:#2d3748; margin-bottom:6px;">No Wins in May FY27</div>
+    <div>Per the workflow diagram (Win = $0 Attrit final), no Marketing Cloud attrition event in May was fully eliminated. Every actionable record resulted in a Loss.</div>
+  </div>
+</div>
+
+<!-- TAB: LOSSES -->
+<div id="tab-losses" class="tab-panel">
+  <div class="section-header">Losses <span class="section-badge badge-red">5 Actionable &bull; $3.16M total attrition</span></div>
+
+  <!-- Sub-section: Logo Losses -->
+  <div class="sub-section">
+    <div class="sub-header">Logo Losses <span class="section-badge badge-red">2 records &bull; $2.03M</span></div>
+    <div class="record-card logo-loss"><div class="record-header"><span class="record-title">The Chamberlain Group LLC</span><span class="record-amount">-$1,890,615</span></div><div class="record-meta">Owner: Andrew Chabot &bull; Close: May 22, 2026 &bull; Stage: 05 Closed &bull; Products: MC ExactTarget, Datorama</div><div class="record-finding"><strong>Classification:</strong> Actionable &rarr; Loss &rarr; Logo Loss<br><strong>Root cause:</strong> Financial &amp; Contractual &mdash; Low Perceived ROI. Full attrit confirmed 5/22.<br><strong>Red Account:</strong> Lost (Aug 2025, a4Ved0000005BXVEA2) &mdash; "MC and Data Cloud at Risk - $1.9M, May 2026." ARI approved via CSAL. CIO meeting did not convert. Competitor: Braze.<br><strong>Save motion:</strong> ARI approved, CSAL engagement, CIO meeting. L2 approval pending at time of loss. SCI requested.<br><strong>Compliance:</strong> PARTIAL &mdash; CSG Notes has #LicPartialAttrit (should be #LicFullAttrit for full attrit), has #ARI (offense tag in CSG Notes &mdash; belongs in ECOMM Headline). Missing sig hashtag (Premier attached).</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000003vTBdAAM/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000005BXVEA2/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card logo-loss"><div class="record-header"><span class="record-title">CSI Compressco LP (Pardot)</span><span class="record-amount">-$142,201</span></div><div class="record-meta">Owner: Alexa Votta &bull; Close: May 14, 2026 &bull; Stage: Dead Attrition &bull; Products: Core, Pardot</div><div class="record-finding"><strong>Classification:</strong> Actionable &rarr; Loss &rarr; Logo Loss<br><strong>Root cause:</strong> Implementation &mdash; Customer Led, Customer Issue. Full attrit.<br><strong>Red Account:</strong> NONE. No Red Account exists for this account.<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; CSG Notes completely EMPTY. No hashtags, no date, no commentary. Premier attached with no sig hashtag.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQe0jAAD/view" class="org62-link" target="_blank">Renewal</a></div></div>
+  </div>
+
+  <!-- Sub-section: Partial Saves -->
+  <div class="sub-section">
+    <div class="sub-header">Partial Saves <span class="section-badge badge-orange">1 record &bull; $234K</span></div>
+    <div class="record-card partial-save"><div class="record-header"><span class="record-title">Hickory Farms, Inc.</span><span class="record-amount">-$234,448</span></div><div class="record-meta">Owner: Jana Long &bull; Close: May 7, 2026 &bull; Stage: 05 Closed &bull; Prior: $282,875 &bull; New: $48,428 (17% renewal rate)</div><div class="record-finding"><strong>Classification:</strong> Actionable &rarr; Loss &rarr; Partial Save<br><strong>Root cause:</strong> Financial Distress &mdash; Need to Cut Costs. 3 of 4 BUs moved off MC; only Wicked Good Cupcakes sub-brand remains.<br><strong>Red Account:</strong> Open (Feb 2026, Adoption) &mdash; "#SWAP" valid offense hashtag. Commerce renewal ($412K) also at risk for Jan 2027. ARI ruled out; AOVPP approved. Third restructuring in 3 years.<br><strong>Save motion:</strong> Technical Discovery complete. B2B Commerce proposal in development. SI partner CapGemini aligned. Robert Hufford attended Connections.<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; CSG Notes has #PartialAttrit (INVALID, should be #LicPartialAttrit) alongside valid #LicPartialAttrit (redundant invalid tag). Missing sig hashtag (not Premier). Has date (3/2/2026).</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000D4dheAAB/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000007soTEAQ/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+  </div>
+
+  <!-- Sub-section: SP Downgrades -->
+  <div class="sub-section">
+    <div class="sub-header">SP Downgrades <span class="section-badge badge-purple">2 records &bull; $892K</span></div>
+    <div class="record-card sp-downgrade"><div class="record-header"><span class="record-title">Rich Products Corporation</span><span class="record-amount">-$591,719</span></div><div class="record-meta">Owner: Lindsey Ells &bull; Close: May 29, 2026 &bull; Stage: 05 Closed &bull; Prior: $653,705 &bull; Renewal Rate: 100% &bull; Products: Core, MC ExactTarget</div><div class="record-finding"><strong>Classification:</strong> Actionable &rarr; Loss &rarr; SP Downgrade<br><strong>Root cause:</strong> Adoption &mdash; Lack of Internal Sponsorship. SAP ERP migration consuming resources + C-suite mandate to reduce spend.<br><strong>Red Account:</strong> Resolved (Mar 2026, Financial &amp; Contractual) &mdash; "#ARI" in ECOMM Headline. Extensive save efforts: ARI/SCI motion ($150K for $300K commitment), ProServ "Proactive Attrition Defense System" scoped. Expired 5/29 with SCI still pending approval.<br><strong>Attrition detail:</strong> Sig Success ($90.5K) + Agentforce for CG ($187K) + Customer Data Cloud ($60K) + CRM Analytics Plus ($59K). AF/DC extended through August.<br><strong>Compliance:</strong> COMPLIANT &mdash; #SigRisk, #LicPartialAttrit, date (5/6/2026), dollar estimate ($396K). Well-documented notes.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EBzGEAA1/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000008BPhEAM/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card sp-downgrade"><div class="record-header"><span class="record-title">American Electric Power</span><span class="record-amount">-$300,000</span></div><div class="record-meta">Owner: Julie Malone &bull; Close: May 31, 2026 &bull; Stage: Dead Attrition &bull; Products: MC ExactTarget</div><div class="record-finding"><strong>Classification:</strong> Actionable &rarr; Loss &rarr; SP Downgrade<br><strong>Root cause:</strong> Success Plan &amp; Support &mdash; Low Success Plan Utilization. Signature-only contract. Customer couldn't justify value. 5+ exec hires in 90 days caused pauses on all spend.<br><strong>Red Account:</strong> Lost (May 2026, Success Plan &amp; Support) &mdash; "#PRECAUTIONARY" (INVALID) in ECOMM Headline. Detailed closure summary documents save attempts (cost reduction, renegotiation offers &mdash; all declined).<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; CSG Notes has #NoAttrit (INVALID: should be #LicNoAttrit — SP Downgrade, Sig-only contract, MC license retained on separate renewal). #SigRisk valid. Missing #RA despite active Red Account. Date present (4/27/26).</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE0piAAD/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000009jnVEAQ/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+  </div>
+</div>
+
+<!-- TAB: COMPLIANCE -->
+<div id="tab-compliance" class="tab-panel">
+  <div class="section-header">#Compliance <span class="section-badge badge-red">17% Compliant (1/6)</span></div>
+
+  <!-- Red Account Validation -->
+  <div class="sub-section">
+    <div class="sub-header">Red Account Validation</div>
+
+    <div class="insight-box critical"><div class="insight-label">Missing Red Accounts (1 account)</div><div class="insight-text"><strong>CSI Compressco LP</strong> &mdash; No Red Account exists. $142K full attrit (Pardot + Core) with zero Red Account coverage. Implementation-driven loss with no documented escalation path. <a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQe0jAAD/view" class="org62-link" target="_blank" style="margin-left:6px;">Renewal</a></div></div>
+
+    <div class="insight-box critical"><div class="insight-label">ECOMM Headline &mdash; Missing/Invalid Offense Hashtags (2 accounts)</div><div class="insight-text"><strong>The Chamberlain Group</strong> (Primary Lost RA, a4Ved0000005BXVEA2): ECOMM Headline is descriptive only ("MC and Data Cloud at Risk - $1.9M") &mdash; NO offense hashtag present on the primary Lost RA. Secondary Invalid RA (a4Ved0000005blJEAQ) has "#DCCAP" (invalid). <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000005BXVEA2/view" class="org62-link ra" target="_blank" style="margin-left:6px;">Lost RA</a><br><strong>American Electric Power</strong>: "#PRECAUTIONARY" &mdash; invalid. No valid offense hashtag. <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000009jnVEAQ/view" class="org62-link ra" target="_blank" style="margin-left:6px;">Open RA</a></div></div>
+
+    <div class="insight-box info"><div class="insight-label">Accounts WITH Valid Offense Hashtags</div><div class="insight-text"><strong>Hickory Farms</strong> (Open RA): #SWAP &mdash; valid.<br><strong>Rich Products</strong> (Resolved RA): #ARI &mdash; valid.<br><strong>The Chamberlain Group</strong> (Invalid RA, Pricing/Contract): #ARI &mdash; valid.</div></div>
+
+    <div class="insight-box critical"><div class="insight-label">Latest Update &mdash; Empty (1 account)</div><div class="insight-text"><strong>American Electric Power</strong> (a4Ved0000009jnVEAQ): Latest Update is populated with closure details (good). However, this RA was only opened on May 4 and closed as Lost on May 6 &mdash; a 2-day lifecycle with no documented plays or save attempts beyond the closure summary.</div></div>
+
+    <div class="insight-box"><div class="insight-label">Closure Summary</div><div class="insight-text"><strong>The Chamberlain Group</strong> (Lost): "Full attrit - 5/22" &mdash; minimal but present.<br><strong>American Electric Power</strong> (Lost): Detailed closure summary documents value justification failure, renegotiation attempts, and leadership turnover context. Well-documented.<br><strong>Rich Products</strong> (Resolved): Comprehensive closure summary with root cause, save actions, and outcome. Exemplary.</div></div>
+
+    <div class="insight-box info"><div class="insight-label">Competitor Fields</div><div class="insight-text"><strong>The Chamberlain Group</strong> (Lost RA): Braze captured as Primary Competitor. Correct &mdash; MC-to-Braze migration confirmed.<br>All other accounts have no competitor captured. Given SP Downgrades are budget-driven (not competitive), this is acceptable for Rich Products and American Electric Power.</div></div>
+
+    <div class="insight-box info"><div class="insight-label">APM (L1, L2, L3)</div><div class="insight-text">All active Red Accounts have APM populated:<br>&bull; Chamberlain (Lost): Marketing &gt; Engagement &gt; Engagement &amp; Journeys<br>&bull; Hickory Farms (Open): Marketing &gt; Engagement &gt; Super Messages<br>&bull; American Electric Power (Lost): Marketing &gt; Engagement &gt; Engagement &amp; Journeys<br>&bull; Rich Products (Resolved): AI and Data &gt; Agentforce &gt; Conversations</div></div>
+
+    <div class="insight-box info"><div class="insight-label">AF/D360 Decision Tree &mdash; Missing Hashtags (1 account)</div><div class="insight-text"><strong>Rich Products</strong>: Has Agentforce ($187K) and Customer Data Cloud ($60K) attrition risk, but CSG Notes do not include #AFAttrit or #D360Attrit. Per PACE guidance decision tree: &ldquo;Is there Agentforce or Data Cloud attrition risk? Yes &rarr; tag #AfAttrit / #D360Attrit on the Opp (always, no exceptions).&rdquo; This does not affect Global Standard compliance but is an explicit gap per the AF/D360 decision tree.</div></div>
+  </div>
+
+  <!-- CSG Notes Compliance -->
+  <div class="sub-section">
+    <div class="sub-header">Renewal Opportunity CSG Notes <span class="section-badge badge-red">1/6 Compliant (17%)</span></div>
+    <table class="compliance-table">
+      <thead><tr><th>Account</th><th>Attrition</th><th>License Tag</th><th>Sig Tag</th><th>Date</th><th>Issues</th></tr></thead>
+      <tbody>
+        <tr><td><span class="status-dot fail"></span>The Chamberlain Group</td><td>-$1,890,615</td><td>#LicPartialAttrit</td><td>Missing</td><td>4/28/26</td><td>#LicPartialAttrit wrong (full attrit); #ARI is offense tag (belongs in ECOMM); missing sig</td></tr>
+        <tr><td><span class="status-dot fail"></span>CSI Compressco LP</td><td>-$142,201</td><td>Missing</td><td>Missing</td><td>None</td><td>CSG Notes completely EMPTY</td></tr>
+        <tr><td><span class="status-dot fail"></span>Hickory Farms</td><td>-$234,448</td><td>#LicPartialAttrit</td><td>N/A</td><td>3/2/2026</td><td>#PartialAttrit INVALID (alongside valid #LicPartialAttrit); missing #RA (active Open RA exists)</td></tr>
+        <tr><td><span class="status-dot pass"></span>Rich Products</td><td>-$591,719</td><td>#LicPartialAttrit</td><td>#SigRisk</td><td>5/6/2026</td><td>Compliant &mdash; all required elements present with $ estimate</td></tr>
+        <tr><td><span class="status-dot fail"></span>American Electric Power</td><td>-$300,000</td><td>#NoAttrit (INVALID)</td><td>#SigRisk</td><td>4/27/26</td><td>#NoAttrit invalid (should be #LicNoAttrit — SP Downgrade, license retained); missing #RA</td></tr>
+        <tr><td><span class="status-dot fail"></span>84.51&deg; LLC</td><td>-$944,398</td><td>#NoAttrit</td><td>N/A</td><td>1/8/26</td><td>#NoAttrit invalid; notes pre-date attrition event; not updated</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB: METHODOLOGY -->
+<div id="tab-method" class="tab-panel">
+  <div class="section-header">Methodology</div>
+  <div style="background:white; border-radius:10px; padding:20px 24px; box-shadow:0 1px 3px rgba(0,0,0,0.06); font-size:13px; line-height:1.8; color:#4a5568;">
+    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c; width:160px;">Risk</td><td style="padding:10px 12px;">Forecasted Attrition &gt; $0</td></tr>
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c;">Actionable</td><td style="padding:10px 12px;">Swing &gt; $0 (realistic opportunity to save existed)</td></tr>
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c;">Not Actionable</td><td style="padding:10px 12px;">Swing = $0 (Red closure / CSG sign-off / structural change)</td></tr>
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c;">Win</td><td style="padding:10px 12px;">$0 Attrit FINAL &mdash; risk fully eliminated</td></tr>
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c;">Logo Loss</td><td style="padding:10px 12px;">Prior ACV fully attrited &mdash; customer departed product</td></tr>
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c;">Partial Save</td><td style="padding:10px 12px;">Some ACV retained, some attrited</td></tr>
+      <tr><td style="padding:10px 12px; font-weight:700; color:#1a202c;">SP Downgrade</td><td style="padding:10px 12px;">Signature/Premier tier removed, license retained</td></tr>
+    </table>
+    <div style="margin-top:18px; padding-top:14px; border-top:1px solid #edf2f7;">
+      <strong>Compliance Reference:</strong> <a href="https://salesforce.enterprise.slack.com/docs/T7KUQ9FLZ/F07F7V4FHPF" target="_blank" style="color:#3182ce;">PACE Attrition Hashtag Guidance (Slack Canvas)</a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">Generated by Win/Loss Process &bull; Marketing Cloud &bull; May 2026 &bull; PACE AMER</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>

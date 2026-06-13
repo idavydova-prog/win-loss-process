@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PACE Validation — Under Armour, Inc.</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 24px 32px; }
+  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .header p { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+  .header-meta { display: flex; gap: 20px; margin-top: 12px; flex-wrap: wrap; }
+  .header-meta-item { font-size: 12px; opacity: 0.85; }
+  .header-meta-item strong { opacity: 1; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 24px 32px; }
+
+  .summary-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  @media (max-width: 600px) { .summary-row { grid-template-columns: repeat(2, 1fr); } }
+  .summary-card { background: white; border-radius: 10px; padding: 16px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-top: 3px solid; }
+  .summary-card.critical { border-color: #e53e3e; }
+  .summary-card.warning { border-color: #ed8936; }
+  .summary-card.info { border-color: #4299e1; }
+  .summary-card.passed { border-color: #38a169; }
+  .summary-count { font-size: 32px; font-weight: 800; line-height: 1; }
+  .summary-card.critical .summary-count { color: #e53e3e; }
+  .summary-card.warning .summary-count { color: #ed8936; }
+  .summary-card.info .summary-count { color: #4299e1; }
+  .summary-card.passed .summary-count { color: #38a169; }
+  .summary-label { font-size: 11px; color: #718096; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .overall-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 20px; }
+  .overall-badge.minor-issues { background: #fffaf0; color: #dd6b20; border: 1px solid #fbd38d; }
+  .overall-badge.needs-attention { background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2; }
+  .overall-badge.compliant { background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4; }
+
+  .opty-info { background: white; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .opty-info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .opty-field-label { font-size: 10px; color: #a0aec0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .opty-field-value { font-size: 13px; color: #2d3748; font-weight: 500; margin-top: 2px; }
+  .opty-field-value.missing { color: #a0aec0; font-style: italic; }
+  .csg-notes-display { margin-top: 14px; padding-top: 14px; border-top: 1px solid #edf2f7; }
+  .csg-notes-label { font-size: 10px; color: #a0aec0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .csg-notes-text { font-size: 13px; color: #4a5568; line-height: 1.6; background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; }
+
+  .findings-section { margin-bottom: 20px; }
+  .section-title { font-size: 13px; font-weight: 700; color: #4a5568; text-transform: uppercase; letter-spacing: 0.5px; padding: 0 0 8px 0; border-bottom: 1px solid #edf2f7; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+
+  .finding { background: white; border-radius: 10px; padding: 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid; }
+  .finding.critical { border-color: #e53e3e; }
+  .finding.warning { border-color: #ed8936; }
+  .finding.info { border-color: #4299e1; }
+  .finding.passed { border-color: #38a169; }
+  .finding-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+  .finding-title { font-size: 14px; font-weight: 700; color: #1a202c; flex: 1; }
+  .finding-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
+  .finding.warning .finding-badge { background: #fffaf0; color: #ed8936; border: 1px solid #fbd38d; }
+  .finding.info .finding-badge { background: #ebf8ff; color: #4299e1; border: 1px solid #bee3f8; }
+  .finding-body { font-size: 13px; color: #4a5568; line-height: 1.5; }
+  .fix-box { margin-top: 10px; background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; font-size: 12px; color: #4a5568; line-height: 1.5; }
+  .fix-box-label { font-size: 10px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+
+  .passed-list { background: white; border-radius: 10px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .passed-item { font-size: 13px; color: #4a5568; padding: 6px 0; border-bottom: 1px solid #f7fafc; display: flex; align-items: center; gap: 8px; }
+  .passed-item:last-child { border-bottom: none; }
+
+  .email-section { background: white; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-top: 24px; }
+  .email-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .email-title { font-size: 14px; font-weight: 700; color: #1a202c; }
+  .email-meta { font-size: 12px; color: #718096; margin-bottom: 12px; line-height: 1.6; }
+  .email-meta strong { color: #4a5568; }
+  .email-body { font-size: 13px; font-family: inherit; line-height: 1.7; white-space: pre-wrap; color: #4a5568; background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; }
+
+  .changelog { padding: 0; }
+  .changelog-entry { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #f7fafc; font-size: 13px; color: #4a5568; line-height: 1.5; }
+  .changelog-entry:last-child { border-bottom: none; }
+  .changelog-date { font-size: 11px; font-weight: 600; color: #718096; white-space: nowrap; min-width: 100px; padding-top: 1px; }
+  .changelog-text { flex: 1; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: #2d3748; color: white; padding: 11px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 2000; opacity: 0; transition: opacity 0.25s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+
+  .timestamp { font-size: 11px; color: #a0aec0; text-align: center; margin-top: 24px; padding-top: 16px; border-top: 1px solid #edf2f7; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>PACE Compliance Validation — Under Armour, Inc.</h1>
+  <p>Renewal Opportunity 006ed00000TlKPBAA3</p>
+  <div class="header-meta">
+    <div class="header-meta-item"><strong>Renewal:</strong> Under Armour, Inc. Renewal 200053 Commerce Cloud</div>
+    <div class="header-meta-item"><strong>Owner:</strong> Eric Askew</div>
+    <div class="header-meta-item"><strong>Close:</strong> 2026-06-04</div>
+    <div class="header-meta-item"><strong>Stage:</strong> 05 Closed</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Overall Badge -->
+  <span class="overall-badge compliant">COMPLIANT</span>
+
+  <!-- Summary Cards -->
+  <div class="summary-row">
+    <div class="summary-card critical"><div class="summary-count">0</div><div class="summary-label">Critical</div></div>
+    <div class="summary-card warning"><div class="summary-count">0</div><div class="summary-label">Warning</div></div>
+    <div class="summary-card info"><div class="summary-count">0</div><div class="summary-label">Info</div></div>
+    <div class="summary-card passed"><div class="summary-count">4</div><div class="summary-label">Passed</div></div>
+  </div>
+
+  <!-- Record Strip -->
+  <div class="opty-info">
+    <div class="opty-info-grid">
+      <div><div class="opty-field-label">Account</div><div class="opty-field-value">Under Armour, Inc.</div></div>
+      <div><div class="opty-field-label">Owner</div><div class="opty-field-value">Eric Askew</div></div>
+      <div><div class="opty-field-label">Forecasted Attrition</div><div class="opty-field-value">$0</div></div>
+      <div><div class="opty-field-label">Renewal Rate</div><div class="opty-field-value">100%</div></div>
+      <div><div class="opty-field-label">Premier Attached</div><div class="opty-field-value">Yes</div></div>
+      <div><div class="opty-field-label">License Status</div><div class="opty-field-value">Will Renew (Flat)</div></div>
+      <div><div class="opty-field-label">Targeted Clouds</div><div class="opty-field-value">Commerce Cloud</div></div>
+      <div><div class="opty-field-label">Forecasted ACV</div><div class="opty-field-value">$2,987,835</div></div>
+    </div>
+    <div class="csg-notes-display">
+      <div class="csg-notes-label">CSG Notes (verbatim from Org62)</div>
+      <div class="csg-notes-text">5/26/26-Steve LaRocca-#LicNoAttrit #NoSigRisk  Actively pursuing Agentic Commerce Pilots (Shopper, Merch, OpenAI ACP) Solution Optimization-Search Performance-Arch + Engineering Engaged. D360 deal incld Cimulate(+3Y)Deal + CC Ext(+1Y) replace Constructor</div>
+    </div>
+  </div>
+
+  <!-- Passed -->
+  <div class="findings-section">
+    <div class="section-title">✅ Passed (4)</div>
+    <div class="passed-list">
+      <div class="passed-item">✅ CSG Notes populated (substantive content)</div>
+      <div class="passed-item">✅ Date stamp present — 5/26/26</div>
+      <div class="passed-item">✅ License attrition hashtag present — #LicNoAttrit (consistent with "Will Renew (Flat)" and 100% renewal rate)</div>
+      <div class="passed-item">✅ Signature risk hashtag present — #NoSigRisk (Premier Attached = Yes, correctly tagged)</div>
+    </div>
+  </div>
+
+  <!-- Change Log -->
+  <div class="email-section">
+    <div class="email-header">
+      <span class="email-title">Change Log</span>
+    </div>
+    <div class="changelog">
+      <div class="changelog-entry">
+        <span class="changelog-date">June 11, 2026</span>
+        <span class="changelog-text">Initial validation — COMPLIANT. All required hashtags present and consistent with forecast fields. No issues found.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="timestamp">Report generated June 11, 2026 via PACE Renewal Compliance Validator</div>
+
+</div>
+</body>
+</html>

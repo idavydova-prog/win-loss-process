@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Win/Loss Workflow — Requirements Document</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/design-system/2.21.5/styles/salesforce-lightning-design-system.min.css" />
+<style>
+  body { background: #f3f3f3; font-family: 'Salesforce Sans', Arial, sans-serif; margin: 0; padding: 0; }
+  .page-wrap { max-width: 980px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+
+  /* Header */
+  .doc-header { background: #032D60; color: #fff; padding: 2rem 2.5rem 1.5rem; margin-bottom: 0; }
+  .doc-header h1 { font-size: 1.75rem; font-weight: 700; margin: 0 0 0.4rem; color: #fff; }
+  .doc-header p { margin: 0; font-size: 0.9rem; color: #c9d9f0; }
+
+  /* Tab bar */
+  .tab-bar { display: flex; gap: 0; background: #032D60; padding: 0 2.5rem; border-bottom: none; }
+  .tab-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #a8c5e8;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: #fff; }
+  .tab-btn.active { color: #fff; border-bottom: 3px solid #1b96ff; background: rgba(255,255,255,0.07); border-radius: 4px 4px 0 0; }
+
+  /* Tab panels */
+  .tab-panel { display: none; padding-top: 1.75rem; }
+  .tab-panel.active { display: block; }
+
+  /* Cards */
+  .section-card { background: #fff; border-radius: 8px; border: 1px solid #dddbda; margin-bottom: 1.5rem; overflow: hidden; }
+  .section-header { padding: 1rem 1.5rem; background: #f4f6f9; border-bottom: 1px solid #dddbda; display: flex; align-items: center; gap: 0.6rem; }
+  .section-header h2 { font-size: 1rem; font-weight: 700; color: #032D60; margin: 0; text-transform: uppercase; letter-spacing: 0.04em; }
+  .section-number { background: #032D60; color: #fff; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+  .section-body { padding: 1.25rem 1.5rem; }
+
+  /* Typography */
+  .subsection-title { font-size: 0.875rem; font-weight: 700; color: #444; margin: 1.2rem 0 0.5rem; text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 1px solid #f0f0f0; padding-bottom: 0.3rem; }
+  .subsection-title:first-child { margin-top: 0; }
+  p { font-size: 0.875rem; color: #333; margin: 0.3rem 0; }
+  ul { margin: 0.25rem 0; padding-left: 1.3rem; }
+  li { margin-bottom: 0.3rem; font-size: 0.875rem; color: #333; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 0.5rem; }
+  th { background: #f4f6f9; color: #444; font-weight: 700; text-align: left; padding: 0.5rem 0.75rem; border: 1px solid #e0e0e0; }
+  td { padding: 0.45rem 0.75rem; border: 1px solid #e0e0e0; vertical-align: top; color: #333; }
+  tr:nth-child(even) td { background: #fafafa; }
+  code { background: #f4f6f9; padding: 0.1rem 0.35rem; border-radius: 3px; font-size: 0.8rem; color: #032D60; }
+
+  /* Badges */
+  .badge { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
+  .badge-gap { background: #fdecea; color: #c23934; }
+  .badge-open { background: #fff3e0; color: #a05c00; }
+  .badge-done { background: #e3f5e1; color: #2e7d32; }
+  .badge-blocker { background: #fdecea; color: #c23934; }
+  .badge-decision { background: #efe8fd; color: #5d1bc4; }
+  .badge-system { background: #e8f4fd; color: #0070d2; }
+
+  /* Alert / info boxes */
+  .alert-box { border-left: 4px solid #c23934; background: #fdf3f2; padding: 0.75rem 1rem; border-radius: 0 4px 4px 0; margin-bottom: 0.75rem; }
+  .alert-box p { color: #5a1916; }
+  .info-box { border-left: 4px solid #0070d2; background: #f0f8ff; padding: 0.75rem 1rem; border-radius: 0 4px 4px 0; margin-bottom: 0.75rem; }
+  .info-box p { color: #032D60; }
+
+  /* Question blocks */
+  .question-block { background: #fffbf0; border: 1px solid #ffe0a3; border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 0.6rem; }
+  .question-block .q-label { font-size: 0.72rem; font-weight: 700; color: #a05c00; text-transform: uppercase; margin-bottom: 0.2rem; }
+  .question-block p { color: #333; }
+
+  /* Steps */
+  .step-row { display: flex; gap: 1rem; align-items: flex-start; padding: 0.6rem 0; border-bottom: 1px solid #f0f0f0; }
+  .step-row:last-child { border-bottom: none; }
+  .step-num { background: #1b96ff; color: #fff; border-radius: 50%; min-width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; margin-top: 2px; flex-shrink: 0; }
+  .step-content p { margin: 0; }
+  .step-content .step-owner { font-size: 0.78rem; color: #777; margin-top: 0.15rem; }
+
+  /* TOC */
+  .toc { background: #f4f6f9; border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 1.75rem; }
+  .toc h3 { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #555; margin: 0 0 0.5rem; }
+  .toc ol { margin: 0; padding-left: 1.2rem; }
+  .toc li { font-size: 0.85rem; color: #0070d2; margin-bottom: 0.2rem; }
+  .toc a { color: #0070d2; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Field reference tab specifics */
+  .field-intro { background: #fff; border-radius: 8px; border: 1px solid #dddbda; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
+  .field-intro p { margin-bottom: 0.5rem; }
+  .field-group-header { background: #032D60; color: #fff; padding: 0.6rem 1rem; border-radius: 6px 6px 0 0; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 1.5rem; margin-bottom: 0; }
+  .field-group-header:first-of-type { margin-top: 0; }
+  .field-table-wrap { border: 1px solid #dddbda; border-radius: 0 0 6px 6px; margin-bottom: 1.5rem; overflow: hidden; }
+  .field-table-wrap table { margin-bottom: 0; }
+  .field-table-wrap th { background: #e8f0fb; color: #032D60; }
+  .notes-card { background: #fff; border-radius: 8px; border: 1px solid #dddbda; overflow: hidden; margin-top: 1.5rem; }
+  .notes-card-header { background: #f4f6f9; border-bottom: 1px solid #dddbda; padding: 0.75rem 1.25rem; font-size: 0.875rem; font-weight: 700; color: #032D60; text-transform: uppercase; letter-spacing: 0.04em; }
+  .notes-card-body { padding: 1rem 1.25rem; }
+
+  /* Footer */
+  .doc-footer { text-align: center; color: #999; font-size: 0.78rem; margin-top: 2rem; }
+
+  @media(max-width:640px) { .tab-btn { padding: 0.6rem 0.8rem; font-size: 0.8rem; } }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="doc-header">
+  <h1>Win/Loss Workflow — Requirements Document</h1>
+  <p>Version 1.0 &nbsp;·&nbsp; Owner: Ilona Davydova &nbsp;·&nbsp; As of June 2, 2026 &nbsp;·&nbsp; Status: Draft — Pending Brandi Validation</p>
+</div>
+
+<!-- Tab Bar -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('requirements', this)">Requirements Document</button>
+  <button class="tab-btn" onclick="switchTab('fields', this)">Org62 Field Reference</button>
+  <button class="tab-btn" onclick="switchTab('questions', this)">Supplemental Questions</button>
+  <button class="tab-btn" onclick="switchTab('readiness', this)">Story Readiness</button>
+  <button class="tab-btn" onclick="switchTab('portfolio', this)">Portfolio View Blueprint</button>
+</div>
+
+<div class="page-wrap">
+
+  <!-- ========== TAB 1: REQUIREMENTS ========== -->
+  <div id="tab-requirements" class="tab-panel active">
+
+    <!-- TOC -->
+    <div class="toc">
+      <h3>Contents</h3>
+      <ol>
+        <li><a href="#s1">Project Purpose &amp; Goal</a></li>
+        <li><a href="#s2">What We Have — Data Inventory</a></li>
+        <li><a href="#s3">Current Process (As-Is)</a></li>
+        <li><a href="#s4">Data Discrepancies &amp; Gaps</a></li>
+        <li><a href="#s5">Open Questions — Validation Needed</a></li>
+        <li><a href="#s6">Next Steps by Owner</a></li>
+        <li><a href="#s7">Decisions Already Locked</a></li>
+      </ol>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="section-card" id="s1">
+      <div class="section-header">
+        <div class="section-number">1</div>
+        <h2>Project Purpose &amp; Goal</h2>
+      </div>
+      <div class="section-body">
+        <p>Build a repeatable <strong>Win/Loss story library</strong> for the AMER PACE RCG team — covering both attrition (losses) and full renewals with zero attrition (wins) — that can be used during Monthly Business Reviews (MBRs) and presented to leadership (Rick, Kathleen, Colin).</p>
+        <div class="subsection-title">What Success Looks Like</div>
+        <ul>
+          <li><strong>Individual stories:</strong> Each closed renewal ≥ $100K attrition has a structured narrative: Situation → Response → Outcome → Learnings, with hashtag tagging.</li>
+          <li><strong>Portfolio view:</strong> Leadership can see total attrition by segment (e.g., Commerce total, Marketing total), not just individual accounts.</li>
+          <li><strong>Win view:</strong> Renewals closed with zero attrition are equally tracked — a complete picture of the quarter.</li>
+          <li><strong>Program effectiveness:</strong> Hashtag tagging (#SWAP, #ADOPT, #RFP, etc.) allows themes to surface — which plays saved accounts, which were missed.</li>
+          <li><strong>Scalable &amp; low-CSM-burden:</strong> Data entry owned by Program Leads; CSMs are input sources only for context/enrichment.</li>
+        </ul>
+        <div class="subsection-title">Current Status</div>
+        <div class="info-box"><p>Manual process is <strong>paused for validation</strong>. Ilona has built the Commerce sheet and sample stories. Brandi must validate the format and questions before any broader rollout or leadership presentation.</p></div>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="section-card" id="s2">
+      <div class="section-header">
+        <div class="section-number">2</div>
+        <h2>What We Have — Data Inventory</h2>
+      </div>
+      <div class="section-body">
+        <div class="subsection-title">Renewals Data File — 5 Sheets</div>
+        <table>
+          <thead><tr><th>Sheet Name</th><th>Row Count</th><th>Source Type</th><th>Manual Enrichment Columns?</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>All RCG</strong></td><td>~999 records</td><td>SF Report export</td><td>No — base fields only</td><td>Has unnamed/blank column headers beyond col 13. Broadest dataset but no qualitative layer.</td></tr>
+            <tr><td><strong>Core Non-Digital Loss</strong></td><td>~1000 records</td><td>SF Report + manual</td><td>Yes — 7 manual columns</td><td>Most complete loss sheet. Includes Actionable, Hashtags, Retained Amount, Logo/License/Signature, Constraints question.</td></tr>
+            <tr><td><strong>RCG - All - Wins</strong></td><td>~1000 records</td><td>SF Report + partial manual</td><td>Partially — columns exist, mostly blank</td><td>Different base schema than loss sheets. Win-specific fields (RENEWAL_AMT_CONV, ATTRITION_CHANGE_AMT). Manual columns largely unpopulated.</td></tr>
+            <tr><td><strong>Commerce</strong></td><td>33 records</td><td>Manual — Ilona's build</td><td>Yes — Commerce-specific columns</td><td>Only sheet fully curated for Commerce. Has Contact POC, hyperlink formulas. Small by design — filtered to Commerce team accounts.</td></tr>
+            <tr><td><strong>Marketing</strong></td><td>~1000 records</td><td>SF Report + manual</td><td>Yes — similar to Commerce</td><td>Has Renewed Amount column (not in others). Hyperlink formula same pattern as Commerce.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="subsection-title">Base Fields (Present in All Loss Sheets)</div>
+        <table>
+          <thead><tr><th>Field</th><th>Description</th><th>Populated?</th></tr></thead>
+          <tbody>
+            <tr><td>Group By ID / Account ID</td><td>Salesforce Account ID</td><td>Yes</td></tr>
+            <tr><td>Group By Name</td><td>Account name</td><td>Yes</td></tr>
+            <tr><td>Attrition Event Month</td><td>Month attrition was booked</td><td>Yes</td></tr>
+            <tr><td>Full/Partial</td><td>Full logo loss vs. partial</td><td>Yes</td></tr>
+            <tr><td>Attrition Reason</td><td>Top-level reason category</td><td>Yes</td></tr>
+            <tr><td>Attrition Reason Detail</td><td>Sub-reason</td><td>Yes</td></tr>
+            <tr><td>Attrition Type</td><td>Oncycle / Offcycle</td><td>Yes</td></tr>
+            <tr><td>RENEWAL_OPTY_ID</td><td>SF Opportunity ID (15-char)</td><td>Yes</td></tr>
+            <tr><td>RENEWAL_OP_MGR_NOTES</td><td>Manager notes from SF record</td><td>Yes — varies quality</td></tr>
+            <tr><td>RENEWAL_OP_NXT_STEPS</td><td>Next steps from SF record</td><td>Yes — varies quality</td></tr>
+            <tr><td>RENEWAL_RISK_DETAIL</td><td>Risk detail text</td><td>Yes — often same as reason</td></tr>
+            <tr><td>Org62 Record View</td><td>Hyperlink to SF account</td><td>Yes — account level only</td></tr>
+            <tr><td>Attrition Amount</td><td>Dollar value of attrition</td><td>Yes</td></tr>
+          </tbody>
+        </table>
+
+        <div class="subsection-title">Manual Enrichment Fields (Inconsistent Across Sheets)</div>
+        <table>
+          <thead><tr><th>Concept</th><th>Core Non-Digital</th><th>Commerce</th><th>Marketing</th><th>Wins Sheet</th></tr></thead>
+          <tbody>
+            <tr><td>Was it actionable?</td><td>"Was it Actionable (yes or no)"</td><td>Not present</td><td>Not present</td><td>"Was it Actionable (yes or no)"</td></tr>
+            <tr><td>Program / motion run</td><td>"Offense Program (Hashtags)"</td><td>"What did we do to try to save it — which program or motion did we run?"</td><td>"What did we do to try to save it — which program or motion did we run?"</td><td>"Offense Program (Hashtags)"</td></tr>
+            <tr><td>Signature status</td><td>"Success Plan"</td><td>"Did the customer drop Signature support?"</td><td>"Did the customer drop Signature support?"</td><td>"Success Plan"</td></tr>
+            <tr><td>Logo/License outcome</td><td>"What Lost: Logo, License or Signature"</td><td>"Did we lose the logo, retain it, or grow it?"</td><td>"Did we lose the logo, retain it, or grow it?"</td><td>"What Lost: Logo, License or Signature"</td></tr>
+            <tr><td>Amount retained</td><td>"Amount AOV Retained?"</td><td>"Amount (retained)"</td><td>"Renewed Amount"</td><td>"Amount AOV Retained?"</td></tr>
+            <tr><td>Constraints / counterfactual</td><td>"If there were no constraints, what do you think could have saved this customer?"</td><td>Same (verbatim)</td><td>Same (verbatim)</td><td>Same (verbatim)</td></tr>
+            <tr><td>Contact POC</td><td>Not present</td><td>"Contact POC"</td><td>"Contact POC"</td><td>Not present</td></tr>
+            <tr><td>Renewal Opty hyperlink</td><td>Not present (account link only)</td><td>Excel formula (fragile)</td><td>Excel formula (fragile)</td><td>RENEWAL_OPTY_ID_18 (18-char)</td></tr>
+          </tbody>
+        </table>
+
+        <div class="subsection-title">Story Format (Established)</div>
+        <p>Stories are structured in four sections:</p>
+        <ul>
+          <li><strong>Situation</strong> — What was happening at the account going into renewal</li>
+          <li><strong>Response</strong> — What the team did to mitigate or save it</li>
+          <li><strong>Outcome</strong> — What happened (dollar impact, logo retained/lost)</li>
+          <li><strong>Learnings</strong> — What would have changed the result; hashtag tagging</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="section-card" id="s3">
+      <div class="section-header">
+        <div class="section-number">3</div>
+        <h2>Current Process (As-Is)</h2>
+      </div>
+      <div class="section-body">
+        <div class="subsection-title">How a Story Gets Built Today</div>
+        <div class="step-row">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <p><strong>Filter renewal records</strong> — Pull renewal records for the relevant team (Commerce, Marketing, etc.) where Attrition Amount ≥ $100K. Source: SF Report export into Google Sheet.</p>
+            <p class="step-owner">Owner: Ilona / Program Leads</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <p><strong>Construct opportunity hyperlink</strong> — Because SF Report only surfaces Account-level links, a manual Excel formula is used to construct the Renewal Opportunity URL from the Opportunity ID. This is fragile and manual.</p>
+            <p class="step-owner">Current workaround: <code>="https://org62.lightning.force.com/lightning/r/Opportunity/"&amp;[ID cell]&amp;"/view"</code></p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <p><strong>Enrich with CSM context</strong> — Lead OUs or CSMs manually add qualitative answers: what program ran, whether logo was retained, Signature status, counterfactual. This supplements what's in SF Manager Notes.</p>
+            <p class="step-owner">Owner: Program Leads (NOT individual CSMs — confirmed decision)</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <p><strong>Write the story</strong> — Using the Situation/Response/Outcome/Learnings framework, a story narrative is drafted per account.</p>
+            <p class="step-owner">Owner: Ilona (currently); intended to scale to PLs</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <p><strong>Apply hashtags</strong> — Tag the story with the applicable program hashtags (#SWAP, #ADOPT, #RFP, #IMPLEMENT, etc.) and flag any discrepancies vs. what was tagged in the SF Red Account record.</p>
+            <p class="step-owner">Needs audit process via Slack skills — not yet built</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">6</div>
+          <div class="step-content">
+            <p><strong>Aggregate into portfolio view</strong> — Roll up individual stories into a segment-level summary (total attrition, total wins, themes by reason).</p>
+            <p class="step-owner">Not yet built — identified as a gap by Brandi</p>
+          </div>
+        </div>
+
+        <div class="subsection-title">What Triggers the Process</div>
+        <div class="info-box">
+          <p><strong>Confirmed trigger:</strong> A renewal record closes at or above a defined dollar threshold — regardless of whether a Red Account exists. This ensures the ~20% of attrition that never gets a Red Account record is still captured.</p>
+          <p style="margin-top:0.5rem;"><strong>Threshold:</strong> Currently $100K — but the exact number has not been formally locked by Brandi. Needs confirmation.</p>
+        </div>
+
+        <div class="subsection-title">What Is and Isn't Automated</div>
+        <table>
+          <thead><tr><th>Step</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Pulling renewal records into Google Sheet</td><td><span class="badge badge-done">Partially automated</span> — SF Report export</td></tr>
+            <tr><td>Renewal Opportunity hyperlink</td><td><span class="badge badge-gap">Manual formula</span> — fragile, breaks on CSV export</td></tr>
+            <tr><td>Qualitative enrichment (program, logo, Signature)</td><td><span class="badge badge-gap">Fully manual</span></td></tr>
+            <tr><td>Story narrative</td><td><span class="badge badge-gap">Fully manual</span></td></tr>
+            <tr><td>Hashtag tagging vs. CSG note audit</td><td><span class="badge badge-gap">Not built</span> — Slack skills evaluation pending</td></tr>
+            <tr><td>Portfolio roll-up view</td><td><span class="badge badge-gap">Not built</span></td></tr>
+            <tr><td>Win tracking (zero-attrition renewals)</td><td><span class="badge badge-gap">Not built</span> — Wins sheet exists but manual fields are blank</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="section-card" id="s4">
+      <div class="section-header">
+        <div class="section-number">4</div>
+        <h2>Data Discrepancies &amp; Gaps</h2>
+      </div>
+      <div class="section-body">
+        <div class="subsection-title">Discrepancy 1 — Same Account, Different Attrition Reason</div>
+        <div class="alert-box">
+          <p><strong>Under Armour, Inc.</strong> (Account ID: 0013000000FIFKI) appears in both the <em>All RCG</em> sheet and the <em>Commerce</em> sheet with a different Attrition Reason:</p>
+          <ul>
+            <li><em>All RCG:</em> Attrition Reason = <strong>"Concessions"</strong></li>
+            <li><em>Commerce:</em> Attrition Reason = <strong>"Customer Relationship"</strong></li>
+          </ul>
+          <p>Both show the same sub-reason ("Product-Market Fit Mismatch/Oversold") and same attrition amount ($2.29M). This is either a SF data entry inconsistency or the Commerce sheet was built from a different report pull.</p>
+        </div>
+
+        <div class="subsection-title">Discrepancy 2 — Inconsistent Manual Column Names</div>
+        <p>The same qualitative concepts are named differently across sheets, making consolidation or automated roll-up impossible without manual remapping. Key problem areas:</p>
+        <ul>
+          <li>"Offense Program (Hashtags)" vs. "What did we do to try to save it" — structured tag vs. free text</li>
+          <li>"Amount AOV Retained?" vs. "Amount (retained)" vs. "Renewed Amount" — unclear if these measure the same thing</li>
+          <li>"Success Plan" (Core Non-Digital) vs. "Did the customer drop Signature support?" (Commerce/Marketing) — different question entirely</li>
+        </ul>
+
+        <div class="subsection-title">Discrepancy 3 — Wins Sheet Manual Fields Are Largely Unpopulated</div>
+        <p>The <em>RCG - All - Wins</em> sheet has the manual enrichment columns but they are blank for nearly all records. Wins are not being tracked with the same rigor as losses.</p>
+
+        <div class="subsection-title">Discrepancy 4 — Renewal Opportunity Link Is Fragile</div>
+        <p>Commerce and Marketing sheets use an Excel formula to construct the Renewal Opportunity URL. This <strong>breaks when exported to CSV</strong>. The Wins sheet has an 18-char ID (RENEWAL_OPTY_ID_18) that is natively link-ready — that approach should be standardized across all sheets.</p>
+
+        <div class="subsection-title">Discrepancy 5 — Duplicate "Full/Partial" Column in Commerce Sheet</div>
+        <p>The Commerce sheet has "Full/Partial" as both column D (SF export) and column N (manual entry). These may diverge over time.</p>
+
+        <div class="subsection-title">Discrepancy 6 — Unnamed Columns in All RCG Sheet</div>
+        <p>The <em>All RCG</em> sheet has 13 named columns followed by unnamed (None) columns. Unknown what data is in those columns. Needs inspection.</p>
+
+        <div class="subsection-title">Discrepancy 7 — $100K Threshold Not Applied Consistently</div>
+        <p>The Commerce sheet is filtered to ≥$100K. The All RCG, Core Non-Digital, and Marketing sheets contain all records with no threshold filter. There is no "in scope" flag to indicate which records qualify for Win/Loss stories.</p>
+
+        <div class="subsection-title">Discrepancy 8 — Multiple Tracking Spreadsheet Versions</div>
+        <p>Brandi has a separate tracking version not yet merged into the shared team template. Risk of parallel data entry and duplicate records until resolved.</p>
+
+        <div class="subsection-title">Discrepancy 9 — Contact POC Not Captured in All Sheets</div>
+        <p>Commerce and Marketing sheets have "Contact POC" (e.g., "Steve Larocca/Ilona Davydova"). All RCG and Core Non-Digital do not. This will be lost if data is merged without the field.</p>
+
+        <div class="subsection-title">Discrepancy 10 — No "In Scope" Flag or Threshold Filter Field</div>
+        <p>No dedicated column marks a record as "in scope for Win/Loss story." PLs must manually filter each time, creating inconsistency in which records get processed.</p>
+      </div>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="section-card" id="s5">
+      <div class="section-header">
+        <div class="section-number">5</div>
+        <h2>Open Questions — Validation Needed</h2>
+      </div>
+      <div class="section-body">
+        <div class="subsection-title">Questions for Brandi</div>
+        <div class="question-block"><div class="q-label">Q1 — Threshold</div><p>Is the $100K attrition threshold confirmed as the trigger for a Win/Loss story? Does the same threshold apply to Wins, or is there a separate threshold?</p></div>
+        <div class="question-block"><div class="q-label">Q2 — Question Set</div><p>Which version of the qualitative questions is canonical going forward? The sheets have different column names for the same concepts. Can we align on a single master list before any further enrichment?</p></div>
+        <div class="question-block"><div class="q-label">Q3 — Scope: Teams / Segments</div><p>The Commerce sheet covers Ilona's team. What is the intended scope — just Commerce, or all RCG segments (Marketing, Core, Tableau)? Are all PLs expected to run this same process for their segments?</p></div>
+        <div class="question-block"><div class="q-label">Q4 — Portfolio View Format</div><p>What does the leadership portfolio view need to show? Confirmed: total attrition by segment + wins total. Are there additional cuts needed (by Attrition Reason, by program hashtag, by Full/Partial)?</p></div>
+        <div class="question-block"><div class="q-label">Q5 — Tracking Template Consolidation</div><p>What needs to happen before Brandi's individual version is migrated? Is there data in Brandi's version that doesn't exist in the shared sheet?</p></div>
+        <div class="question-block"><div class="q-label">Q6 — CSG Note Audit Scope</div><p>Is the goal to retroactively audit existing Red Account records, or only net-new records going forward?</p></div>
+        <div class="question-block"><div class="q-label">Q7 — Story Cadence</div><p>How frequently should stories be produced — monthly, quarterly, or both? Who is the primary audience: Brandi only, or directly into MBR materials?</p></div>
+        <div class="question-block"><div class="q-label">Q8 — Wins Definition</div><p>Brandi defined "wins" as renewals closed with zero attrition. Does "Attrition Improvement" (forecasted attrition that was recovered) also count as a win? The Wins sheet contains these records.</p></div>
+
+        <div class="subsection-title">Questions for Ilona / Internal Clarification</div>
+        <div class="question-block"><div class="q-label">Q9 — Under Armour Reason Mismatch</div><p>Under Armour shows "Concessions" in All RCG and "Customer Relationship" in Commerce. Which is correct?</p></div>
+        <div class="question-block"><div class="q-label">Q10 — Unnamed Columns in All RCG</div><p>Are there hidden columns or data beyond column 13 in the All RCG sheet that should be preserved?</p></div>
+        <div class="question-block"><div class="q-label">Q11 — Data Enrichment with Adrian Fivaz</div><p>What specific fields are missing for MAD Enterprise and Commerce that require Adrian's input?</p></div>
+        <div class="question-block"><div class="q-label">Q12 — Automation Path</div><p>Can the SF report be configured to export the Renewal Opportunity URL directly, eliminating the fragile formula workaround?</p></div>
+      </div>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="section-card" id="s6">
+      <div class="section-header">
+        <div class="section-number">6</div>
+        <h2>Next Steps by Owner</h2>
+      </div>
+      <div class="section-body">
+        <div class="subsection-title">Ilona Davydova</div>
+        <table>
+          <thead><tr><th>Action</th><th>Dependency</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Align with Adrian Fivaz on data enrichment for MAD Enterprise and Commerce</td><td>Schedule meeting</td><td><span class="badge badge-open">Open</span></td></tr>
+            <tr><td>Join meeting with Will and Bernard re: Red Account management (Joreal to add)</td><td>Joreal sends invite</td><td><span class="badge badge-open">Open</span></td></tr>
+            <tr><td>Resolve Under Armour Attrition Reason discrepancy between All RCG and Commerce sheets</td><td>Internal check</td><td><span class="badge badge-open">Open</span></td></tr>
+            <tr><td>Inspect unnamed columns in All RCG sheet</td><td>Internal check</td><td><span class="badge badge-open">Open</span></td></tr>
+            <tr><td>Present this requirements document to Brandi for validation</td><td>This doc</td><td><span class="badge badge-open">Open</span></td></tr>
+          </tbody>
+        </table>
+
+        <div class="subsection-title">Brandi Rajski</div>
+        <table>
+          <thead><tr><th>Action</th><th>Dependency</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Validate attrition story format and question set (Google Sheet review)</td><td>Gate for everything else</td><td><span class="badge badge-blocker">Blocker</span></td></tr>
+            <tr><td>Confirm $100K threshold as the formal trigger</td><td>Part of validation</td><td><span class="badge badge-open">Open</span></td></tr>
+            <tr><td>Sunset individual tracking template → migrate to shared team version</td><td>Shared template must be validated first</td><td><span class="badge badge-open">Open</span></td></tr>
+            <tr><td>Meet with Felix + Stephanie to evaluate Slack skills for CSG note / hashtag audit</td><td>None</td><td><span class="badge badge-open">Open</span></td></tr>
+            <tr><td>Present validated attrition process to Rick, Kathleen, and Colin</td><td>Story format must be validated first</td><td><span class="badge badge-open">Open — after validation</span></td></tr>
+            <tr><td>Define exact portfolio view requirements for leadership</td><td>Part of leadership presentation prep</td><td><span class="badge badge-open">Open</span></td></tr>
+          </tbody>
+        </table>
+
+        <div class="subsection-title">Group / Cross-Functional</div>
+        <table>
+          <thead><tr><th>Action</th><th>Owner</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Align on single standardized question set — merge all existing versions</td><td>Brandi + Molly + Ilona</td><td><span class="badge badge-blocker">Blocker</span></td></tr>
+            <tr><td>Provide feedback on Kate's Red Account Dashboard in Slack thread</td><td>The group</td><td><span class="badge badge-open">Open</span></td></tr>
+            <tr><td>Attend Retail + CG Services call — confirm process alignment</td><td>Molly Ross</td><td><span class="badge badge-open">Open</span></td></tr>
+            <tr><td>Weekly tracker updates — by EOD Monday</td><td>The group</td><td><span class="badge badge-open">Recurring</span></td></tr>
+            <tr><td>Sunset legacy "pace re" Slack channel</td><td>Patrick Lynn</td><td><span class="badge badge-open">Open</span></td></tr>
+            <tr><td>Schedule Brandi + Carly forecast review</td><td>Carly (when back from PTO)</td><td><span class="badge badge-open">Open</span></td></tr>
+            <tr><td>Present Heat Map tool to Brandi + team leads for feedback</td><td>Jenna Ramsland</td><td><span class="badge badge-open">Open</span></td></tr>
+            <tr><td>Connect on CSS score alignment</td><td>Molly Ross + Kendall + Chrissy</td><td><span class="badge badge-open">Open</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 7 -->
+    <div class="section-card" id="s7">
+      <div class="section-header">
+        <div class="section-number">7</div>
+        <h2>Decisions Already Locked</h2>
+      </div>
+      <div class="section-body">
+        <p>Formally aligned in the May 27, 2026 workstream meeting. Not up for re-discussion unless new information changes the constraint.</p>
+        <table>
+          <thead><tr><th>Decision</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-decision">Locked</span> Scaling is paused</td><td>No broader rollout until Brandi validates the format and identifies automation opportunities.</td></tr>
+            <tr><td><span class="badge badge-decision">Locked</span> Trigger = renewal close event</td><td>Primary trigger is renewal record closure at a threshold — not Red Account status change. Captures the ~20% of attrition without a Red Account.</td></tr>
+            <tr><td><span class="badge badge-decision">Locked</span> Data entry = Program Leads</td><td>PLs own data entry and process tasks. CSMs are consulted for context only — not burdened with admin.</td></tr>
+            <tr><td><span class="badge badge-decision">Locked</span> "pace re" Slack channel sunsetted</td><td>All communication moves exclusively to Red Account channels.</td></tr>
+            <tr><td><span class="badge badge-decision">Locked</span> Adoption plays = Kathleen's methods only</td><td>No new adoption plays created. Team tags existing plays being run (#ADOPT, #IMPLEMENT) — they do not define or run new ones.</td></tr>
+            <tr><td><span class="badge badge-decision">Locked</span> Heat Map tool = optional coaching</td><td>Not a performance metric. Optional for CSM 1:1s. Baseline for Lead CSMs handling renewals &gt;$1M.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- NEXT STEPS: REQUIREMENTS TAB -->
+    <div class="section-card" style="border:2px solid #1b96ff;">
+      <div class="section-header" style="background:#e8f4fd;">
+        <div class="section-number" style="background:#1b96ff;">→</div>
+        <h2 style="color:#1b96ff;">Your Next Move — Requirements</h2>
+      </div>
+      <div class="section-body">
+        <p style="margin-bottom:1rem;">This document is a working draft. It is not a status report — it is the input packet for Brandi's validation meeting. Here is what needs to happen in the next two weeks, in order.</p>
+        <div class="step-row">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <p><strong>Schedule the validation meeting with Brandi</strong> — bring this document. The agenda is two things: (1) confirm the story format using the Commerce pilot stories, (2) walk through the open questions on the Supplemental Questions tab and lock the canonical set. Do not let this meeting be a general discussion — come with a recommended answer for every question and ask Brandi to approve or redirect.</p>
+            <p class="step-owner">Owner: Ilona &nbsp;·&nbsp; This week</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <p><strong>Build 3–5 pilot stories from the Commerce sheet before that meeting</strong> — use the 33 records already filtered. Situation and Outcome sections are fully buildable today. Put a clear placeholder in the Response section where the program hashtag will go. These stories are the proof of concept that makes the meeting productive.</p>
+            <p class="step-owner">Owner: Ilona &nbsp;·&nbsp; Before Brandi meeting</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <p><strong>Resolve the Under Armour attrition reason discrepancy</strong> before the meeting — "Concessions" vs. "Customer Relationship" is a data quality question that will come up if Brandi looks at the Commerce sheet. Know the answer before you walk in.</p>
+            <p class="step-owner">Owner: Ilona &nbsp;·&nbsp; Internal check this week</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <p><strong>Confirm the $100K threshold with Brandi in the meeting</strong> — it has been applied in Commerce but never formally locked. Get it on record so PLs have an unambiguous filter when they take over data entry.</p>
+            <p class="step-owner">Owner: Ilona raises · Brandi confirms &nbsp;·&nbsp; In validation meeting</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <p><strong>After Brandi confirms the process — schedule the leadership presentation</strong> (Rick, Kathleen, Colin). Do not schedule this in advance. The sequencing is fixed: validation first, leadership presentation second. Attempting to compress this will result in presenting an unvalidated process to executives, which is exactly what Brandi said she does not want.</p>
+            <p class="step-owner">Owner: Brandi &nbsp;·&nbsp; After validation meeting</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="doc-footer">Win/Loss Requirements Document · v1.0 · June 2, 2026 · Ilona Davydova</p>
+  </div><!-- end tab-requirements -->
+
+
+  <!-- ========== TAB 3: SUPPLEMENTAL QUESTIONS ========== -->
+  <div id="tab-questions" class="tab-panel">
+
+
+    <div class="alert-box" style="margin-bottom:1.25rem;">
+      <p style="font-weight:700; font-size:0.9rem;">🚨 BLOCKER — Group alignment required before any further data collection</p>
+      <p style="margin-top:0.4rem;">The supplemental question set is <strong>not standardized</strong>. Each sheet uses different wording, different framing, and in some cases asks entirely different things. As Brandi stated in the May 27 meeting, the question set must be locked and agreed upon by the full group before scaling. Until everyone — Brandi, Molly, Ilona, and the PLs — aligns on a single canonical version, data collected across sheets cannot be merged, compared, or rolled up into a portfolio view.</p>
+      <p style="margin-top:0.4rem;"><strong>Who needs to weigh in:</strong> Brandi Rajski (approval authority) · Molly Ross · Ilona Davydova · Program Leads (as data entry owners) · CSMs (for the counterfactual and contract compare questions only)</p>
+      <p style="margin-top:0.4rem;"><strong>Reference:</strong> <a href="https://salesforce-internal.slack.com/archives/C0AK3M1BLHY/p1779973678563889?thread_ts=1779895472.979599&cid=C0AK3M1BLHY" target="_blank" style="color:#5a1916; text-decoration:underline;">View existing Slack thread with Brandi →</a></p>
+    </div>
+    <div class="field-intro">
+      <p>This tab documents the <strong>9 supplemental questions</strong> that must be answered manually by CSMs or Program Leads — information that does not exist in Org62 and cannot be pulled from the renewal record alone. These questions are the backbone of every Win/Loss story. For each question, you'll see: how it currently exists across sheets, why it matters, and the specific alignment decision needed.</p>
+    </div>
+
+    <!-- Current state across sheets -->
+    <div class="field-group-header">Current State — Questions by Sheet (As-Is)</div>
+    <div class="field-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:30px;">#</th>
+            <th style="width:160px;">Concept</th>
+            <th>Core Non-Digital Loss</th>
+            <th>Commerce</th>
+            <th>Marketing</th>
+            <th>RCG All Wins</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><strong>Was it actionable?</strong></td>
+            <td>Was it Actionable (yes or no)</td>
+            <td><span style="color:#999;">Not present</span></td>
+            <td><span style="color:#999;">Not present</span></td>
+            <td>Was it Actionable (yes or no)</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><strong>Program / play run</strong></td>
+            <td>Offense Program (Hashtags)</td>
+            <td>What did we do to try to save it — which program or motion did we run?</td>
+            <td>What did we do to try to save it — which program or motion did we run?</td>
+            <td>Offense Program (Hashtags)</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><strong>Signature status</strong></td>
+            <td>Success Plan</td>
+            <td>Did the customer drop Signature support?</td>
+            <td>Did the customer drop Signature support?</td>
+            <td>Success Plan</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><strong>Logo / license outcome</strong></td>
+            <td>What Lost: Logo, License or Signature</td>
+            <td>Did we lose the logo, retain it, or grow it?</td>
+            <td>Did we lose the logo, retain it, or grow it?</td>
+            <td>What Lost: Logo, License or Signature</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><strong>Amount retained</strong></td>
+            <td>Amount AOV Retained?</td>
+            <td>Amount (retained)</td>
+            <td>Renewed Amount</td>
+            <td>Amount AOV Retained?</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><strong>Counterfactual</strong></td>
+            <td>If there were no constraints, what do you think could have saved this customer?</td>
+            <td>If there were no constraints, what do you think could have saved this customer?</td>
+            <td>If there were no constraints, what do you think could have saved this customer?</td>
+            <td>If there were no constraints, what do you think could have saved this customer?</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td><strong>Contact POC</strong></td>
+            <td><span style="color:#999;">Not present</span></td>
+            <td>Contact POC</td>
+            <td>Contact POC</td>
+            <td><span style="color:#999;">Not present</span></td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td><strong>Contract compare (partials)</strong></td>
+            <td><span style="color:#999;">Not present</span></td>
+            <td><span style="color:#999;">Not present</span></td>
+            <td>Contract Compare for Partial</td>
+            <td><span style="color:#999;">Not present</span></td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td><strong>Misc. notes</strong></td>
+            <td>Misc. Notes</td>
+            <td><span style="color:#999;">Not present</span></td>
+            <td><span style="color:#999;">Not present</span></td>
+            <td>Misc. Notes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Question-by-question breakdown -->
+    <div class="field-group-header">Question-by-Question Analysis — Alignment Needed</div>
+    <div class="field-table-wrap" style="border-radius:0 0 6px 6px; overflow:visible;">
+
+      <!-- Q1 -->
+      <div style="padding:1.1rem 1.25rem; border-bottom:1px solid #e0e0e0; background:#fff;">
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <div style="background:#032D60; color:#fff; border-radius:50%; min-width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:2px;">1</div>
+          <div style="flex:1;">
+            <div style="font-size:0.875rem; font-weight:700; color:#032D60; margin-bottom:0.3rem;">Was it actionable?</div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+              <span class="badge badge-done">Core Non-Digital ✓</span>
+              <span class="badge badge-gap">Commerce — Missing</span>
+              <span class="badge badge-gap">Marketing — Missing</span>
+              <span class="badge badge-done">Wins ✓</span>
+            </div>
+            <p style="margin-bottom:0.3rem;"><strong>Current wording (where present):</strong> "Was it Actionable (yes or no)"</p>
+            <p style="margin-bottom:0.3rem;"><strong>Who answers:</strong> Program Lead / CSM</p>
+            <p style="margin-bottom:0.3rem;"><strong>Why it matters:</strong> Determines whether attrition should be counted against the team's performance. Non-actionable losses (e.g., company closed, pre-negotiated KMOD, business direction change) should be tracked separately from actionable misses.</p>
+            <div class="question-block" style="margin-top:0.5rem; margin-bottom:0;">
+              <div class="q-label">Alignment question for Brandi</div>
+              <p>Should "actionable" use a Yes/No picklist, or a three-way split (Yes / No / Partially)? Some accounts may have partial actionability. Also: should this question apply to Wins as well as losses?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q2 -->
+      <div style="padding:1.1rem 1.25rem; border-bottom:1px solid #e0e0e0; background:#fafafa;">
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <div style="background:#032D60; color:#fff; border-radius:50%; min-width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:2px;">2</div>
+          <div style="flex:1;">
+            <div style="font-size:0.875rem; font-weight:700; color:#032D60; margin-bottom:0.3rem;">Program / Play Run</div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+              <span class="badge badge-done">Core Non-Digital — Hashtag</span>
+              <span class="badge badge-open">Commerce — Free text</span>
+              <span class="badge badge-open">Marketing — Free text</span>
+              <span class="badge badge-done">Wins — Hashtag</span>
+            </div>
+            <p style="margin-bottom:0.3rem;"><strong>Core Non-Digital / Wins wording:</strong> "Offense Program (Hashtags)"</p>
+            <p style="margin-bottom:0.3rem;"><strong>Commerce / Marketing wording:</strong> "What did we do to try to save it — which program or motion did we run?"</p>
+            <p style="margin-bottom:0.3rem;"><strong>Who answers:</strong> Program Lead</p>
+            <p style="margin-bottom:0.3rem;"><strong>Why it matters:</strong> This is the single most important field for identifying which programs are working. Free-text answers cannot be aggregated. Hashtag picklist answers can.</p>
+            <p style="margin-bottom:0.3rem;"><strong>Known hashtags in use:</strong> #SWAP, #ADOPT, #IMPLEMENT, #RFP, #REVIVE, #ARI, #SIGTRIAL, #NONACTIONABLE</p>
+            <div class="question-block" style="margin-top:0.5rem; margin-bottom:0;">
+              <div class="q-label">Alignment question for Brandi + group</div>
+              <p>Should this field be a structured hashtag picklist (allowing multi-select) or remain free text? If hashtags, what is the canonical list? Commerce and Marketing sheets currently collect free text — those answers cannot be rolled up into program effectiveness reporting without a retroactive re-mapping effort.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q3 -->
+      <div style="padding:1.1rem 1.25rem; border-bottom:1px solid #e0e0e0; background:#fff;">
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <div style="background:#032D60; color:#fff; border-radius:50%; min-width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:2px;">3</div>
+          <div style="flex:1;">
+            <div style="font-size:0.875rem; font-weight:700; color:#032D60; margin-bottom:0.3rem;">Signature Support Status</div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+              <span class="badge badge-open">Core Non-Digital — "Success Plan"</span>
+              <span class="badge badge-done">Commerce — Drop question ✓</span>
+              <span class="badge badge-done">Marketing — Drop question ✓</span>
+              <span class="badge badge-open">Wins — "Success Plan"</span>
+            </div>
+            <p style="margin-bottom:0.3rem;"><strong>Core Non-Digital / Wins wording:</strong> "Success Plan" — unclear if this means Signature tier, Success Plan type, or something else entirely</p>
+            <p style="margin-bottom:0.3rem;"><strong>Commerce / Marketing wording:</strong> "Did the customer drop Signature support?" — Yes/No, much clearer</p>
+            <p style="margin-bottom:0.3rem;"><strong>Who answers:</strong> CSM / Program Lead</p>
+            <p style="margin-bottom:0.3rem;"><strong>Why it matters:</strong> Signature retention is a separate metric from logo/license retention. A customer can retain their license but downgrade from Signature — this is a meaningful loss that should be tracked independently.</p>
+            <div class="question-block" style="margin-top:0.5rem; margin-bottom:0;">
+              <div class="q-label">Alignment question for Brandi</div>
+              <p>"Success Plan" in Core Non-Digital is ambiguous — does it mean Signature support tier (Premier/Signature), or is it a separate Success Plan field in Org62? Commerce/Marketing's "Did the customer drop Signature support?" is clearer. Which version should be canonical, and what response options should it have?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q4 -->
+      <div style="padding:1.1rem 1.25rem; border-bottom:1px solid #e0e0e0; background:#fafafa;">
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <div style="background:#032D60; color:#fff; border-radius:50%; min-width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:2px;">4</div>
+          <div style="flex:1;">
+            <div style="font-size:0.875rem; font-weight:700; color:#032D60; margin-bottom:0.3rem;">Logo / License Outcome</div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+              <span class="badge badge-open">Core Non-Digital — "What Lost"</span>
+              <span class="badge badge-open">Commerce — "Did we lose/retain/grow"</span>
+              <span class="badge badge-open">Marketing — "Did we lose/retain/grow"</span>
+              <span class="badge badge-open">Wins — "What Lost"</span>
+            </div>
+            <p style="margin-bottom:0.3rem;"><strong>Core Non-Digital / Wins wording:</strong> "What Lost: Logo, License or Signature" — framed as a loss categorization</p>
+            <p style="margin-bottom:0.3rem;"><strong>Commerce / Marketing wording:</strong> "Did we lose the logo, retain it, or grow it?" — framed as an outcome question</p>
+            <p style="margin-bottom:0.3rem;"><strong>Known values observed:</strong> Logo, License, Logo + License, Logo + License + Signature</p>
+            <p style="margin-bottom:0.3rem;"><strong>Who answers:</strong> Program Lead</p>
+            <p style="margin-bottom:0.3rem;"><strong>Why it matters:</strong> Full logo loss vs. license reduction vs. Signature drop are three different attrition severities. A portfolio summary needs to break these out — e.g., "we lost 3 logos, retained 18, grew 2."</p>
+            <div class="question-block" style="margin-top:0.5rem; margin-bottom:0;">
+              <div class="q-label">Alignment question for Brandi + group</div>
+              <p>Should this be a multi-select (Logo / License / Signature — check all that apply) or a single outcome (Lost / Retained / Grew)? The two current versions measure different things. For the portfolio view, we need the outcome framing — but for story detail, we also need what specifically was lost. Should this be two separate fields?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q5 -->
+      <div style="padding:1.1rem 1.25rem; border-bottom:1px solid #e0e0e0; background:#fff;">
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <div style="background:#032D60; color:#fff; border-radius:50%; min-width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:2px;">5</div>
+          <div style="flex:1;">
+            <div style="font-size:0.875rem; font-weight:700; color:#032D60; margin-bottom:0.3rem;">Amount Retained / Renewed</div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+              <span class="badge badge-open">Core Non-Digital — "Amount AOV Retained?"</span>
+              <span class="badge badge-open">Commerce — "Amount (retained)"</span>
+              <span class="badge badge-open">Marketing — "Renewed Amount"</span>
+              <span class="badge badge-open">Wins — "Amount AOV Retained?"</span>
+            </div>
+            <p style="margin-bottom:0.3rem;"><strong>Why it matters:</strong> The retained/renewed dollar amount is critical for the portfolio view — it's what separates a full loss from a partial save. But the three different column names may be measuring slightly different things (AOV retained vs. contract renewal value vs. what was signed).</p>
+            <div class="question-block" style="margin-top:0.5rem; margin-bottom:0;">
+              <div class="q-label">Alignment question for Brandi + Ilona</div>
+              <p>"Amount AOV Retained" vs. "Amount (retained)" vs. "Renewed Amount" — are these the same number? For Commerce and Marketing, does this field capture the dollar value of what was signed at renewal, or the AOV delta from the original contract? Should this match RENEWAL_ATR_CONV from the Org62 export, or is it a manually-entered override?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q6 -->
+      <div style="padding:1.1rem 1.25rem; border-bottom:1px solid #e0e0e0; background:#fafafa;">
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <div style="background:#032D60; color:#fff; border-radius:50%; min-width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:2px;">6</div>
+          <div style="flex:1;">
+            <div style="font-size:0.875rem; font-weight:700; color:#032D60; margin-bottom:0.3rem;">Counterfactual / Constraints Question</div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+              <span class="badge badge-done">All 4 sheets — consistent wording ✓</span>
+            </div>
+            <p style="margin-bottom:0.3rem;"><strong>Wording (all sheets):</strong> "If there were no constraints, what do you think could have saved this customer?"</p>
+            <p style="margin-bottom:0.3rem;"><strong>Who answers:</strong> CSM (qualitative — this requires the person closest to the account)</p>
+            <p style="margin-bottom:0.3rem;"><strong>Why it matters:</strong> This is the only question that captures product gaps, missed plays, resource limitations, and systemic issues. It feeds directly into the "Learnings" section of the story and into program investment decisions.</p>
+            <div class="question-block" style="margin-top:0.5rem; margin-bottom:0;">
+              <div class="q-label">Alignment question for Brandi</div>
+              <p>This is the one question that requires the CSM, not the PL — the PL won't have the depth of relationship context needed to answer it honestly. Should CSMs be asked only this question (keeping their burden minimal) while PLs handle everything else? Also: should this be free text only, or should it be structured (e.g., root-cause categories) to allow aggregation?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q7 -->
+      <div style="padding:1.1rem 1.25rem; border-bottom:1px solid #e0e0e0; background:#fff;">
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <div style="background:#032D60; color:#fff; border-radius:50%; min-width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:2px;">7</div>
+          <div style="flex:1;">
+            <div style="font-size:0.875rem; font-weight:700; color:#032D60; margin-bottom:0.3rem;">Contact POC</div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+              <span class="badge badge-gap">Core Non-Digital — Missing</span>
+              <span class="badge badge-done">Commerce ✓</span>
+              <span class="badge badge-done">Marketing ✓</span>
+              <span class="badge badge-gap">Wins — Missing</span>
+            </div>
+            <p style="margin-bottom:0.3rem;"><strong>Commerce / Marketing wording:</strong> "Contact POC" — free text, captures AE name / CSM name (e.g., "Steve Larocca/Ilona Davydova")</p>
+            <p style="margin-bottom:0.3rem;"><strong>Who answers:</strong> Program Lead (knows who ran the account)</p>
+            <p style="margin-bottom:0.3rem;"><strong>Why it matters:</strong> Needed for story validation — when a discrepancy is found in the data, the POC is the person to go back to. Also useful for leadership to know who owns the account context.</p>
+            <div class="question-block" style="margin-top:0.5rem; margin-bottom:0;">
+              <div class="q-label">Alignment question for Brandi</div>
+              <p>Should Contact POC be added to Core Non-Digital and the Wins sheet as a standard field? Should it be structured (separate AE and CSM fields) or continue as a free-text combined entry?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q8 -->
+      <div style="padding:1.1rem 1.25rem; border-bottom:1px solid #e0e0e0; background:#fafafa;">
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <div style="background:#032D60; color:#fff; border-radius:50%; min-width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:2px;">8</div>
+          <div style="flex:1;">
+            <div style="font-size:0.875rem; font-weight:700; color:#032D60; margin-bottom:0.3rem;">Contract Compare (Partials Only)</div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+              <span class="badge badge-gap">Core Non-Digital — Missing</span>
+              <span class="badge badge-gap">Commerce — Missing</span>
+              <span class="badge badge-done">Marketing only ✓</span>
+              <span class="badge badge-gap">Wins — Missing</span>
+            </div>
+            <p style="margin-bottom:0.3rem;"><strong>Marketing wording:</strong> "Contract Compare for Partial" — free text describing what changed between the old and new contract on a partial attrition</p>
+            <p style="margin-bottom:0.3rem;"><strong>Who answers:</strong> CSM / Program Lead</p>
+            <p style="margin-bottom:0.3rem;"><strong>Why it matters:</strong> For partial attritions, knowing what specifically was removed from the contract (product lines, volume, seats) is critical for understanding the true scope of loss.</p>
+            <div class="question-block" style="margin-top:0.5rem; margin-bottom:0;">
+              <div class="q-label">Alignment question for Brandi</div>
+              <p>Should "Contract Compare for Partial" be added as a standard field across all teams, or is this a Marketing-specific need? For Commerce, partial attritions are common (YETI, Tapestry, Under Armour are all partials) — this field may be equally valuable there.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Q9 -->
+      <div style="padding:1.1rem 1.25rem; background:#fff; border-radius:0 0 6px 6px;">
+        <div style="display:flex; align-items:flex-start; gap:1rem;">
+          <div style="background:#032D60; color:#fff; border-radius:50%; min-width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:2px;">9</div>
+          <div style="flex:1;">
+            <div style="font-size:0.875rem; font-weight:700; color:#032D60; margin-bottom:0.3rem;">Misc. Notes</div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+              <span class="badge badge-done">Core Non-Digital ✓</span>
+              <span class="badge badge-gap">Commerce — Missing</span>
+              <span class="badge badge-gap">Marketing — Missing</span>
+              <span class="badge badge-done">Wins ✓</span>
+            </div>
+            <p style="margin-bottom:0.3rem;"><strong>Core Non-Digital / Wins wording:</strong> "Misc. Notes" — free text catch-all</p>
+            <p style="margin-bottom:0.3rem;"><strong>Who answers:</strong> Program Lead / CSM</p>
+            <p style="margin-bottom:0.3rem;"><strong>Why it matters:</strong> Captures context that doesn't fit other fields — executive involvement, multi-org complexity, legal/commercial constraints, timing factors. Often the most important field for explaining an unusual outcome.</p>
+            <div class="question-block" style="margin-top:0.5rem; margin-bottom:0;">
+              <div class="q-label">Alignment question for Brandi</div>
+              <p>Should Misc. Notes be standardized across all sheets? Commerce and Marketing currently have no free-text overflow field. Some accounts (e.g., Tapestry's NCO restructure, Under Armour's multi-org situation) have context that doesn't fit neatly into any other field.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- end field-table-wrap -->
+
+    <!-- Proposed canonical set -->
+    <div class="notes-card" style="margin-top:1.5rem;">
+      <div class="notes-card-header">Proposed Canonical Question Set — Pending Brandi Approval</div>
+      <div class="notes-card-body">
+        <p style="margin-bottom:1rem;">Based on the current sheets, this is a proposed unified question set that covers all teams. <strong>Nothing here is final</strong> — every row needs Brandi's confirmation before it becomes the standard.</p>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:30px;">#</th>
+              <th style="width:200px;">Proposed Field Name</th>
+              <th>Proposed Question / Prompt</th>
+              <th style="width:110px;">Format</th>
+              <th style="width:100px;">Who Answers</th>
+              <th style="width:90px;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Was it Actionable?</td>
+              <td>Was this attrition actionable? (Could the team have prevented it with the right intervention?)</td>
+              <td>Yes / No / Partial</td>
+              <td>PL</td>
+              <td><span class="badge badge-open">Needs confirm</span></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Program / Hashtag</td>
+              <td>Which program or motion was run? Select all that apply.</td>
+              <td>Multi-select hashtag picklist</td>
+              <td>PL</td>
+              <td><span class="badge badge-blocker">Needs alignment</span></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Signature Support Retained?</td>
+              <td>Did the customer retain Signature support at renewal?</td>
+              <td>Yes / No / Downgraded</td>
+              <td>PL</td>
+              <td><span class="badge badge-open">Needs confirm</span></td>
+            </tr>
+            <tr>
+              <td>4a</td>
+              <td>Logo / License Outcome</td>
+              <td>What was the outcome for logo and license? Select all that apply.</td>
+              <td>Multi-select: Logo Lost / Logo Retained / Logo Grew / License Reduced / License Lost</td>
+              <td>PL</td>
+              <td><span class="badge badge-blocker">Needs alignment</span></td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>Amount Retained ($)</td>
+              <td>What dollar amount was retained / renewed at close?</td>
+              <td>Currency</td>
+              <td>PL</td>
+              <td><span class="badge badge-open">Needs confirm</span></td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>Counterfactual</td>
+              <td>If there were no constraints, what do you think could have saved this customer?</td>
+              <td>Free text</td>
+              <td>CSM</td>
+              <td><span class="badge badge-done">Consistent — keep</span></td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>Contact POC</td>
+              <td>Who owns the account relationship? (AE / CSM)</td>
+              <td>Free text</td>
+              <td>PL</td>
+              <td><span class="badge badge-open">Add to all sheets</span></td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td>Contract Compare (Partials)</td>
+              <td>For partial attrition: what specifically changed between the old and new contract?</td>
+              <td>Free text</td>
+              <td>CSM / PL</td>
+              <td><span class="badge badge-open">Needs confirm</span></td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td>Additional Notes</td>
+              <td>Any other context not captured above (executive involvement, multi-org complexity, legal constraints, etc.)</td>
+              <td>Free text</td>
+              <td>PL / CSM</td>
+              <td><span class="badge badge-open">Add to all sheets</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- NEXT STEPS: SUPPLEMENTAL QUESTIONS TAB -->
+    <div class="section-card" style="border:2px solid #1b96ff; margin-top:1.5rem;">
+      <div class="section-header" style="background:#e8f4fd;">
+        <div class="section-number" style="background:#1b96ff;">→</div>
+        <h2 style="color:#1b96ff;">Your Next Move — Supplemental Questions</h2>
+      </div>
+      <div class="section-body">
+        <p style="margin-bottom:1rem;">The proposed canonical question set on this tab is a draft recommendation — not a decision. The next move is to get it decided, not discussed indefinitely. Here is how to run that meeting.</p>
+        <div class="step-row">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <p><strong>Come to the Brandi meeting with a recommended answer for every question</strong> — don't present nine open questions and ask Brandi to solve them cold. For each question on this tab, show the proposed canonical version and the specific decision needed (format, options, scope). The meeting should be approvals and redirections, not a discovery session.</p>
+            <p class="step-owner">Owner: Ilona prepares · Brandi approves &nbsp;·&nbsp; Validation meeting</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <p><strong>Prioritize Q2 (Program/Hashtag) and Q4 (Logo/License Outcome) above all others</strong> — these are the two fields that determine whether data can be aggregated into a portfolio view. If these remain free text or inconsistently named, no amount of story writing will produce a rollup that leadership can act on. Lock these two first; everything else is easier by comparison.</p>
+            <p class="step-owner">Owner: Brandi + Molly + Ilona &nbsp;·&nbsp; Validation meeting</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <p><strong>Assign Q6 (Counterfactual) exclusively to CSMs</strong> — make this explicit in the process documentation. PLs cannot answer this question accurately. The handoff should be: PL fills everything else, then sends the CSM a single-question prompt for Q6 only. Keep the CSM burden to under five minutes per account.</p>
+            <p class="step-owner">Owner: Ilona documents in process guide &nbsp;·&nbsp; After Brandi approval</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <p><strong>Once locked, update all five sheets to use the same column names</strong> — the canonical question set is worthless if Commerce still has different headers than Core Non-Digital. This is a one-time template cleanup. PLs cannot roll up data across sheets until the column names match exactly.</p>
+            <p class="step-owner">Owner: Ilona + Program Leads &nbsp;·&nbsp; Immediately after approval</p>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <p><strong>Schedule the CSG note audit with Felix and Stephanie</strong> — this is the one item on Brandi's list that has no dependency on the question set. It can run in parallel. Do not let it wait until Phase 2 is complete. The audit unblocks the entire Learnings section of every story.</p>
+            <p class="step-owner">Owner: Brandi schedules &nbsp;·&nbsp; No dependency — can start now</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="doc-footer">Win/Loss Requirements Document · v1.0 · June 2, 2026 · Ilona Davydova</p>
+  </div><!-- end tab-questions-early-close -->
+  <!-- ========== TAB 2: FIELD REFERENCE ========== -->
+  <div id="tab-fields" class="tab-panel">
+
+    <div class="field-intro">
+      <p>These are the <strong>25 fields retrievable from the Org62 renewal record</strong>, as exported in the <strong><a href="https://docs.google.com/spreadsheets/d/18lv8mvWU2wZD9gWZrXPVBHlxITTIkKEnMi3xDLF5OYE/edit?gid=1219011997#gid=1219011997" target="_blank" style="color:#0070d2;">RCG - All - Wins tab of the Q1 Attrition data file</a></strong> (columns A through Y). This is the authoritative field reference for automation, reporting, and story construction.</p>
+      <p>Source: AMER PACE RCG renewal report export · FY2027 Q1 · 1,000 records</p>
+    </div>
+
+    <!-- Group 1: Org & Hierarchy -->
+    <div class="field-group-header">Organizational &amp; Hierarchy Fields</div>
+    <div class="field-table-wrap">
+      <table>
+        <thead><tr><th style="width:50px;">Col</th><th style="width:220px;">Field Name</th><th>Description</th><th style="width:120px;">Data Type</th><th>Sample Value</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>A</strong></td>
+            <td>SALES_OU</td>
+            <td>Top-level Sales Operating Unit</td>
+            <td>Text</td>
+            <td>AMER PACE</td>
+          </tr>
+          <tr>
+            <td><strong>B</strong></td>
+            <td>SALES_OU_1</td>
+            <td>Sub-segment of the Sales OU</td>
+            <td>Text</td>
+            <td>AMER PACE RCG</td>
+          </tr>
+          <tr>
+            <td><strong>C</strong></td>
+            <td>ACCOUNT_LVL_4_USR_ROLE</td>
+            <td>Full AVP-level team path for the account owner — drills from OU down to AVP designation</td>
+            <td>Text</td>
+            <td>AMER - PACE - RCG - ENTR - CG - HMDU - AVP</td>
+          </tr>
+          <tr>
+            <td><strong>Q</strong></td>
+            <td>RENEWAL_OPTY_OWNR_NM</td>
+            <td>Name of the CSM / owner of the renewal opportunity in Org62</td>
+            <td>Text</td>
+            <td>Cara Holm</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Group 2: Identification -->
+    <div class="field-group-header">Renewal Opportunity Identification</div>
+    <div class="field-table-wrap">
+      <table>
+        <thead><tr><th style="width:50px;">Col</th><th style="width:220px;">Field Name</th><th>Description</th><th style="width:120px;">Data Type</th><th>Sample Value</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>G</strong></td>
+            <td>RENEWAL_OPTY_ID_18</td>
+            <td>18-character Salesforce Opportunity ID. Use this to construct the Org62 URL: <code>org62.../Opportunity/[ID]/view</code>. More reliable than the 15-char ID used in Commerce/Marketing sheets.</td>
+            <td>Text (SF ID)</td>
+            <td>0063y000019WL1yAAG</td>
+          </tr>
+          <tr>
+            <td><strong>H</strong></td>
+            <td>RENEWAL_OPTY_NM</td>
+            <td>Full name of the renewal opportunity — includes account name, renewal number, and product (e.g., Slack, Tableau, Pardot). Account name can be parsed from this field if needed.</td>
+            <td>Text</td>
+            <td>NIKE, Inc. Renewal 47034 Slack</td>
+          </tr>
+          <tr>
+            <td><strong>I</strong></td>
+            <td>RENEWAL_OPTY_TYPE</td>
+            <td>Type classification of the opportunity record</td>
+            <td>Text (Picklist)</td>
+            <td>Renewal</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Group 3: Timing -->
+    <div class="field-group-header">Timing &amp; Cycle Fields</div>
+    <div class="field-table-wrap">
+      <table>
+        <thead><tr><th style="width:50px;">Col</th><th style="width:220px;">Field Name</th><th>Description</th><th style="width:120px;">Data Type</th><th>Sample Value</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>D</strong></td>
+            <td>RENEWAL_CLOSE_MONTH</td>
+            <td>Month the renewal closed, expressed as the first day of that month</td>
+            <td>Date</td>
+            <td>2026-04-01</td>
+          </tr>
+          <tr>
+            <td><strong>E</strong></td>
+            <td>RENEWAL_CLSD_DT</td>
+            <td>Exact date the renewal opportunity was closed in Org62</td>
+            <td>Date</td>
+            <td>2026-04-14</td>
+          </tr>
+          <tr>
+            <td><strong>F</strong></td>
+            <td>RENEWAL_FISCAL_QTR</td>
+            <td>Salesforce fiscal quarter in which the renewal closed</td>
+            <td>Text</td>
+            <td>FY2027Q1</td>
+          </tr>
+          <tr>
+            <td><strong>J</strong></td>
+            <td>FORECAST_TYPE</td>
+            <td>Whether the renewal was on-cycle (aligned to contract anniversary) or off-cycle (early or restructured)</td>
+            <td>Text (Picklist)</td>
+            <td>Oncycle</td>
+          </tr>
+          <tr>
+            <td><strong>N</strong></td>
+            <td>SRC_CRTE_DT</td>
+            <td>Source record creation date. <strong>Note:</strong> Exports as Excel date serial number (e.g., 45397 = April 14, 2024). Must be converted before use in any date logic.</td>
+            <td>Numeric / Date*</td>
+            <td>45397</td>
+          </tr>
+          <tr>
+            <td><strong>V</strong></td>
+            <td>REC_STRT_DT</td>
+            <td>Start date of the contract/record period being renewed</td>
+            <td>Date</td>
+            <td>2026-01-06</td>
+          </tr>
+          <tr>
+            <td><strong>W</strong></td>
+            <td>REC_END_DT</td>
+            <td>End date of the contract/record period being renewed</td>
+            <td>Date</td>
+            <td>2026-02-18</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Group 4: Stage & Status -->
+    <div class="field-group-header">Stage &amp; Status Fields</div>
+    <div class="field-table-wrap">
+      <table>
+        <thead><tr><th style="width:50px;">Col</th><th style="width:220px;">Field Name</th><th>Description</th><th style="width:120px;">Data Type</th><th>Sample Value</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>O</strong></td>
+            <td>RENEWAL_STG_NM</td>
+            <td>Stage name of the renewal opportunity at the time of the report export</td>
+            <td>Text (Picklist)</td>
+            <td>05 Closed</td>
+          </tr>
+          <tr>
+            <td><strong>P</strong></td>
+            <td>STATUS</td>
+            <td>High-level status of the renewal record</td>
+            <td>Text (Picklist)</td>
+            <td>Closed</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Group 5: Attrition Classification -->
+    <div class="field-group-header">Attrition Classification Fields</div>
+    <div class="field-table-wrap">
+      <table>
+        <thead><tr><th style="width:50px;">Col</th><th style="width:220px;">Field Name</th><th>Description</th><th style="width:120px;">Data Type</th><th>Sample Value</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>K</strong></td>
+            <td>ATTRITION_REASON</td>
+            <td>Top-level reason category for attrition. Common values: Business Change &amp; Distress, Financial &amp; Contractual, Adoption, Concessions, No Given Reason</td>
+            <td>Text (Picklist)</td>
+            <td>Business Change &amp; Distress</td>
+          </tr>
+          <tr>
+            <td><strong>L</strong></td>
+            <td>RENEWAL_RISK_DETAIL</td>
+            <td>Sub-reason detail describing the specific risk that drove attrition outcome. More granular than ATTRITION_REASON.</td>
+            <td>Text</td>
+            <td>Business Direction Change - Product No Longer Relevant</td>
+          </tr>
+          <tr>
+            <td><strong>X</strong></td>
+            <td>ATTRITION_CHANGE_CATEGORY</td>
+            <td>Direction of attrition movement relative to the Feb 1 baseline. "Attrition Improvement" = attrition was present on Feb 1 but was subsequently reduced or eliminated.</td>
+            <td>Text (Picklist)</td>
+            <td>Attrition Improvement</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Group 6: Financial -->
+    <div class="field-group-header">Financial / Dollar Fields</div>
+    <div class="field-table-wrap">
+      <table>
+        <thead><tr><th style="width:50px;">Col</th><th style="width:220px;">Field Name</th><th>Description</th><th style="width:120px;">Data Type</th><th>Sample Value</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>M</strong></td>
+            <td>ACCT_AOV_BAND</td>
+            <td>Account Annual Order Value tier — used for segmenting accounts by size</td>
+            <td>Text (Picklist)</td>
+            <td>8. &gt;$5M</td>
+          </tr>
+          <tr>
+            <td><strong>R</strong></td>
+            <td>RENEWAL_ATR_CONV</td>
+            <td>Actual ATR (Amount to Renew) — the final renewed contract value in converted currency (USD). This is what the customer signed.</td>
+            <td>Currency (USD)</td>
+            <td>$3,502,079.16</td>
+          </tr>
+          <tr>
+            <td><strong>S</strong></td>
+            <td>RENEWAL_AMT_CONV</td>
+            <td>Total renewal opportunity amount in converted currency. May equal RENEWAL_ATR_CONV for fully closed renewals; may differ on partials.</td>
+            <td>Currency (USD)</td>
+            <td>$3,502,079.16</td>
+          </tr>
+          <tr>
+            <td><strong>T</strong></td>
+            <td>RENEWAL_FCAST_ATTRITION_CONV</td>
+            <td>Forecasted attrition at close in converted currency. For zero-attrition wins, this = $0.00. For losses, this is the dollar amount of attrition booked.</td>
+            <td>Currency (USD)</td>
+            <td>$0.00</td>
+          </tr>
+          <tr>
+            <td><strong>U</strong></td>
+            <td>FEB1_ATTRITION</td>
+            <td>Attrition snapshot as of February 1 — the fiscal year's early baseline. <strong>Negative values on the Wins sheet</strong> = attrition that was present Feb 1 and subsequently recovered by close. Needs interpretation confirmation.</td>
+            <td>Currency (USD)</td>
+            <td>-$700,668.00</td>
+          </tr>
+          <tr>
+            <td><strong>Y</strong></td>
+            <td>ATTRITION_CHANGE_AMT</td>
+            <td>Dollar amount of attrition improvement vs. the Feb 1 baseline. For wins where attrition was recovered, this = the amount saved.</td>
+            <td>Currency (USD)</td>
+            <td>$700,668.00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Notes -->
+    <div class="notes-card">
+      <div class="notes-card-header">Field Notes &amp; Gaps for Leadership</div>
+      <div class="notes-card-body">
+        <table>
+          <thead><tr><th style="width:200px;">Note</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-done">Best Practice</span> Renewal URL</td>
+              <td>Use Col G (RENEWAL_OPTY_ID_18, 18-char) to construct the direct Org62 link: <code>https://org62.lightning.force.com/lightning/r/Opportunity/[G]/view</code>. The 15-char IDs used in Commerce/Marketing sheets via formula are fragile and should be replaced.</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-gap">Data Issue</span> SRC_CRTE_DT (Col N)</td>
+              <td>Exports as an Excel date serial number (e.g., 45397), not a formatted date. Must be converted before use in date calculations or displays. Excel serial 45397 = April 14, 2024.</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-gap">Needs Confirmation</span> FEB1_ATTRITION (Col U)</td>
+              <td>Values are negative on the Wins sheet (e.g., -$700,668). Working interpretation: negative = attrition that existed on Feb 1 but was recovered by close. Needs formal confirmation from the reporting team before being used in story calculations.</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-open">Missing Field</span> Account Name</td>
+              <td>Account name is <strong>not</strong> a standalone column in this export (unlike the loss sheets which have "Group By Name"). It must be parsed from RENEWAL_OPTY_NM (Col H) or pulled via a separate account lookup. Should be surfaced as a report configuration fix.</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-open">Missing Field</span> Raw Attrition Amount</td>
+              <td>The loss sheets have a direct "Attrition Amount" field. The Wins sheet uses RENEWAL_FCAST_ATTRITION_CONV (T) and ATTRITION_CHANGE_AMT (Y) instead. For zero-attrition wins T = 0. For partial recoveries, Y shows the amount saved. The story data model must map both approaches.</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-open">Missing Field</span> Group By Name / Account Name</td>
+              <td>Loss sheets include "Group By Name" (account name). The Wins sheet does not. For a unified data model across both wins and losses, this field needs to be added to the Wins report configuration in Org62.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- NEXT STEPS: FIELD REFERENCE TAB -->
+    <div class="notes-card" style="border:2px solid #1b96ff; margin-top:1.5rem;">
+      <div class="notes-card-header" style="background:#1b96ff;">Your Next Move — Org62 Field Reference</div>
+      <div class="notes-card-body">
+        <p style="margin-bottom:1rem;">The 25 fields documented here are what the system gives you today. Three actions are needed to make this field set production-ready for the Win/Loss workflow.</p>
+        <table>
+          <thead><tr><th style="width:30px;">#</th><th style="width:220px;">Action</th><th>Detail</th><th style="width:110px;">Owner</th><th style="width:90px;">Priority</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><strong>Fix the Wins report to include Account Name</strong></td>
+              <td>Account Name is missing from the Wins sheet export (columns A–Y). It exists on all loss sheets as "Group By Name." This is a report configuration change in Org62 — someone with report admin access needs to add the Account Name field to the RCG - All - Wins report. Without it, every Wins story requires manual name-parsing from the opportunity name string.</td>
+              <td>Reporting team / Ilona to raise</td>
+              <td><span class="badge badge-blocker">High</span></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><strong>Standardize on 18-char Opportunity ID across all sheets</strong></td>
+              <td>Commerce and Marketing sheets use a fragile Excel formula to construct the Renewal Opportunity URL from a 15-char ID. The Wins sheet already exports RENEWAL_OPTY_ID_18 natively. All sheets should be updated to use the 18-char ID directly — this eliminates the formula dependency and makes the link work in Google Sheets, CSV exports, and any downstream automation.</td>
+              <td>Ilona / Program Leads</td>
+              <td><span class="badge badge-blocker">High</span></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><strong>Confirm FEB1_ATTRITION interpretation with the reporting team</strong></td>
+              <td>Negative values in the Wins sheet FEB1_ATTRITION field (Col U) are being interpreted as "attrition that existed on Feb 1 but was subsequently recovered." This interpretation needs formal confirmation from whoever owns the Org62 report definition before these numbers are used in story calculations or leadership reporting. A wrong interpretation here will produce incorrect dollar figures in the Outcome section of Win stories.</td>
+              <td>Ilona raises with reporting team</td>
+              <td><span class="badge badge-open">Medium</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="doc-footer">Win/Loss Requirements Document · v1.0 · June 2, 2026 · Ilona Davydova</p>
+  </div><!-- end tab-fields -->
+
+  <!-- ========== TAB 4: STORY READINESS ========== -->
+  <div id="tab-readiness" class="tab-panel">
+
+    <style>
+      .scorecard-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.75rem; }
+      @media(max-width:700px){ .scorecard-grid { grid-template-columns:1fr 1fr; } }
+      .scorecard-card { background:#fff; border-radius:8px; border:1px solid #dddbda; overflow:hidden; }
+      .scorecard-top { padding:0.9rem 1rem 0.7rem; }
+      .scorecard-label { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#777; margin-bottom:0.25rem; }
+      .scorecard-title { font-size:1rem; font-weight:700; color:#032D60; margin-bottom:0.5rem; }
+      .scorecard-status { display:inline-flex; align-items:center; gap:0.4rem; font-size:0.78rem; font-weight:700; padding:0.25rem 0.65rem; border-radius:12px; }
+      .status-green { background:#e3f5e1; color:#2e7d32; }
+      .status-amber { background:#fff3e0; color:#a05c00; }
+      .status-red { background:#fdecea; color:#c23934; }
+      .scorecard-bar { height:5px; }
+      .bar-green { background:#4caf50; }
+      .bar-amber { background:#ff9800; }
+      .bar-red { background:#e53935; }
+      .scorecard-bottom { padding:0.6rem 1rem 0.8rem; font-size:0.78rem; color:#555; }
+      .drill-section { margin-bottom:1.75rem; }
+      .drill-header { display:flex; align-items:center; gap:0.75rem; background:#032D60; color:#fff; padding:0.75rem 1.25rem; border-radius:8px 8px 0 0; }
+      .drill-header-title { font-size:0.875rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; }
+      .drill-header-status { margin-left:auto; }
+      .drill-body { background:#fff; border:1px solid #dddbda; border-top:none; border-radius:0 0 8px 8px; overflow:hidden; }
+      .drill-row { display:grid; grid-template-columns:200px 130px 1fr 175px 110px; gap:0; border-bottom:1px solid #f0f0f0; }
+      .drill-row:last-child { border-bottom:none; }
+      .drill-row-head { display:grid; grid-template-columns:200px 130px 1fr 175px 110px; gap:0; background:#f4f6f9; border-bottom:2px solid #e0e0e0; }
+      .drill-cell { padding:0.55rem 0.85rem; font-size:0.82rem; color:#333; }
+      .drill-cell-head { padding:0.45rem 0.85rem; font-size:0.75rem; font-weight:700; color:#444; text-transform:uppercase; letter-spacing:0.03em; }
+      .drill-row:nth-child(even) .drill-cell { background:#fafafa; }
+      .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; flex-shrink:0; }
+      .dot-green { background:#4caf50; }
+      .dot-amber { background:#ff9800; }
+      .dot-red { background:#e53935; }
+      .pilot-card { background:#fff; border-radius:8px; border:2px solid #032D60; overflow:hidden; margin-bottom:1.5rem; }
+      .pilot-card-header { background:#032D60; color:#fff; padding:0.85rem 1.5rem; font-size:0.875rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; }
+      .pilot-card-body { padding:1.25rem 1.5rem; }
+      .phase-row { display:flex; gap:1.25rem; margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid #f0f0f0; }
+      .phase-row:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+      .phase-num { background:#1b96ff; color:#fff; border-radius:6px; min-width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; flex-shrink:0; margin-top:2px; }
+      .phase-title { font-size:0.875rem; font-weight:700; color:#032D60; margin-bottom:0.2rem; }
+      .phase-detail { font-size:0.82rem; color:#444; margin:0 0 0.2rem; }
+      .phase-meta { font-size:0.75rem; color:#777; margin:0; }
+      .readiness-legend { display:flex; gap:1.5rem; margin-top:0.75rem; flex-wrap:wrap; }
+      .legend-item { display:flex; align-items:center; gap:0.4rem; font-size:0.78rem; color:#555; }
+    </style>
+
+    <div class="field-intro">
+      <p><strong>Story Readiness Assessment</strong> — given what we have from Org62 and the supplemental questions, how ready are we to build individual Win/Loss stories right now? Every data element needed for a story is mapped below with its source, current status, and the action required to close any gap.</p>
+      <div class="readiness-legend">
+        <div class="legend-item"><span class="dot dot-green"></span>Available now — no action needed</div>
+        <div class="legend-item"><span class="dot dot-amber"></span>Available after supplemental questions are locked</div>
+        <div class="legend-item"><span class="dot dot-red"></span>Not yet available — external dependency</div>
+      </div>
+    </div>
+
+    <!-- SCORECARD -->
+    <div class="scorecard-grid">
+      <div class="scorecard-card">
+        <div class="scorecard-top">
+          <div class="scorecard-label">Story Section 1 of 4</div>
+          <div class="scorecard-title">Situation</div>
+          <div class="scorecard-status status-green"><span class="dot dot-green"></span>Ready Now</div>
+        </div>
+        <div class="scorecard-bar bar-green"></div>
+        <div class="scorecard-bottom">All core fields available from Org62. Account, amount, reason, cycle type, contract period — fully sourced.</div>
+      </div>
+      <div class="scorecard-card">
+        <div class="scorecard-top">
+          <div class="scorecard-label">Story Section 2 of 4</div>
+          <div class="scorecard-title">Response</div>
+          <div class="scorecard-status status-amber"><span class="dot dot-amber"></span>Partially Ready</div>
+        </div>
+        <div class="scorecard-bar bar-amber"></div>
+        <div class="scorecard-bottom">SF Manager Notes exist but quality varies. Program/hashtag field not standardized. Fully unlocks after Q2 is aligned and CSG audit is done.</div>
+      </div>
+      <div class="scorecard-card">
+        <div class="scorecard-top">
+          <div class="scorecard-label">Story Section 3 of 4</div>
+          <div class="scorecard-title">Outcome</div>
+          <div class="scorecard-status status-amber"><span class="dot dot-amber"></span>Partially Ready</div>
+        </div>
+        <div class="scorecard-bar bar-amber"></div>
+        <div class="scorecard-bottom">Dollar outcome is in Org62. Logo, license, and Signature result require supplemental Q3–Q5 — straightforward once the question set is locked.</div>
+      </div>
+      <div class="scorecard-card">
+        <div class="scorecard-top">
+          <div class="scorecard-label">Story Section 4 of 4</div>
+          <div class="scorecard-title">Learnings</div>
+          <div class="scorecard-status status-red"><span class="dot dot-red"></span>Not Yet Ready</div>
+        </div>
+        <div class="scorecard-bar bar-red"></div>
+        <div class="scorecard-bottom">Counterfactual is the one consistent field. Hashtag discrepancy layer requires the CSG note audit (Felix + Stephanie). That work has not started.</div>
+      </div>
+    </div>
+
+    <!-- SITUATION -->
+    <div class="drill-section">
+      <div class="drill-header">
+        <div class="drill-header-title">Situation — Field Detail</div>
+        <div class="drill-header-status"><span class="scorecard-status status-green" style="font-size:0.75rem;"><span class="dot dot-green"></span>Ready Now</span></div>
+      </div>
+      <div class="drill-body">
+        <div class="drill-row-head">
+          <div class="drill-cell-head">Data Point Needed</div>
+          <div class="drill-cell-head">Source</div>
+          <div class="drill-cell-head">Field Name</div>
+          <div class="drill-cell-head">Status</div>
+          <div class="drill-cell-head">Owner</div>
+        </div>
+        <div class="drill-row"><div class="drill-cell"><strong>Account name</strong></div><div class="drill-cell">Org62</div><div class="drill-cell">Group By Name · RENEWAL_OPTY_NM (Wins)</div><div class="drill-cell"><span class="dot dot-green"></span>Available</div><div class="drill-cell">System</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Attrition amount ($)</strong></div><div class="drill-cell">Org62</div><div class="drill-cell">Attrition Amount · RENEWAL_FCAST_ATTRITION_CONV (Wins)</div><div class="drill-cell"><span class="dot dot-green"></span>Available</div><div class="drill-cell">System</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Top-level attrition reason</strong></div><div class="drill-cell">Org62</div><div class="drill-cell">ATTRITION_REASON</div><div class="drill-cell"><span class="dot dot-green"></span>Available</div><div class="drill-cell">System</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Sub-reason / risk detail</strong></div><div class="drill-cell">Org62</div><div class="drill-cell">RENEWAL_RISK_DETAIL</div><div class="drill-cell"><span class="dot dot-green"></span>Available</div><div class="drill-cell">System</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Full vs. partial attrition</strong></div><div class="drill-cell">Org62</div><div class="drill-cell">Full/Partial</div><div class="drill-cell"><span class="dot dot-green"></span>Available</div><div class="drill-cell">System</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>On-cycle vs. off-cycle</strong></div><div class="drill-cell">Org62</div><div class="drill-cell">FORECAST_TYPE / Attrition Type</div><div class="drill-cell"><span class="dot dot-green"></span>Available</div><div class="drill-cell">System</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Contract period (start → end)</strong></div><div class="drill-cell">Org62</div><div class="drill-cell">REC_STRT_DT / REC_END_DT</div><div class="drill-cell"><span class="dot dot-green"></span>Available</div><div class="drill-cell">System</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Account size tier</strong></div><div class="drill-cell">Org62</div><div class="drill-cell">ACCT_AOV_BAND</div><div class="drill-cell"><span class="dot dot-green"></span>Available</div><div class="drill-cell">System</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>CSM / account owner</strong></div><div class="drill-cell">Org62</div><div class="drill-cell">RENEWAL_OPTY_OWNR_NM</div><div class="drill-cell"><span class="dot dot-green"></span>Available</div><div class="drill-cell">System</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Link to renewal record</strong></div><div class="drill-cell">Org62</div><div class="drill-cell">RENEWAL_OPTY_ID_18 → constructed URL</div><div class="drill-cell"><span class="dot dot-green"></span>Available</div><div class="drill-cell">System</div></div>
+      </div>
+    </div>
+
+    <!-- RESPONSE -->
+    <div class="drill-section">
+      <div class="drill-header">
+        <div class="drill-header-title">Response — Field Detail</div>
+        <div class="drill-header-status"><span class="scorecard-status status-amber" style="font-size:0.75rem;"><span class="dot dot-amber"></span>Partially Ready</span></div>
+      </div>
+      <div class="drill-body">
+        <div class="drill-row-head">
+          <div class="drill-cell-head">Data Point Needed</div>
+          <div class="drill-cell-head">Source</div>
+          <div class="drill-cell-head">Field Name</div>
+          <div class="drill-cell-head">Status</div>
+          <div class="drill-cell-head">Owner</div>
+        </div>
+        <div class="drill-row"><div class="drill-cell"><strong>Manager narrative of what happened</strong></div><div class="drill-cell">Org62</div><div class="drill-cell">RENEWAL_OP_MGR_NOTES</div><div class="drill-cell"><span class="dot dot-amber"></span>Available — quality varies</div><div class="drill-cell">System</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Next steps taken</strong></div><div class="drill-cell">Org62</div><div class="drill-cell">RENEWAL_OP_NXT_STEPS</div><div class="drill-cell"><span class="dot dot-amber"></span>Available — quality varies</div><div class="drill-cell">System</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Program / play that was run</strong></div><div class="drill-cell">Supplemental Q2</div><div class="drill-cell">Offense Program (Hashtags) — not yet standardized</div><div class="drill-cell"><span class="dot dot-amber"></span>After Q2 alignment</div><div class="drill-cell">PL</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Contact POC who ran the account</strong></div><div class="drill-cell">Supplemental Q7</div><div class="drill-cell">Contact POC — missing from Core Non-Digital + Wins</div><div class="drill-cell"><span class="dot dot-amber"></span>After Q7 alignment</div><div class="drill-cell">PL</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Red Account plays + hashtags logged</strong></div><div class="drill-cell">CSG Note Audit</div><div class="drill-cell">Slack Red Account channel + CSG Notes in Org62</div><div class="drill-cell"><span class="dot dot-red"></span>Blocked — Felix/Stephanie audit not started</div><div class="drill-cell">Brandi + Felix + Stephanie</div></div>
+      </div>
+    </div>
+
+    <!-- OUTCOME -->
+    <div class="drill-section">
+      <div class="drill-header">
+        <div class="drill-header-title">Outcome — Field Detail</div>
+        <div class="drill-header-status"><span class="scorecard-status status-amber" style="font-size:0.75rem;"><span class="dot dot-amber"></span>Partially Ready</span></div>
+      </div>
+      <div class="drill-body">
+        <div class="drill-row-head">
+          <div class="drill-cell-head">Data Point Needed</div>
+          <div class="drill-cell-head">Source</div>
+          <div class="drill-cell-head">Field Name</div>
+          <div class="drill-cell-head">Status</div>
+          <div class="drill-cell-head">Owner</div>
+        </div>
+        <div class="drill-row"><div class="drill-cell"><strong>Dollar amount of attrition booked</strong></div><div class="drill-cell">Org62</div><div class="drill-cell">Attrition Amount / RENEWAL_FCAST_ATTRITION_CONV</div><div class="drill-cell"><span class="dot dot-green"></span>Available</div><div class="drill-cell">System</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Was it actionable?</strong></div><div class="drill-cell">Supplemental Q1</div><div class="drill-cell">Was it Actionable — missing from Commerce + Marketing</div><div class="drill-cell"><span class="dot dot-amber"></span>After Q1 alignment</div><div class="drill-cell">PL</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Dollar amount retained / renewed</strong></div><div class="drill-cell">Supplemental Q5</div><div class="drill-cell">Amount Retained — naming inconsistent across sheets</div><div class="drill-cell"><span class="dot dot-amber"></span>After Q5 alignment</div><div class="drill-cell">PL</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Logo / license outcome</strong></div><div class="drill-cell">Supplemental Q4</div><div class="drill-cell">Logo/License outcome — wording inconsistent across sheets</div><div class="drill-cell"><span class="dot dot-amber"></span>After Q4 alignment</div><div class="drill-cell">PL</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Signature support retained?</strong></div><div class="drill-cell">Supplemental Q3</div><div class="drill-cell">Success Plan / Signature drop — ambiguous in 2 sheets</div><div class="drill-cell"><span class="dot dot-amber"></span>After Q3 alignment</div><div class="drill-cell">PL</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>What changed on contract (partials)</strong></div><div class="drill-cell">Supplemental Q8</div><div class="drill-cell">Contract Compare — Marketing only, not standardized</div><div class="drill-cell"><span class="dot dot-amber"></span>After Q8 alignment</div><div class="drill-cell">PL / CSM</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Attrition improvement vs. Feb 1 baseline</strong></div><div class="drill-cell">Org62</div><div class="drill-cell">ATTRITION_CHANGE_AMT / ATTRITION_CHANGE_CATEGORY</div><div class="drill-cell"><span class="dot dot-amber"></span>Available — interpretation needs confirmation</div><div class="drill-cell">Reporting team</div></div>
+      </div>
+    </div>
+
+    <!-- LEARNINGS -->
+    <div class="drill-section">
+      <div class="drill-header">
+        <div class="drill-header-title">Learnings — Field Detail</div>
+        <div class="drill-header-status"><span class="scorecard-status status-red" style="font-size:0.75rem;"><span class="dot dot-red"></span>Not Yet Ready</span></div>
+      </div>
+      <div class="drill-body">
+        <div class="drill-row-head">
+          <div class="drill-cell-head">Data Point Needed</div>
+          <div class="drill-cell-head">Source</div>
+          <div class="drill-cell-head">Field Name</div>
+          <div class="drill-cell-head">Status</div>
+          <div class="drill-cell-head">Owner</div>
+        </div>
+        <div class="drill-row"><div class="drill-cell"><strong>Counterfactual — what could have saved it</strong></div><div class="drill-cell">Supplemental Q6</div><div class="drill-cell">"If there were no constraints…" — consistent across all sheets</div><div class="drill-cell"><span class="dot dot-green"></span>Only Q consistent everywhere</div><div class="drill-cell">CSM</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Programs that were / weren't tagged</strong></div><div class="drill-cell">CSG Note Audit</div><div class="drill-cell">Red Account CSG Notes + Slack hashtags</div><div class="drill-cell"><span class="dot dot-red"></span>Blocked — audit not started</div><div class="drill-cell">Brandi + Felix + Stephanie</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Hashtag discrepancy vs. renewal record</strong></div><div class="drill-cell">CSG Audit + Q2</div><div class="drill-cell">Cross-reference: Q2 answer vs. CSG Notes</div><div class="drill-cell"><span class="dot dot-red"></span>Blocked — depends on both Q2 and CSG audit</div><div class="drill-cell">Brandi + Felix + Stephanie</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Missed opportunity flags</strong></div><div class="drill-cell">CSG Audit + Q6</div><div class="drill-cell">Derived from counterfactual + hashtag cross-check</div><div class="drill-cell"><span class="dot dot-red"></span>Blocked — CSG audit required first</div><div class="drill-cell">Brandi + Felix + Stephanie</div></div>
+        <div class="drill-row"><div class="drill-cell"><strong>Additional context / notes</strong></div><div class="drill-cell">Supplemental Q9</div><div class="drill-cell">Misc. Notes — missing from Commerce + Marketing</div><div class="drill-cell"><span class="dot dot-amber"></span>After Q9 alignment</div><div class="drill-cell">PL / CSM</div></div>
+      </div>
+    </div>
+
+    <!-- STRATEGIC RECOMMENDATION -->
+    <div class="pilot-card">
+      <div class="pilot-card-header">Strategic Recommendation — What to Do Right Now</div>
+      <div class="pilot-card-body">
+        <p style="margin-bottom:1.25rem; font-size:0.875rem; color:#444;">Three phases. The first can start this week. The second starts the moment supplemental questions are locked. The third requires the CSG audit to complete first. Do not skip the sequence — each phase gates the next.</p>
+
+        <div class="phase-row">
+          <div class="phase-num">1</div>
+          <div>
+            <div class="phase-title">Build 3–5 pilot stories using Situation + partial Response + Outcome — start this week</div>
+            <p class="phase-detail">You have everything needed for complete Situation and Outcome sections across all 33 Commerce accounts right now. Use SF Manager Notes as the narrative base for Response, with a clearly marked placeholder where the standardized program hashtag will slot in. Present these pilots to Brandi as the format validation artifact — this is precisely what she asked for before any broader rollout. The stories don't need to be perfect; they need to prove the structure works and surface the specific gaps she needs to decide on.</p>
+            <p class="phase-meta">Owner: Ilona &nbsp;·&nbsp; Dependency: None &nbsp;·&nbsp; Timeline: This week</p>
+          </div>
+        </div>
+
+        <div class="phase-row">
+          <div class="phase-num">2</div>
+          <div>
+            <div class="phase-title">Complete Response + Outcome once supplemental questions are locked</div>
+            <p class="phase-detail">Once Brandi approves the canonical question set, Program Leads backfill the structured fields (program hashtag, logo outcome, Signature status, retained amount, actionability flag) for all in-scope records. This is a one-time enrichment per quarter — it then becomes part of the standard close-month workflow. At this point, every story is complete except for the hashtag discrepancy layer in Learnings, which requires the CSG audit.</p>
+            <p class="phase-meta">Owner: Program Leads &nbsp;·&nbsp; Dependency: Supplemental question alignment (Brandi gate) &nbsp;·&nbsp; Timeline: Immediately after approval</p>
+          </div>
+        </div>
+
+        <div class="phase-row">
+          <div class="phase-num">3</div>
+          <div>
+            <div class="phase-title">Complete Learnings once the CSG note audit is done</div>
+            <p class="phase-detail">The Learnings section cannot be fully written until the CSG note audit (Brandi, Felix, Stephanie) is complete. That audit surfaces whether the right hashtags were applied in Red Account records, which plays were formally tracked vs. missed, and what systemic gaps drove attrition. Once this runs, the Learnings section moves from a single counterfactual answer to a structured, auditable, cross-referenced finding — which is what makes stories defensible in front of Rick, Kathleen, and Colin.</p>
+            <p class="phase-meta">Owner: Brandi + Felix + Stephanie &nbsp;·&nbsp; Dependency: CSG audit meeting — not yet scheduled &nbsp;·&nbsp; Timeline: TBD</p>
+          </div>
+        </div>
+
+        <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid #e0e0e0;">
+          <p style="font-size:0.82rem; color:#032D60; font-weight:700; margin-bottom:0.3rem;">Bottom line for leadership</p>
+          <p style="font-size:0.82rem; color:#444; margin:0;">You can walk into Brandi's validation meeting with 3–5 complete Situation + Outcome stories from the Commerce team today. That validates the format, proves the process works, and gives Brandi something concrete to react to — which is exactly what unlocks the rest of the work. The Learnings section and full scalability depend on two decisions that only Brandi can make: locking the question set, and scheduling the CSG audit. Both are in her court.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEXT STEPS: STORY READINESS TAB -->
+    <div class="pilot-card" style="border:2px solid #1b96ff;">
+      <div class="pilot-card-header" style="background:#1b96ff;">Your Next Move — Story Readiness</div>
+      <div class="pilot-card-body">
+        <p style="margin-bottom:1.25rem; font-size:0.875rem; color:#444;">The readiness assessment above shows the current state. This section tells you the five specific actions that move stories from partially ready to fully publishable — in the order they need to happen.</p>
+
+        <div class="phase-row">
+          <div class="phase-num">1</div>
+          <div>
+            <div class="phase-title">This week: write 3–5 pilot Commerce stories — Situation + Outcome complete, Response partially filled</div>
+            <p class="phase-detail">Do not wait for the question set to be locked before starting. The Situation section is fully ready and the Outcome section needs only the fields that already exist in the Commerce sheet. Write the pilots now, mark the Response program field as "TBD — pending hashtag alignment," and use the SF Manager Notes as the narrative base. These pilots are your leverage in the Brandi meeting — they make the conversation about approvals, not about whether the idea works.</p>
+            <p class="phase-meta">Owner: Ilona &nbsp;·&nbsp; Dependency: None &nbsp;·&nbsp; This week</p>
+          </div>
+        </div>
+
+        <div class="phase-row">
+          <div class="phase-num">2</div>
+          <div>
+            <div class="phase-title">Validation meeting: get the question set locked and the $100K threshold confirmed</div>
+            <p class="phase-detail">Walk into the Brandi meeting with the pilot stories and this document open on the Supplemental Questions tab. The goal of the meeting is to exit with two things confirmed in writing: (1) the canonical question set approved, and (2) the $100K threshold on record. Without these two decisions, PLs have no unambiguous instructions and will either not act or act inconsistently.</p>
+            <p class="phase-meta">Owner: Ilona facilitates · Brandi decides &nbsp;·&nbsp; Dependency: Pilot stories ready &nbsp;·&nbsp; This week or next</p>
+          </div>
+        </div>
+
+        <div class="phase-row">
+          <div class="phase-num">3</div>
+          <div>
+            <div class="phase-title">Immediately after: PLs backfill Response + Outcome fields for all in-scope records</div>
+            <p class="phase-detail">Once the question set is locked, Program Leads complete the structured fields for every Commerce record first (33 accounts), then expand to other segments. This is not an ongoing task — it is a one-time quarterly enrichment. Build it into the close-month process so it happens automatically each quarter without requiring a separate request.</p>
+            <p class="phase-meta">Owner: Program Leads &nbsp;·&nbsp; Dependency: Question set locked (Step 2) &nbsp;·&nbsp; Immediately after approval</p>
+          </div>
+        </div>
+
+        <div class="phase-row">
+          <div class="phase-num">4</div>
+          <div>
+            <div class="phase-title">In parallel: schedule and run the CSG note audit with Felix and Stephanie</div>
+            <p class="phase-detail">This is the one item that does not depend on the question set and should not wait. Brandi raised it explicitly. The audit determines whether hashtags in Red Account records match what actually happened — which is the entire basis of the Learnings section. Schedule it now, run it before the leadership presentation. If it reveals systematic hashtag gaps, that finding is exactly the kind of program intelligence Rick, Kathleen, and Colin need to see.</p>
+            <p class="phase-meta">Owner: Brandi schedules &nbsp;·&nbsp; Dependency: None — can start immediately &nbsp;·&nbsp; Target: before leadership presentation</p>
+          </div>
+        </div>
+
+        <div class="phase-row">
+          <div class="phase-num">5</div>
+          <div>
+            <div class="phase-title">Final step: present complete stories + portfolio view to Rick, Kathleen, Colin</div>
+            <p class="phase-detail">Only after Steps 1–4 are done. At that point you walk in with: validated story format, complete Situation + Response + Outcome + Learnings for Commerce accounts, a portfolio summary showing total attrition and wins by segment, and a program effectiveness view backed by hashtag data. That is a leadership-grade deliverable. Anything less is a work-in-progress update — and Brandi specifically said she will not present a work-in-progress to that audience.</p>
+            <p class="phase-meta">Owner: Brandi presents &nbsp;·&nbsp; Dependency: All prior steps complete &nbsp;·&nbsp; Timeline: TBD — set date in validation meeting</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="doc-footer">Win/Loss Requirements Document · v1.0 · June 2, 2026 · Ilona Davydova</p>
+  </div><!-- end tab-readiness -->
+
+  <!-- ========== TAB 5: PORTFOLIO VIEW BLUEPRINT ========== -->
+  <div id="tab-portfolio" class="tab-panel">
+  <style>
+    .pv-intro { background:#fff; border-radius:8px; border:1px solid #dddbda; padding:1.25rem 1.5rem; margin-bottom:1.5rem; }
+    .pv-section { margin-bottom:2rem; }
+    .pv-block-header { background:#032D60; color:#fff; padding:0.7rem 1.25rem; border-radius:8px 8px 0 0; font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; }
+    .pv-block-body { background:#fff; border:1px solid #dddbda; border-top:none; border-radius:0 0 8px 8px; padding:1.25rem 1.5rem; }
+    .pv-layer-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1.5rem; }
+    @media(max-width:700px){ .pv-layer-grid { grid-template-columns:1fr; } }
+    .pv-layer-card { background:#fff; border-radius:8px; border:1px solid #dddbda; overflow:hidden; }
+    .pv-layer-card-top { padding:0.85rem 1rem 0.6rem; }
+    .pv-layer-card-label { font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#777; margin-bottom:0.2rem; }
+    .pv-layer-card-title { font-size:0.95rem; font-weight:700; color:#032D60; margin-bottom:0.3rem; }
+    .pv-layer-card-desc { font-size:0.8rem; color:#555; }
+    .pv-layer-card-bar { height:4px; }
+    .pv-layer-card-bottom { padding:0.6rem 1rem 0.85rem; }
+    .pv-layer-card-bottom ul { margin:0; padding-left:1.1rem; }
+    .pv-layer-card-bottom li { font-size:0.78rem; color:#444; margin-bottom:0.2rem; }
+    .pv-metric-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.25rem; }
+    @media(max-width:700px){ .pv-metric-grid { grid-template-columns:1fr 1fr; } }
+    .pv-metric-card { background:#f4f6f9; border-radius:8px; border:1px solid #e0e0e0; padding:0.85rem 1rem; }
+    .pv-metric-label { font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:#777; margin-bottom:0.3rem; }
+    .pv-metric-source { font-size:0.72rem; color:#0070d2; margin-bottom:0.15rem; }
+    .pv-metric-field { font-size:0.72rem; color:#888; font-family:monospace; }
+    .pv-flow { display:flex; align-items:stretch; gap:0; margin-bottom:1.25rem; flex-wrap:wrap; }
+    .pv-flow-step { flex:1; min-width:140px; background:#f4f6f9; border:1px solid #dddbda; padding:0.75rem 0.85rem; position:relative; }
+    .pv-flow-step:not(:last-child)::after { content:"→"; position:absolute; right:-14px; top:50%; transform:translateY(-50%); font-size:1rem; color:#1b96ff; font-weight:700; z-index:1; }
+    .pv-flow-step-num { font-size:0.7rem; font-weight:700; color:#1b96ff; text-transform:uppercase; margin-bottom:0.2rem; }
+    .pv-flow-step-title { font-size:0.8rem; font-weight:700; color:#032D60; margin-bottom:0.15rem; }
+    .pv-flow-step-detail { font-size:0.72rem; color:#555; }
+    .pv-flow-step-source { font-size:0.68rem; color:#888; margin-top:0.2rem; font-style:italic; }
+    .pv-gap-row { display:flex; gap:0.6rem; align-items:flex-start; padding:0.6rem 0; border-bottom:1px solid #f0f0f0; }
+    .pv-gap-row:last-child { border-bottom:none; }
+    .pv-mockup { background:#f9fbff; border:1px dashed #1b96ff; border-radius:8px; padding:1.25rem 1.5rem; margin-bottom:1.25rem; }
+    .pv-mockup-label { font-size:0.7rem; font-weight:700; text-transform:uppercase; color:#1b96ff; letter-spacing:0.05em; margin-bottom:0.75rem; }
+    .pv-seg-row { display:grid; grid-template-columns:160px 100px 100px 90px 90px 90px 1fr; gap:0; border-bottom:1px solid #e8ecf5; font-size:0.8rem; }
+    .pv-seg-row:last-child { border-bottom:none; }
+    .pv-seg-head { display:grid; grid-template-columns:160px 100px 100px 90px 90px 90px 1fr; gap:0; background:#e8f0fb; border-bottom:2px solid #c8d8f0; font-size:0.72rem; font-weight:700; color:#032D60; text-transform:uppercase; }
+    .pv-seg-cell { padding:0.45rem 0.7rem; color:#333; }
+    .pv-seg-cell-head { padding:0.4rem 0.7rem; }
+    .pv-bar-wrap { display:flex; align-items:center; gap:0.4rem; }
+    .pv-bar { height:10px; border-radius:3px; background:#e53935; display:inline-block; }
+    .pv-bar-win { background:#4caf50; }
+    .next-move-card { background:#fff; border-radius:8px; border:2px solid #1b96ff; overflow:hidden; margin-top:1.5rem; }
+    .next-move-header { background:#1b96ff; color:#fff; padding:0.85rem 1.5rem; font-size:0.875rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; }
+    .next-move-body { padding:1.25rem 1.5rem; }
+  </style>
+
+    <div class="pv-intro">
+      <p>Brandi's explicit ask: leadership needs a <strong>portfolio view</strong> that summarizes total attrition and wins by segment — not individual stories. This tab defines exactly what that view contains, where every number comes from, and how to build it once individual stories are in place.</p>
+      <p style="margin-top:0.5rem; color:#777; font-size:0.8rem;">Assumption: individual Win/Loss stories are complete and the supplemental question set is locked. This view is built on top of that foundation — it cannot exist without it.</p>
+    </div>
+
+    <!-- LAYER 1: THREE-LEVEL STRUCTURE -->
+    <div class="pv-section">
+      <div class="pv-block-header">What the Portfolio View Is — Three Layers</div>
+      <div class="pv-block-body">
+        <p style="margin-bottom:1rem; font-size:0.875rem; color:#444;">The portfolio view is not one report. It is three layers of the same data at increasing levels of detail. Leadership sees Layer 1. Program Leads work in Layer 2. Story authors work in Layer 3. Each layer is a drill-down from the one above it.</p>
+        <div class="pv-layer-grid">
+          <div class="pv-layer-card">
+            <div class="pv-layer-card-top">
+              <div class="pv-layer-card-label">Layer 1 — Leadership View</div>
+              <div class="pv-layer-card-title">Segment Scorecard</div>
+              <div class="pv-layer-card-desc">One row per segment. Total attrition, total wins, logo count, actionability rate. What Rick, Kathleen, and Colin see.</div>
+            </div>
+            <div class="pv-layer-card-bar" style="background:#032D60;"></div>
+            <div class="pv-layer-card-bottom">
+              <ul>
+                <li>Commerce total attrition ($)</li>
+                <li>Commerce total wins ($)</li>
+                <li>Marketing total attrition ($)</li>
+                <li>Core Non-Digital total attrition ($)</li>
+                <li>% attrition that was actionable</li>
+                <li>Logos lost vs. retained vs. grown</li>
+              </ul>
+            </div>
+          </div>
+          <div class="pv-layer-card">
+            <div class="pv-layer-card-top">
+              <div class="pv-layer-card-label">Layer 2 — Program Lead View</div>
+              <div class="pv-layer-card-title">Program Effectiveness</div>
+              <div class="pv-layer-card-desc">Which plays were run, which saved accounts, which were missed. What Ilona, Molly, and the PLs use to coach their teams.</div>
+            </div>
+            <div class="pv-layer-card-bar" style="background:#1b96ff;"></div>
+            <div class="pv-layer-card-bottom">
+              <ul>
+                <li>Count of accounts per hashtag (#SWAP, #ADOPT, etc.)</li>
+                <li>$$ saved per program</li>
+                <li>Accounts where no play was run (gap)</li>
+                <li>Accounts where play ran but still lost</li>
+                <li>Accounts where Signature was dropped</li>
+              </ul>
+            </div>
+          </div>
+          <div class="pv-layer-card">
+            <div class="pv-layer-card-top">
+              <div class="pv-layer-card-label">Layer 3 — Story Library</div>
+              <div class="pv-layer-card-title">Individual Stories</div>
+              <div class="pv-layer-card-desc">The full Situation / Response / Outcome / Learnings narrative per account. Source of truth that feeds Layers 1 and 2.</div>
+            </div>
+            <div class="pv-layer-card-bar" style="background:#4caf50;"></div>
+            <div class="pv-layer-card-bottom">
+              <ul>
+                <li>One story per closed renewal ≥ $100K</li>
+                <li>All supplemental fields populated by PL</li>
+                <li>Counterfactual populated by CSM</li>
+                <li>Hashtag cross-checked vs. CSG notes</li>
+                <li>Linked to Org62 renewal record</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAYER 1 MOCKUP -->
+    <div class="pv-section">
+      <div class="pv-block-header">Layer 1 — Segment Scorecard (Leadership View)</div>
+      <div class="pv-block-body">
+        <p style="margin-bottom:0.75rem; font-size:0.875rem; color:#444;">This is what the leadership summary looks like. Every number is a rollup from individual story fields. No manual entry at this level — it is derived entirely from Layer 3.</p>
+
+        <div class="pv-mockup">
+          <div class="pv-mockup-label">Mockup — Q1 FY27 Portfolio Summary (illustrative, not real data)</div>
+          <div class="pv-seg-head">
+            <div class="pv-seg-cell-head">Segment</div>
+            <div class="pv-seg-cell-head">Attrition ($)</div>
+            <div class="pv-seg-cell-head">Wins ($)</div>
+            <div class="pv-seg-cell-head">Logos Lost</div>
+            <div class="pv-seg-cell-head">Logos Retained</div>
+            <div class="pv-seg-cell-head">Actionable %</div>
+            <div class="pv-seg-cell-head">Attrition vs. Wins</div>
+          </div>
+          <div class="pv-seg-row">
+            <div class="pv-seg-cell"><strong>Commerce</strong></div>
+            <div class="pv-seg-cell">$14.2M</div>
+            <div class="pv-seg-cell">$22.4M</div>
+            <div class="pv-seg-cell">3</div>
+            <div class="pv-seg-cell">18</div>
+            <div class="pv-seg-cell">38%</div>
+            <div class="pv-seg-cell"><div class="pv-bar-wrap"><div class="pv-bar" style="width:40px;"></div><div class="pv-bar pv-bar-win" style="width:64px;"></div></div></div>
+          </div>
+          <div class="pv-seg-row">
+            <div class="pv-seg-cell"><strong>Marketing</strong></div>
+            <div class="pv-seg-cell">$18.7M</div>
+            <div class="pv-seg-cell">$31.1M</div>
+            <div class="pv-seg-cell">5</div>
+            <div class="pv-seg-cell">24</div>
+            <div class="pv-seg-cell">44%</div>
+            <div class="pv-seg-cell"><div class="pv-bar-wrap"><div class="pv-bar" style="width:54px;"></div><div class="pv-bar pv-bar-win" style="width:88px;"></div></div></div>
+          </div>
+          <div class="pv-seg-row">
+            <div class="pv-seg-cell"><strong>Core Non-Digital</strong></div>
+            <div class="pv-seg-cell">$22.1M</div>
+            <div class="pv-seg-cell">$28.9M</div>
+            <div class="pv-seg-cell">8</div>
+            <div class="pv-seg-cell">31</div>
+            <div class="pv-seg-cell">29%</div>
+            <div class="pv-seg-cell"><div class="pv-bar-wrap"><div class="pv-bar" style="width:64px;"></div><div class="pv-bar pv-bar-win" style="width:82px;"></div></div></div>
+          </div>
+          <div class="pv-seg-row" style="background:#f4f6f9; font-weight:700;">
+            <div class="pv-seg-cell"><strong>RCG Total</strong></div>
+            <div class="pv-seg-cell"><strong>$55.0M</strong></div>
+            <div class="pv-seg-cell"><strong>$82.4M</strong></div>
+            <div class="pv-seg-cell"><strong>16</strong></div>
+            <div class="pv-seg-cell"><strong>73</strong></div>
+            <div class="pv-seg-cell"><strong>37%</strong></div>
+            <div class="pv-seg-cell"><div class="pv-bar-wrap"><div class="pv-bar" style="width:55px;"></div><div class="pv-bar pv-bar-win" style="width:82px;"></div></div></div>
+          </div>
+        </div>
+
+        <p style="font-size:0.8rem; color:#777; font-style:italic;">Numbers above are illustrative. Real values will be derived from individual story fields once all records are populated.</p>
+
+        <div class="subsection-title" style="margin-top:1rem;">Where Each Column Comes From</div>
+        <table>
+          <thead><tr><th>Column</th><th>Source Field(s)</th><th>How Calculated</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Attrition ($)</strong></td><td>Attrition Amount · RENEWAL_FCAST_ATTRITION_CONV</td><td>SUM of all loss records ≥ $100K per segment where record is closed</td></tr>
+            <tr><td><strong>Wins ($)</strong></td><td>RENEWAL_ATR_CONV (Wins sheet)</td><td>SUM of all win records per segment where RENEWAL_FCAST_ATTRITION_CONV = 0 or ATTRITION_CHANGE_AMT &gt; 0</td></tr>
+            <tr><td><strong>Logos Lost</strong></td><td>Supplemental Q4 (Logo/License Outcome)</td><td>COUNT of records where outcome = "Logo Lost"</td></tr>
+            <tr><td><strong>Logos Retained</strong></td><td>Supplemental Q4 (Logo/License Outcome)</td><td>COUNT of records where outcome = "Logo Retained" or "Logo Grew"</td></tr>
+            <tr><td><strong>Actionable %</strong></td><td>Supplemental Q1 (Was it Actionable?)</td><td>COUNT(Actionable = Yes) ÷ total records × 100</td></tr>
+            <tr><td><strong>Attrition vs. Wins bar</strong></td><td>Attrition Amount + RENEWAL_ATR_CONV</td><td>Proportional bar — attrition in red, wins in green, scaled to segment max</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LAYER 2: PROGRAM EFFECTIVENESS -->
+    <div class="pv-section">
+      <div class="pv-block-header">Layer 2 — Program Effectiveness View (PL View)</div>
+      <div class="pv-block-body">
+        <p style="margin-bottom:0.75rem; font-size:0.875rem; color:#444;">This layer answers the question leadership will always ask next: <em>"What programs are actually working?"</em> It is a hashtag rollup — which plays were run, what dollar impact they had, and where plays were missing entirely.</p>
+
+        <div class="subsection-title">Metrics in This View</div>
+        <div class="pv-metric-grid">
+          <div class="pv-metric-card">
+            <div class="pv-metric-label">Accounts per program</div>
+            <div class="pv-metric-source">Supplemental Q2</div>
+            <div class="pv-metric-field">Offense Program (Hashtags)</div>
+          </div>
+          <div class="pv-metric-card">
+            <div class="pv-metric-label">$ saved per program</div>
+            <div class="pv-metric-source">Q2 + Q5</div>
+            <div class="pv-metric-field">Hashtag + Amount Retained</div>
+          </div>
+          <div class="pv-metric-card">
+            <div class="pv-metric-label">Accounts with no play run</div>
+            <div class="pv-metric-source">Supplemental Q2</div>
+            <div class="pv-metric-field">Q2 = blank or #NONACTIONABLE</div>
+          </div>
+          <div class="pv-metric-card">
+            <div class="pv-metric-label">Play ran — still lost</div>
+            <div class="pv-metric-source">Q2 + Attrition Amount</div>
+            <div class="pv-metric-field">Hashtag present + Full attrition</div>
+          </div>
+          <div class="pv-metric-card">
+            <div class="pv-metric-label">Signature drops</div>
+            <div class="pv-metric-source">Supplemental Q3</div>
+            <div class="pv-metric-field">Signature Retained = No</div>
+          </div>
+          <div class="pv-metric-card">
+            <div class="pv-metric-label">Hashtag vs. CSG discrepancies</div>
+            <div class="pv-metric-source">Q2 vs. CSG Audit</div>
+            <div class="pv-metric-field">Cross-reference after audit</div>
+          </div>
+        </div>
+
+        <div class="subsection-title">Hashtag Breakdown Structure</div>
+        <table>
+          <thead><tr><th>Hashtag</th><th>What It Means</th><th>Success Metric</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr><td><strong>#SWAP</strong></td><td>Customer offered a product swap or migration</td><td>$ retained on accounts where #SWAP was run</td><td>Q2 + Q5</td></tr>
+            <tr><td><strong>#ADOPT</strong></td><td>Adoption play run to address low usage</td><td>Count saved vs. lost where adoption was the reason</td><td>Q2 + Attrition Amount</td></tr>
+            <tr><td><strong>#IMPLEMENT</strong></td><td>Implementation support engaged</td><td>Signature retention rate on #IMPLEMENT accounts</td><td>Q2 + Q3</td></tr>
+            <tr><td><strong>#RFP</strong></td><td>Competitive RFP situation</td><td>Win rate in competitive situations</td><td>Q2 + Full/Partial</td></tr>
+            <tr><td><strong>#REVIVE</strong></td><td>Re-engagement play on at-risk account</td><td>% of #REVIVE accounts retained</td><td>Q2 + Q4</td></tr>
+            <tr><td><strong>#SIGTRIAL</strong></td><td>Signature trial offered to retain</td><td>Retention rate post-trial offer</td><td>Q2 + Q3 + Q5</td></tr>
+            <tr><td><strong>#NONACTIONABLE</strong></td><td>Attrition could not have been prevented</td><td>% of total attrition classified non-actionable</td><td>Q1 + Q2</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- HOW TO BUILD IT -->
+    <div class="pv-section">
+      <div class="pv-block-header">How to Build It — Data Flow from Stories to Portfolio</div>
+      <div class="pv-block-body">
+        <p style="margin-bottom:1rem; font-size:0.875rem; color:#444;">The portfolio view is not a separate data entry exercise. It is a structured aggregation of fields that already exist in the story layer. Build it as a summary tab in the same Google Sheet — no new sources, no new inputs.</p>
+        <div class="pv-flow">
+          <div class="pv-flow-step">
+            <div class="pv-flow-step-num">Step 1</div>
+            <div class="pv-flow-step-title">Individual story records</div>
+            <div class="pv-flow-step-detail">One row per closed renewal ≥ $100K. All Org62 + supplemental fields populated.</div>
+            <div class="pv-flow-step-source">Source: Existing sheets by segment</div>
+          </div>
+          <div class="pv-flow-step">
+            <div class="pv-flow-step-num">Step 2</div>
+            <div class="pv-flow-step-title">Standardize column names</div>
+            <div class="pv-flow-step-detail">Rename all manual fields to the canonical names approved by Brandi. All sheets use identical headers.</div>
+            <div class="pv-flow-step-source">Owner: Ilona / PLs</div>
+          </div>
+          <div class="pv-flow-step">
+            <div class="pv-flow-step-num">Step 3</div>
+            <div class="pv-flow-step-title">Add "Segment" column</div>
+            <div class="pv-flow-step-detail">Tag each record with its segment (Commerce, Marketing, Core Non-Digital) so rollups can be cut by segment.</div>
+            <div class="pv-flow-step-source">Derived from SALES_OU_1 or sheet name</div>
+          </div>
+          <div class="pv-flow-step">
+            <div class="pv-flow-step-num">Step 4</div>
+            <div class="pv-flow-step-title">Build portfolio summary tab</div>
+            <div class="pv-flow-step-detail">SUMIF / COUNTIF formulas aggregate by segment, by hashtag, by logo outcome. One summary tab, all segments.</div>
+            <div class="pv-flow-step-source">Google Sheets formulas</div>
+          </div>
+          <div class="pv-flow-step">
+            <div class="pv-flow-step-num">Step 5</div>
+            <div class="pv-flow-step-title">Quarterly refresh</div>
+            <div class="pv-flow-step-detail">Each quarter: new story rows added, portfolio tab auto-updates. No rebuild needed — structure is permanent.</div>
+            <div class="pv-flow-step-source">Owner: Program Leads</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAPS TO CLOSE -->
+    <div class="pv-section">
+      <div class="pv-block-header">What Has to Be True Before This View Exists</div>
+      <div class="pv-block-body">
+        <p style="margin-bottom:0.75rem; font-size:0.875rem; color:#444;">The portfolio view has hard dependencies. None of these are optional — skip any one of them and the rollup either doesn't work or produces numbers that can't be defended in front of leadership.</p>
+
+        <div class="pv-gap-row">
+          <div style="background:#e53935; color:#fff; border-radius:50%; min-width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; flex-shrink:0; margin-top:1px;">!</div>
+          <div>
+            <p style="margin:0; font-size:0.85rem;"><strong>Q2 (Program/Hashtag) must be a structured picklist, not free text</strong></p>
+            <p style="margin:0.2rem 0 0; font-size:0.8rem; color:#555;">Free-text answers in Commerce and Marketing cannot be counted or grouped. "We ran a SWAP motion" and "#SWAP" are the same thing to a human but different strings to a formula. The program effectiveness layer only works with structured tags.</p>
+          </div>
+        </div>
+        <div class="pv-gap-row">
+          <div style="background:#e53935; color:#fff; border-radius:50%; min-width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; flex-shrink:0; margin-top:1px;">!</div>
+          <div>
+            <p style="margin:0; font-size:0.85rem;"><strong>Q4 (Logo/License Outcome) must use consistent values across all sheets</strong></p>
+            <p style="margin:0.2rem 0 0; font-size:0.8rem; color:#555;">"What Lost: Logo, License or Signature" and "Did we lose the logo, retain it, or grow it?" produce incompatible values. The Logos Lost / Retained / Grown columns in the scorecard only work if every segment uses the same answer options.</p>
+          </div>
+        </div>
+        <div class="pv-gap-row">
+          <div style="background:#e53935; color:#fff; border-radius:50%; min-width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; flex-shrink:0; margin-top:1px;">!</div>
+          <div>
+            <p style="margin:0; font-size:0.85rem;"><strong>Wins must be tracked in the same sheet structure as losses</strong></p>
+            <p style="margin:0.2rem 0 0; font-size:0.8rem; color:#555;">The Wins sheet has a different schema. Until wins and losses share the same column names, the "Wins ($)" column in the portfolio scorecard cannot be built from a single formula — it requires separate lookups against a differently structured dataset.</p>
+          </div>
+        </div>
+        <div class="pv-gap-row">
+          <div style="background:#ff9800; color:#fff; border-radius:50%; min-width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; flex-shrink:0; margin-top:1px;">~</div>
+          <div>
+            <p style="margin:0; font-size:0.85rem;"><strong>A "Segment" tag must exist on every record</strong></p>
+            <p style="margin:0.2rem 0 0; font-size:0.8rem; color:#555;">Currently each segment lives in its own sheet. For a single portfolio summary tab to roll up across Commerce + Marketing + Core Non-Digital, each row needs a segment identifier. This can be derived from SALES_OU_1 or added as a static column — either works, but it must be present and consistent.</p>
+          </div>
+        </div>
+        <div class="pv-gap-row">
+          <div style="background:#ff9800; color:#fff; border-radius:50%; min-width:22px; height:22px; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; flex-shrink:0; margin-top:1px;">~</div>
+          <div>
+            <p style="margin:0; font-size:0.85rem;"><strong>FEB1_ATTRITION interpretation must be confirmed before wins are counted</strong></p>
+            <p style="margin:0.2rem 0 0; font-size:0.8rem; color:#555;">The Wins ($) column depends on correctly identifying zero-attrition renewals vs. attrition-improvement recoveries. Until the FEB1_ATTRITION field interpretation is confirmed by the reporting team, any wins dollar total carries a risk of double-counting or under-counting recoveries.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEXT MOVE -->
+    <div class="next-move-card">
+      <div class="next-move-header">Your Next Move — Portfolio View</div>
+      <div class="next-move-body">
+        <p style="margin-bottom:1.25rem; font-size:0.875rem; color:#444;">The portfolio view is a consequence of doing the story work correctly — not a separate project. These are the five actions that get you there.</p>
+        <div class="phase-row">
+          <div class="phase-num">1</div>
+          <div>
+            <div class="phase-title">In the Brandi meeting: confirm the two fields that make or break the portfolio rollup</div>
+            <p class="phase-detail">Walk Brandi through the dependencies above. Get explicit confirmation that Q2 (Program/Hashtag) will be a structured picklist and Q4 (Logo/License Outcome) will use shared answer options across all segments. These two decisions are the difference between a portfolio view that can be built in a day and one that requires manual re-mapping of every record.</p>
+            <p class="phase-meta">Owner: Ilona raises · Brandi confirms &nbsp;·&nbsp; Validation meeting</p>
+          </div>
+        </div>
+        <div class="phase-row">
+          <div class="phase-num">2</div>
+          <div>
+            <div class="phase-title">Add a Segment column to every story record</div>
+            <p class="phase-detail">A one-time addition: add a "Segment" column to all story sheets populated with Commerce / Marketing / Core Non-Digital. This is the key that enables a single portfolio summary tab to roll up across all segments using standard SUMIF and COUNTIF formulas — no pivot tables, no manual updates.</p>
+            <p class="phase-meta">Owner: Ilona / Program Leads &nbsp;·&nbsp; After canonical question set is locked</p>
+          </div>
+        </div>
+        <div class="phase-row">
+          <div class="phase-num">3</div>
+          <div>
+            <div class="phase-title">Build the portfolio summary tab in the shared Google Sheet</div>
+            <p class="phase-detail">Once all story records for a quarter are populated and column names are standardized, build the portfolio summary as a new tab in the same Google Sheet. Layer 1 (Segment Scorecard) and Layer 2 (Hashtag Rollup) are both formula-driven — they auto-update as story rows are added each quarter. Build this once; it runs permanently.</p>
+            <p class="phase-meta">Owner: Ilona builds &nbsp;·&nbsp; After first full quarter of story data is complete</p>
+          </div>
+        </div>
+        <div class="phase-row">
+          <div class="phase-num">4</div>
+          <div>
+            <div class="phase-title">Confirm FEB1_ATTRITION with the reporting team before wins go into the scorecard</div>
+            <p class="phase-detail">The Wins ($) column in the scorecard must reflect the right number. Raise this with whoever owns the Org62 report definition — it is a one-question confirmation, not a project. Get it in writing so the number in front of Rick, Kathleen, and Colin is defensible.</p>
+            <p class="phase-meta">Owner: Ilona raises &nbsp;·&nbsp; Before portfolio view is presented to leadership</p>
+          </div>
+        </div>
+        <div class="phase-row">
+          <div class="phase-num">5</div>
+          <div>
+            <div class="phase-title">Present Layer 1 to leadership — keep Layer 2 as the backup they'll ask for</div>
+            <p class="phase-detail">Lead with the Segment Scorecard (Layer 1). It is one page, every number is sourced, and it answers the question Brandi articulated: total attrition and total wins by segment, with logos and actionability rate. Have the Program Effectiveness view (Layer 2) ready as the drill-down when leadership asks "which programs drove this?" — they will ask.</p>
+            <p class="phase-meta">Owner: Brandi presents &nbsp;·&nbsp; Final step — after all layers are built and validated</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="doc-footer">Win/Loss Requirements Document · v1.0 · June 2, 2026 · Ilona Davydova</p>
+  </div><!-- end tab-portfolio -->
+
+</div><!-- end page-wrap -->
+
+<script>
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.add('active');
+    btn.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

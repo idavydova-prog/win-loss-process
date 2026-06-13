@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>May FY27 Commerce Cloud — Attrition Analysis</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f6f9; color: #1a1a2e; min-height: 100vh; line-height: 1.5; }
+
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 32px 40px 16px; }
+  .header h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+  .header p { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+  .header-meta { display: flex; gap: 24px; margin-top: 14px; flex-wrap: wrap; }
+  .header-meta-item { font-size: 12px; opacity: 0.85; background: rgba(255,255,255,0.08); padding: 4px 12px; border-radius: 12px; }
+
+  .tab-bar { position: sticky; top: 0; z-index: 100; background: #1a1a2e; padding: 0 40px; display: flex; gap: 0; overflow-x: auto; border-bottom: 2px solid #0f3460; }
+  .tab-btn { padding: 12px 18px; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.6); background: none; border: none; cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; transition: all 0.2s; }
+  .tab-btn:hover { color: rgba(255,255,255,0.9); }
+  .tab-btn.active { color: white; border-bottom-color: #4299e1; }
+  .tab-btn .tab-count { font-size: 10px; background: rgba(255,255,255,0.15); padding: 2px 6px; border-radius: 8px; margin-left: 6px; }
+  .tab-btn.active .tab-count { background: rgba(66,153,225,0.3); }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 28px 40px 60px; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+  @media (max-width: 700px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+  .metric-card { background: white; border-radius: 10px; padding: 18px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-top: 3px solid; }
+  .metric-card.red { border-color: #e53e3e; }
+  .metric-card.orange { border-color: #ed8936; }
+  .metric-card.blue { border-color: #4299e1; }
+  .metric-card.green { border-color: #38a169; }
+  .metric-card.purple { border-color: #805ad5; }
+  .metric-value { font-size: 28px; font-weight: 800; color: #1a202c; }
+  .metric-label { font-size: 11px; color: #718096; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .section { margin-bottom: 32px; }
+  .section-header { font-size: 15px; font-weight: 700; color: #1a202c; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+  .section-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 10px; }
+  .badge-red { background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2; }
+  .badge-orange { background: #fffaf0; color: #dd6b20; border: 1px solid #fbd38d; }
+  .badge-blue { background: #ebf8ff; color: #3182ce; border: 1px solid #bee3f8; }
+  .badge-green { background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4; }
+  .badge-purple { background: #faf5ff; color: #805ad5; border: 1px solid #d6bcfa; }
+
+  .sub-section { margin-top: 28px; padding-top: 20px; border-top: 1px solid #edf2f7; }
+  .sub-section:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+  .sub-header { font-size: 13px; font-weight: 700; color: #4a5568; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+  .record-card { background: white; border-radius: 10px; padding: 18px 20px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid #e2e8f0; }
+  .record-card.logo-loss { border-left-color: #e53e3e; }
+  .record-card.partial-save { border-left-color: #ed8936; }
+  .record-card.sp-downgrade { border-left-color: #805ad5; }
+  .record-card.not-actionable { border-left-color: #a0aec0; }
+
+  .record-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+  .record-title { font-size: 14px; font-weight: 700; color: #1a202c; }
+  .record-amount { font-size: 14px; font-weight: 700; color: #e53e3e; }
+  .record-meta { font-size: 12px; color: #718096; margin-bottom: 8px; line-height: 1.6; }
+  .record-finding { font-size: 13px; color: #4a5568; line-height: 1.6; }
+  .record-finding strong { color: #1a202c; }
+
+  .org62-link { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: #3182ce; text-decoration: none; padding: 3px 10px; background: #ebf8ff; border-radius: 12px; border: 1px solid #bee3f8; transition: all 0.15s; }
+  .org62-link:hover { background: #bee3f8; color: #2c5282; }
+  .org62-link.ra { color: #805ad5; background: #faf5ff; border-color: #d6bcfa; }
+  .org62-link.ra:hover { background: #e9d8fd; color: #553c9a; }
+
+  .links-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+  .insight-box { background: #fffaf0; border: 1px solid #fbd38d; border-radius: 10px; padding: 14px 18px; margin-bottom: 14px; }
+  .insight-box.critical { background: #fff5f5; border-color: #feb2b2; }
+  .insight-box.info { background: #ebf8ff; border-color: #bee3f8; }
+  .insight-label { font-size: 10px; font-weight: 700; color: #dd6b20; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .insight-box.critical .insight-label { color: #e53e3e; }
+  .insight-box.info .insight-label { color: #3182ce; }
+  .insight-text { font-size: 13px; color: #4a5568; line-height: 1.6; }
+
+  .compliance-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .compliance-table th { text-align: left; font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 10px; border-bottom: 2px solid #e2e8f0; }
+  .compliance-table td { padding: 8px 10px; border-bottom: 1px solid #f7fafc; vertical-align: top; }
+  .compliance-table tr:hover { background: #f7fafc; }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .status-dot.pass { background: #38a169; }
+  .status-dot.fail { background: #e53e3e; }
+
+  .footer { text-align: center; font-size: 11px; color: #a0aec0; margin-top: 40px; padding-top: 20px; border-top: 1px solid #edf2f7; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>May FY27 Commerce Cloud &mdash; Attrition Analysis</h1>
+  <p>Win/Loss Workflow Classification &bull; PACE AMER Portfolio</p>
+  <div class="header-meta">
+    <span class="header-meta-item">Period: May 2026</span>
+    <span class="header-meta-item">Cloud: Commerce Cloud / B2B Commerce / Order Management</span>
+    <span class="header-meta-item">Threshold: Attrition &ge; $100K</span>
+    <span class="header-meta-item">Records: 4</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('summary')">Summary</button>
+  <button class="tab-btn" onclick="showTab('notact')">Not Actionable<span class="tab-count">2</span></button>
+  <button class="tab-btn" onclick="showTab('wins')">Wins<span class="tab-count">0</span></button>
+  <button class="tab-btn" onclick="showTab('losses')">Losses<span class="tab-count">2</span></button>
+  <button class="tab-btn" onclick="showTab('compliance')">#Compliance</button>
+  <button class="tab-btn" onclick="showTab('method')">Methodology</button>
+</div>
+
+<div class="container">
+
+<!-- TAB: SUMMARY -->
+<div id="tab-summary" class="tab-panel active">
+  <div class="summary-grid">
+    <div class="metric-card red"><div class="metric-value">$965K</div><div class="metric-label">Total Attrition</div></div>
+    <div class="metric-card orange"><div class="metric-value">2</div><div class="metric-label">Actionable</div></div>
+    <div class="metric-card blue"><div class="metric-value">2</div><div class="metric-label">Not Actionable</div></div>
+    <div class="metric-card green"><div class="metric-value">0</div><div class="metric-label">Wins ($0 Attrit)</div></div>
+  </div>
+  <div class="summary-grid">
+    <div class="metric-card red"><div class="metric-value">0</div><div class="metric-label">Logo Losses</div></div>
+    <div class="metric-card orange"><div class="metric-value">0</div><div class="metric-label">Partial Saves</div></div>
+    <div class="metric-card purple"><div class="metric-value">2</div><div class="metric-label">SP Downgrades</div></div>
+    <div class="metric-card blue"><div class="metric-value">25%</div><div class="metric-label">Compliance Rate</div></div>
+  </div>
+  <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; margin-bottom:28px;">
+    <div style="flex:1; min-width:320px;">
+      <div style="background:white; border-radius:12px; padding:22px 26px; box-shadow:0 1px 4px rgba(0,0,0,0.07); border-left:4px solid #1a1a2e;">
+        <div style="font-size:13px; font-weight:700; color:#1a1a2e; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:14px;">Key Insights</div>
+        <ul style="list-style:none; padding:0; margin:0; font-size:14px; color:#2d3748; line-height:2.2;">
+          <li><strong>4 Customers</strong> &gt;$100K attrition in May</li>
+          <li><strong>$965K Total</strong> | All Signature-related</li>
+          <li><strong>0 Logo Losses</strong> &mdash; no full Commerce departures</li>
+          <li><strong>2 SP Downgrades</strong> &mdash; both lost Signature Success</li>
+          <li><strong>25% Compliance</strong> (1/4 records)</li>
+        </ul>
+      </div>
+    </div>
+    <div style="flex:1; min-width:320px;">
+      <div style="background:white; border-radius:12px; padding:22px 26px; box-shadow:0 1px 4px rgba(0,0,0,0.07); border-left:4px solid #4299e1;">
+        <div style="font-size:13px; font-weight:700; color:#4299e1; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:14px;">Additional Context</div>
+        <ul style="list-style:none; padding:0; margin:0; font-size:14px; color:#2d3748; line-height:2.2;">
+          <li>Both losses are <strong>Signature Success</strong> non-renewals</li>
+          <li>Reformation has active onsite scheduled <strong>June 24</strong></li>
+          <li>Trends got free Sig extension through August</li>
+          <li>BJ's keeping "bare minimum" B2B Commerce ($1K)</li>
+          <li>New Balance Order Management &mdash; product no longer relevant</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="insight-box info"><div class="insight-label">Signature-Only Attrition</div><div class="insight-text">All actionable attrition in May was driven by Signature Success non-renewals. No Commerce Cloud licenses were lost &mdash; both The Reformation and Trends International retained their B2C Commerce platforms while dropping the Signature overlay.</div></div>
+  <div class="insight-box critical"><div class="insight-label">Low Compliance (25%)</div><div class="insight-text">1 of 4 records (25%) is fully compliant with PACE hashtag guidance (Trends International). Common issues: invalid hashtags (#fullattrit, #nonactionable, #Full Attrit, #PRECAUTIONARY), missing signature hashtags, and empty Latest Update fields on Red Accounts.</div></div>
+</div>
+
+<!-- TAB: NOT ACTIONABLE -->
+<div id="tab-notact" class="tab-panel">
+  <div class="section-header">Not Actionable <span class="section-badge badge-blue">2 records &bull; $633K</span></div>
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">BJ's Wholesale Club, Inc (B2B Commerce)</span><span class="record-amount">-$332,893</span></div><div class="record-meta">Owner: Eric Askew &bull; Close: May 14, 2026 &bull; Stage: 05 Closed &bull; Prior: $333,893 &bull; New: $1,000</div><div class="record-finding"><strong>Reason:</strong> Implementation / Partner Led &mdash; Partner Issue. CSM tagged #nonactionable. "Core contract almost finalized. Keeping bare minimum so the account team can work on use cases and grow the product. Also sold in Slack. Tab in near future. Rejected Sig and Tab at this renewal."<br><strong>Red Account:</strong> Only Tableau Bridge RA (Invalid, not Commerce-related).<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; #fullattrit invalid (should be #LicFullAttrit), #nonactionable invalid, missing sig hashtag (Premier attached).</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019Ix7SAAS/view" class="org62-link" target="_blank">Renewal</a></div></div>
+  <div class="record-card not-actionable"><div class="record-header"><span class="record-title">New Balance Athletics, Inc. (Order Management)</span><span class="record-amount">-$299,925</span></div><div class="record-meta">Owner: Cara Holm &bull; Close: May 14, 2026 &bull; Stage: Dead Attrition &bull; Prior: $299,925 &bull; New: $0</div><div class="record-finding"><strong>Reason:</strong> Business Direction Change &mdash; Product No Longer Relevant. Full attrit confirmed by AE.<br><strong>Red Account:</strong> All Resolved. Most recent Commerce RA resolved Oct 2025 with positive traction on B2C (unrelated to OMS).<br><strong>Compliance:</strong> PARTIAL &mdash; #LicFullAttrit valid, date present. Missing #SigRisk/#NoSigRisk (Premier attached).</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQc0YAAT/view" class="org62-link" target="_blank">Renewal</a></div></div>
+</div>
+
+<!-- TAB: WINS -->
+<div id="tab-wins" class="tab-panel">
+  <div class="section-header">Wins <span class="section-badge badge-green">0 records &bull; $0 recovered</span></div>
+  <div style="background:white; border-radius:10px; padding:24px; color:#718096; font-size:13px; box-shadow:0 1px 3px rgba(0,0,0,0.06); text-align:center;">
+    <div style="font-size:36px; margin-bottom:12px; opacity:0.3;">0</div>
+    <div style="font-size:14px; font-weight:600; color:#2d3748; margin-bottom:6px;">No Wins in May FY27</div>
+    <div>Per the workflow diagram (Win = $0 Attrit final), no Commerce Cloud attrition event in May was fully eliminated. Both actionable records resulted in SP Downgrades (Signature Success lost, platform retained).</div>
+  </div>
+</div>
+
+<!-- TAB: LOSSES -->
+<div id="tab-losses" class="tab-panel">
+  <div class="section-header">Losses <span class="section-badge badge-red">2 Actionable &bull; $332K total attrition</span></div>
+
+  <!-- Sub-section: SP Downgrades -->
+  <div class="sub-section">
+    <div class="sub-header">SP Downgrades <span class="section-badge badge-purple">2 records &bull; $332K</span></div>
+    <div class="record-card sp-downgrade"><div class="record-header"><span class="record-title">Trends International (Main)</span><span class="record-amount">-$173,333</span></div><div class="record-meta">Owner: Jana Long &bull; Close: May 28, 2026 &bull; Stage: Dead Attrition &bull; Type: Off-Cycle Ramp Down</div><div class="record-finding"><strong>Classification:</strong> Actionable &rarr; Loss &rarr; SP Downgrade<br><strong>Root cause:</strong> Unconfirmed Signature renewal intent. License renewed (#LicNoAttrit) but Signature at risk (#SigRisk).<br><strong>Red Account:</strong> Triage (Feb 2026) &mdash; "#PRECAUTIONARY" (invalid). No valid offense hashtag. Signature at $173K AOV risk.<br><strong>Save motion:</strong> Free Commerce Signature extension June&ndash;Aug approved. Two contracts being prepared for 2 sites.<br><strong>Compliance:</strong> COMPLIANT &mdash; #LicNoAttrit correct (license retained, Signature-only attrition); #SigRisk correct; date present. Note: Missing #RA is a Red Account finding (not Global Standard). Red Account has #PRECAUTIONARY (invalid) and no offense hashtag; Latest Update empty.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000L3KcQAAV/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000007njxEAA/view" class="org62-link ra" target="_blank">Red Account</a></div></div>
+    <div class="record-card sp-downgrade"><div class="record-header"><span class="record-title">The Reformation</span><span class="record-amount">-$159,000</span></div><div class="record-meta">Owner: Jana Long &bull; Close: May 31, 2026 &bull; Stage: Dead Attrition &bull; Type: Off-Cycle Non Coterminous Order</div><div class="record-finding"><strong>Classification:</strong> Actionable &rarr; Loss &rarr; SP Downgrade<br><strong>Root cause:</strong> Brandi Rajski and Stephanie Hansen confirmed non-renewal of Sig Success with Fred Clark (CTO) on 5/7/26.<br><strong>Red Account:</strong> Two active RAs &mdash; Precautionary (Adoption, May 2026) with "#ADOPT#PRECAUTIONARY" and Precautionary (Product, Mar 2026) with detailed swimlanes and onsite planned for June 24.<br><strong>Save motion:</strong> Cimulate readout, Q1 Sig Success Review deck, executive onsite June 24 (Cimulate, Agentforce Shopper Agent, D360). Early SFCC renewal discussion active.<br><strong>Compliance:</strong> NON-COMPLIANT &mdash; "#Full Attrit" invalid format (space); correct tag is #LicNoAttrit (SP Downgrade, Commerce license retained). Defense hashtags in ECOMM Headline (#LicPartialAttrit, #SigRisk belong in CSG Notes). #PRECAUTIONARY invalid. Latest Update empty on Adoption RA.</div><div class="links-row"><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FFBH4AAP/view" class="org62-link" target="_blank">Renewal</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved000000A2VBEA0/view" class="org62-link ra" target="_blank">RA: Adoption</a><a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000008lg5EAA/view" class="org62-link ra" target="_blank">RA: Product</a></div></div>
+  </div>
+</div>
+
+<!-- TAB: COMPLIANCE -->
+<div id="tab-compliance" class="tab-panel">
+  <div class="section-header">#Compliance <span class="section-badge badge-orange">25% Compliant (1/4)</span></div>
+
+  <!-- Red Account Validation -->
+  <div class="sub-section">
+    <div class="sub-header">Red Account Validation</div>
+
+    <div class="insight-box critical"><div class="insight-label">Missing Red Accounts</div><div class="insight-text"><strong>BJ's Wholesale Club</strong> &mdash; No active Commerce-related Red Account. The only RA found is for Tableau Bridge (Invalid, Customer Experience). $333K B2B Commerce attrition with no Commerce RA coverage.<br><strong>New Balance</strong> &mdash; All Red Accounts Resolved. No active RA for Order Management attrition ($300K).</div></div>
+
+    <div class="insight-box critical"><div class="insight-label">ECOMM Headline &mdash; Invalid Hashtags (2 accounts)</div><div class="insight-text"><strong>The Reformation</strong> (Adoption RA): "#PRECAUTIONARY" &mdash; invalid. Also contains defense hashtags (#LicPartialAttrit, #SigRisk) that belong in CSG Notes, not ECOMM Headline. <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved000000A2VBEA0/view" class="org62-link ra" target="_blank" style="margin-left:6px;">Open RA</a><br><strong>Trends International</strong>: "#PRECAUTIONARY" &mdash; invalid. No valid offense hashtag present. <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000007njxEAA/view" class="org62-link ra" target="_blank" style="margin-left:6px;">Open RA</a></div></div>
+
+    <div class="insight-box critical"><div class="insight-label">ECOMM Headline &mdash; Missing Offense Hashtag (1 account)</div><div class="insight-text"><strong>Trends International</strong> &mdash; ECOMM Headline contains only #PRECAUTIONARY (invalid). No valid offense hashtag (#SIGTRIAL, #ARI, #SWAP, #IMPLEMENT, #ADOPT, #RFP, #REVIVE) present. <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000007njxEAA/view" class="org62-link ra" target="_blank" style="margin-left:6px;">Open RA</a></div></div>
+
+    <div class="insight-box info"><div class="insight-label">Accounts WITH Valid Offense Hashtags</div><div class="insight-text"><strong>The Reformation</strong> (Adoption RA): #ADOPT present &mdash; valid.</div></div>
+
+    <div class="insight-box critical"><div class="insight-label">Latest Update &mdash; Empty (2 accounts)</div><div class="insight-text"><strong>The Reformation</strong> (Adoption RA, a4Ved000000A2VBEA0): Latest Update completely empty despite active Precautionary status and $5.2M B2C footprint. <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved000000A2VBEA0/view" class="org62-link ra" target="_blank" style="margin-left:6px;">Open RA</a><br><strong>Trends International</strong> (a4Ved0000007njxEAA): Latest Update completely empty despite active Triage status. <a href="https://org62.lightning.force.com/lightning/r/Red_Account__c/a4Ved0000007njxEAA/view" class="org62-link ra" target="_blank" style="margin-left:6px;">Open RA</a></div></div>
+
+    <div class="insight-box info"><div class="insight-label">Competitor Fields</div><div class="insight-text">No competitor information captured on any active Commerce Red Account this month. The Reformation and Trends International both have empty Primary/Other Competitor fields. Given these are Signature-related downgrades (not competitive losses), this is acceptable.</div></div>
+
+    <div class="insight-box info"><div class="insight-label">APM (L1, L2, L3)</div><div class="insight-text">All active Red Accounts have APM populated correctly:<br>&bull; The Reformation: Commerce &gt; B2C Commerce &gt; B2C Commerce (B2Ce)<br>&bull; Trends International: Commerce &gt; Commerce - Success Plans &gt; Commerce - Success Plans - Signature</div></div>
+  </div>
+
+  <!-- CSG Notes Compliance -->
+  <div class="sub-section">
+    <div class="sub-header">Renewal Opportunity CSG Notes <span class="section-badge badge-orange">1/4 Compliant (25%)</span></div>
+    <table class="compliance-table">
+      <thead><tr><th>Account</th><th>Attrition</th><th>License Tag</th><th>Sig Tag</th><th>Date</th><th>Issues</th></tr></thead>
+      <tbody>
+        <tr><td><span class="status-dot fail"></span>BJ's Wholesale Club</td><td>-$332,893</td><td>#fullattrit (INVALID)</td><td>Missing</td><td>4/30/26</td><td>#fullattrit &rarr; #LicFullAttrit; #nonactionable invalid; missing sig hashtag</td></tr>
+        <tr><td><span class="status-dot fail"></span>New Balance Athletics</td><td>-$299,925</td><td>#LicFullAttrit</td><td>Missing</td><td>5/4/2026</td><td>Missing #SigRisk or #NoSigRisk (Premier attached)</td></tr>
+        <tr><td><span class="status-dot fail"></span>The Reformation</td><td>-$159,000</td><td>#Full Attrit (INVALID)</td><td>#SigRisk</td><td>05/26/26</td><td>"#Full Attrit" has space (invalid format); correct tag is #LicNoAttrit (SP Downgrade, license retained); has #RA (good)</td></tr>
+        <tr><td><span class="status-dot pass"></span>Trends International</td><td>-$173,333</td><td>#LicNoAttrit</td><td>#SigRisk</td><td>June 4</td><td>Compliant &mdash; #LicNoAttrit correct (license retained, Sig-only attrit); #SigRisk correct. Missing #RA is a Red Account finding (not Global Standard).</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB: METHODOLOGY -->
+<div id="tab-method" class="tab-panel">
+  <div class="section-header">Methodology</div>
+  <div style="background:white; border-radius:10px; padding:20px 24px; box-shadow:0 1px 3px rgba(0,0,0,0.06); font-size:13px; line-height:1.8; color:#4a5568;">
+    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c; width:160px;">Risk</td><td style="padding:10px 12px;">Forecasted Attrition &gt; $0</td></tr>
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c;">Actionable</td><td style="padding:10px 12px;">Swing &gt; $0 (realistic opportunity to save existed)</td></tr>
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c;">Not Actionable</td><td style="padding:10px 12px;">Swing = $0 (Red closure / CSG sign-off / structural change)</td></tr>
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c;">Win</td><td style="padding:10px 12px;">$0 Attrit FINAL &mdash; risk fully eliminated</td></tr>
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c;">Logo Loss</td><td style="padding:10px 12px;">Prior ACV fully attrited &mdash; customer departed product</td></tr>
+      <tr style="border-bottom:1px solid #edf2f7;"><td style="padding:10px 12px; font-weight:700; color:#1a202c;">Partial Save</td><td style="padding:10px 12px;">Some ACV retained, some attrited</td></tr>
+      <tr><td style="padding:10px 12px; font-weight:700; color:#1a202c;">SP Downgrade</td><td style="padding:10px 12px;">Signature/Premier tier removed, license retained</td></tr>
+    </table>
+    <div style="margin-top:18px; padding-top:14px; border-top:1px solid #edf2f7;">
+      <strong>Compliance Reference:</strong> <a href="https://salesforce.enterprise.slack.com/docs/T7KUQ9FLZ/F07F7V4FHPF" target="_blank" style="color:#3182ce;">PACE Attrition Hashtag Guidance (Slack Canvas)</a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">Generated by Win/Loss Process &bull; Commerce Cloud &bull; May 2026 &bull; PACE AMER</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>

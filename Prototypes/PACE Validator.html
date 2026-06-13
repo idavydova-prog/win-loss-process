@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PACE Renewal Validator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 28px 32px; }
+  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .header p { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+
+  .container { max-width: 860px; margin: 0 auto; padding: 28px 32px; }
+
+  .how-it-works { background: white; border-radius: 12px; padding: 18px 22px; margin-bottom: 22px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); border-left: 4px solid #4299e1; }
+  .how-title { font-size: 12px; font-weight: 700; color: #4299e1; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .how-steps { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+  .how-step { display: flex; align-items: center; gap: 7px; font-size: 13px; color: #4a5568; }
+  .how-num { width: 22px; height: 22px; background: #ebf4ff; color: #3182ce; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .how-arrow { color: #cbd5e0; font-size: 16px; margin: 0 2px; }
+
+  .input-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 16px; }
+  .card-label { font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .url-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 10px; background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2; }
+  .url-input { width: 100%; padding: 12px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; color: #2d3748; background: #fafafa; transition: border-color 0.2s; }
+  .url-input:focus { outline: none; border-color: #4299e1; background: white; }
+  .url-input::placeholder { color: #a0aec0; }
+
+  .action-bar { display: flex; gap: 12px; margin-bottom: 24px; align-items: center; }
+  .btn { padding: 12px 28px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+  .btn-primary { background: #4299e1; color: white; }
+  .btn-primary:hover { background: #3182ce; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(66,153,225,0.4); }
+  .btn-primary:disabled { background: #a0aec0; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-secondary { background: white; color: #4a5568; border: 1.5px solid #e2e8f0; }
+  .btn-secondary:hover { background: #f7fafc; }
+
+  /* Processing state */
+  .processing { display: none; margin-bottom: 24px; }
+  .processing.active { display: block; }
+  .processing-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); text-align: center; }
+  .spinner { width: 36px; height: 36px; border: 3px solid #e2e8f0; border-top-color: #4299e1; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .processing-title { font-size: 14px; font-weight: 600; color: #2d3748; margin-bottom: 6px; }
+  .processing-step { font-size: 12px; color: #718096; }
+  .processing-steps { text-align: left; max-width: 320px; margin: 14px auto 0; }
+  .step-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 12px; color: #718096; }
+  .step-item.done { color: #38a169; }
+  .step-item.active { color: #4299e1; font-weight: 600; }
+  .step-icon { width: 18px; text-align: center; }
+
+  /* Results panel */
+  .results { display: none; }
+  .results.active { display: block; }
+
+  .result-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 16px; }
+  .result-badge.compliant { background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4; }
+  .result-badge.minor-issues { background: #fffaf0; color: #dd6b20; border: 1px solid #fbd38d; }
+  .result-badge.needs-attention { background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2; }
+
+  .summary-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .summary-card { background: white; border-radius: 10px; padding: 14px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-top: 3px solid; }
+  .summary-card.critical { border-color: #e53e3e; }
+  .summary-card.warning { border-color: #ed8936; }
+  .summary-card.info { border-color: #4299e1; }
+  .summary-card.passed { border-color: #38a169; }
+  .summary-count { font-size: 28px; font-weight: 800; line-height: 1; }
+  .summary-card.critical .summary-count { color: #e53e3e; }
+  .summary-card.warning .summary-count { color: #ed8936; }
+  .summary-card.info .summary-count { color: #4299e1; }
+  .summary-card.passed .summary-count { color: #38a169; }
+  .summary-label { font-size: 10px; color: #718096; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .finding { background: white; border-radius: 10px; padding: 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid; }
+  .finding.critical { border-color: #e53e3e; }
+  .finding.warning { border-color: #ed8936; }
+  .finding.info { border-color: #4299e1; }
+  .finding-title { font-size: 14px; font-weight: 700; color: #1a202c; margin-bottom: 4px; }
+  .finding-body { font-size: 13px; color: #4a5568; line-height: 1.5; }
+  .finding-fix { margin-top: 8px; background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; font-size: 12px; color: #4a5568; line-height: 1.5; }
+  .finding-fix-label { font-size: 10px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+
+  .passed-list { background: white; border-radius: 10px; padding: 16px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 16px; }
+  .passed-item { font-size: 13px; color: #4a5568; padding: 5px 0; display: flex; align-items: center; gap: 8px; }
+
+  .section-title { font-size: 13px; font-weight: 700; color: #4a5568; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+
+  .record-strip { background: white; border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .record-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+  .record-field-label { font-size: 10px; color: #a0aec0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .record-field-value { font-size: 13px; color: #2d3748; font-weight: 500; margin-top: 2px; }
+
+  .new-validation { margin-top: 20px; text-align: center; }
+
+  .toast { position: fixed; bottom: 24px; right: 24px; background: #2d3748; color: white; padding: 11px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 2000; opacity: 0; transition: opacity 0.25s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>PACE Renewal Compliance Validator</h1>
+  <p>Paste your Org62 renewal URL and get instant compliance results</p>
+</div>
+
+<div class="container">
+
+  <!-- How it works -->
+  <div class="how-it-works">
+    <div class="how-title">How it works</div>
+    <div class="how-steps">
+      <div class="how-step"><div class="how-num">1</div> Paste renewal URL</div>
+      <div class="how-arrow">→</div>
+      <div class="how-step"><div class="how-num">2</div> Bot fetches Org62 data</div>
+      <div class="how-arrow">→</div>
+      <div class="how-step"><div class="how-num">3</div> PACE rules validated</div>
+      <div class="how-arrow">→</div>
+      <div class="how-step"><div class="how-num">4</div> Results appear below</div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div id="inputSection">
+    <div class="input-card">
+      <div class="card-label">
+        Renewal Opportunity URL
+        <span class="url-badge">Required</span>
+      </div>
+      <input type="url" class="url-input" id="renewalUrl"
+        placeholder="https://org62.lightning.force.com/lightning/r/Opportunity/006.../view">
+    </div>
+
+    <div class="action-bar">
+      <button class="btn btn-primary" id="validateBtn" onclick="submitValidation()">
+        Validate
+      </button>
+      <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+    </div>
+  </div>
+
+  <!-- Processing -->
+  <div class="processing" id="processing">
+    <div class="processing-card">
+      <div class="spinner"></div>
+      <div class="processing-title">Validating...</div>
+      <div class="processing-steps">
+        <div class="step-item active" id="step1"><span class="step-icon">&#9679;</span> Sending to validation bot</div>
+        <div class="step-item" id="step2"><span class="step-icon">&#9675;</span> Fetching Org62 record</div>
+        <div class="step-item" id="step3"><span class="step-icon">&#9675;</span> Running PACE compliance checks</div>
+        <div class="step-item" id="step4"><span class="step-icon">&#9675;</span> Generating results</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results"></div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Demo data — in production, this comes back from the Slack bot thread
+const DEMO_RESULTS = {
+  '006ed00000UbfPWAAZ': {
+    account: 'Crocs, Inc.',
+    renewal: 'Crocs, Inc. Renewal 560830 Commerce Cloud, 2 Platform, 1 Full CRM',
+    owner: 'Lindsey Ells',
+    close: '2029-02-13',
+    stage: '01 Initiate',
+    attrition: '$0',
+    renewalRate: '100%',
+    premier: 'Yes',
+    acv: '$4,266,467',
+    licenseStatus: '—',
+    clouds: 'Commerce Cloud',
+    csgNotes: '6/10/26 SF: #LicNoAttrit #NoSigRisk Working towards successful launch of headless and agents in FY27, no risk at this time. GMV usage 3%, new contract.',
+    overall: 'compliant',
+    overallLabel: 'COMPLIANT',
+    critical: 0, warning: 0, info: 0, passed: 4,
+    findings: [],
+    passedList: [
+      'CSG Notes populated (substantive content, 153 chars)',
+      'Date stamp present — 6/10/26',
+      'License attrition hashtag present — #LicNoAttrit (consistent with 100% renewal rate and $0 attrition)',
+      'Signature risk hashtag present — #NoSigRisk (Premier Attached = Yes, correctly tagged)'
+    ]
+  },
+  '0063y000019eVuBAAU': {
+    account: 'GNC Holdings, LLC',
+    renewal: 'GNC Holdings, LLC Renewal 60114 Commerce Cloud',
+    owner: 'Eric Askew',
+    close: '2027-07-26',
+    stage: '02 Negotiate',
+    attrition: '$1,761,667',
+    renewalRate: '0%',
+    premier: 'Yes',
+    acv: '$0',
+    licenseStatus: 'Will Attrit (Actionable)',
+    clouds: 'Commerce Cloud',
+    csgNotes: '6/11/26, Raj - #LicPartialAttrit $1.76M Exploring ARI, Delayed SFRA Migration to 2027-concerning, alerted AE team. GNC Leadership Change. Sam Biswas planing to initiate renewal conversation. AD not assigned, impact renewal time, #RA http://sfdc.co/b4M0qB',
+    overall: 'needs-attention',
+    overallLabel: 'NEEDS ATTENTION',
+    critical: 2, warning: 3, info: 1, passed: 8,
+    findings: [
+      { severity: 'critical', title: 'Missing Signature risk hashtag — Premier is attached', body: 'IsPremier_Attached__c = true but CSG Notes contain neither #SigRisk nor #NoSigRisk.', fix: 'Add #SigRisk est. $[Signature portion] attrition' },
+      { severity: 'critical', title: 'Invalid hashtags in ECOMM Headline: #PRECAUTIONARY and #AOVPP', body: 'Both are known invalid hashtags. Valid offense hashtags: #SIGTRIAL, #ARI, #SWAP, #IMPLEMENT, #ADOPT, #RFP, #REVIVE.', fix: 'Remove #PRECAUTIONARY and #AOVPP from the headline. Keep #ARI.' },
+      { severity: 'warning', title: '#LicPartialAttrit tagged but renewal rate is 0%', body: 'Forecasted_Renewal_Rate__c = 0% with Forecasted ACV of $0 indicates full attrition, not partial.', fix: 'Change to #LicFullAttrit est. $1.76M attrition OR update forecast fields.' },
+      { severity: 'warning', title: 'Risk category mismatch between Renewal and Red Account', body: 'Renewal: "Customer Relationship" vs Red Account: "Financial & Contractual"', fix: 'Align both records to the same root cause.' },
+      { severity: 'warning', title: 'Red Account Stage "Precautionary" but Renewal Rate is 0%', body: 'Precautionary = early-warning, but forecast shows confirmed full attrition.', fix: 'Consider escalating RA Stage to "Active."' },
+      { severity: 'info', title: 'Competitor fields empty on Red Account', body: 'Both Primary_Competitor__c and Other_Competitor__c are blank.', fix: 'Populate if a known competitor exists.' }
+    ],
+    passedList: [
+      'CSG Notes populated (264 chars)',
+      'Date stamp present — 6/11/26',
+      'License attrition hashtag present — #LicPartialAttrit with $1.76M estimate',
+      '#RA present with URL linking to Red Account',
+      'ECOMM Headline populated with valid offense hashtag (#ARI)',
+      'Red Account Latest Updates populated (last entry 6/04/2026)',
+      'APM Level 1 populated — Commerce / B2C Commerce',
+      'Red Account attrition ($1,761,667) aligns with Renewal attrition ($1,761,667)'
+    ]
+  },
+  '006ed00000TlKPBAA3': {
+    account: 'Under Armour, Inc.',
+    renewal: 'Under Armour, Inc. Renewal 200053 Commerce Cloud',
+    owner: 'Eric Askew',
+    close: '2026-06-04',
+    stage: '05 Closed',
+    attrition: '$0',
+    renewalRate: '100%',
+    premier: 'Yes',
+    acv: '$2,987,835',
+    licenseStatus: 'Will Renew (Flat)',
+    clouds: 'Commerce Cloud',
+    csgNotes: '5/26/26-Steve LaRocca-#LicNoAttrit #NoSigRisk  Actively pursuing Agentic Commerce Pilots (Shopper, Merch, OpenAI ACP) Solution Optimization-Search Performance-Arch + Engineering Engaged. D360 deal incld Cimulate(+3Y)Deal + CC Ext(+1Y) replace Constructor',
+    overall: 'compliant',
+    overallLabel: 'COMPLIANT',
+    critical: 0, warning: 0, info: 0, passed: 4,
+    findings: [],
+    passedList: [
+      'CSG Notes populated (substantive content)',
+      'Date stamp present — 5/26/26',
+      'License attrition hashtag present — #LicNoAttrit (consistent with "Will Renew (Flat)" and 100% renewal rate)',
+      'Signature risk hashtag present — #NoSigRisk (Premier Attached = Yes, correctly tagged)'
+    ]
+  }
+};
+
+function extractRecordId(url) {
+  const match = url.match(/\/([a-zA-Z0-9]{15,18})\/view/);
+  return match ? match[1] : null;
+}
+
+function submitValidation() {
+  const url = document.getElementById('renewalUrl').value.trim();
+  if (!url) { showToast('Please enter a renewal URL.'); return; }
+  if (!url.includes('org62') && !url.includes('salesforce.com')) {
+    showToast('URL doesn\'t look like an Org62 link.');
+    return;
+  }
+
+  document.getElementById('validateBtn').disabled = true;
+  document.getElementById('processing').classList.add('active');
+  document.getElementById('results').classList.remove('active');
+
+  setTimeout(() => advanceStep(2), 1200);
+  setTimeout(() => advanceStep(3), 2800);
+  setTimeout(() => advanceStep(4), 4200);
+  setTimeout(() => {
+    const id = extractRecordId(url);
+    const data = DEMO_RESULTS[id];
+    if (data) {
+      showResults(renderResults(data));
+    } else {
+      showResults('<div class="input-card" style="text-align:center; padding:32px;"><div style="font-size:15px; font-weight:600; color:#2d3748; margin-bottom:8px;">Validation submitted</div><div style="font-size:13px; color:#718096;">This record was sent to the bot for processing. Results will appear here once the validation is complete.</div></div>');
+    }
+  }, 5500);
+}
+
+function advanceStep(num) {
+  document.querySelectorAll('.step-item').forEach((el, i) => {
+    if (i < num - 1) { el.classList.add('done'); el.classList.remove('active'); el.querySelector('.step-icon').innerHTML = '&#10003;'; }
+    else if (i === num - 1) { el.classList.add('active'); el.querySelector('.step-icon').innerHTML = '&#9679;'; }
+  });
+}
+
+function renderResults(d) {
+  let html = '';
+  html += `<span class="result-badge ${d.overall}">${d.overallLabel}</span>`;
+  html += `<div class="summary-row">
+    <div class="summary-card critical"><div class="summary-count">${d.critical}</div><div class="summary-label">Critical</div></div>
+    <div class="summary-card warning"><div class="summary-count">${d.warning}</div><div class="summary-label">Warning</div></div>
+    <div class="summary-card info"><div class="summary-count">${d.info}</div><div class="summary-label">Info</div></div>
+    <div class="summary-card passed"><div class="summary-count">${d.passed}</div><div class="summary-label">Passed</div></div>
+  </div>`;
+  html += `<div class="record-strip"><div class="record-grid">
+    <div><div class="record-field-label">Account</div><div class="record-field-value">${d.account}</div></div>
+    <div><div class="record-field-label">Owner</div><div class="record-field-value">${d.owner}</div></div>
+    <div><div class="record-field-label">Attrition</div><div class="record-field-value">${d.attrition}</div></div>
+    <div><div class="record-field-label">Renewal Rate</div><div class="record-field-value">${d.renewalRate}</div></div>
+    <div><div class="record-field-label">Premier</div><div class="record-field-value">${d.premier}</div></div>
+    <div><div class="record-field-label">Stage</div><div class="record-field-value">${d.stage}</div></div>
+    <div><div class="record-field-label">Products</div><div class="record-field-value">${d.clouds}</div></div>
+    <div><div class="record-field-label">Forecasted ACV</div><div class="record-field-value">${d.acv}</div></div>
+  </div></div>`;
+
+  if (d.findings.length > 0) {
+    d.findings.forEach(f => {
+      html += `<div class="finding ${f.severity}">
+        <div class="finding-title">${f.title}</div>
+        <div class="finding-body">${f.body}</div>
+        <div class="finding-fix"><div class="finding-fix-label">Recommended Fix</div>${f.fix}</div>
+      </div>`;
+    });
+  }
+
+  if (d.passedList.length > 0) {
+    html += `<div class="section-title">Passed (${d.passed})</div><div class="passed-list">`;
+    d.passedList.forEach(p => {
+      html += `<div class="passed-item">&#10003; ${p}</div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `<div class="new-validation"><button class="btn btn-secondary" onclick="startNew()">Validate Another</button></div>`;
+  return html;
+}
+
+function showResults(data) {
+  document.getElementById('processing').classList.remove('active');
+  document.getElementById('results').classList.add('active');
+  document.getElementById('results').innerHTML = data;
+  document.getElementById('validateBtn').disabled = false;
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function clearForm() {
+  document.getElementById('renewalUrl').value = '';
+  document.getElementById('processing').classList.remove('active');
+  document.getElementById('results').classList.remove('active');
+  document.getElementById('validateBtn').disabled = false;
+  document.querySelectorAll('.step-item').forEach(el => {
+    el.classList.remove('done', 'active');
+    el.querySelector('.step-icon').innerHTML = '&#9675;';
+  });
+  document.querySelector('.step-item').classList.add('active');
+  document.querySelector('.step-item .step-icon').innerHTML = '&#9679;';
+}
+
+function startNew() {
+  clearForm();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

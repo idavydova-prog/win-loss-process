@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PACE Renewal Validator — Prototype A</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 24px 32px; }
+  .header-inner { display: flex; align-items: flex-start; justify-content: space-between; }
+  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .header p { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+  .header-badges { display: flex; gap: 8px; margin-top: 10px; }
+  .header-badge { font-size: 11px; padding: 3px 10px; border-radius: 10px; font-weight: 600; }
+  .badge-proto { background: rgba(255,200,0,0.2); color: #ffd700; border: 1px solid rgba(255,200,0,0.4); }
+  .badge-api { background: rgba(66,153,225,0.2); color: #90cdf4; border: 1px solid rgba(66,153,225,0.4); }
+
+  .gear-btn { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: white; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; margin-top: 2px; }
+  .gear-btn:hover { background: rgba(255,255,255,0.22); }
+
+  .settings-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 500; }
+  .settings-overlay.active { display: block; }
+  .settings-panel { position: fixed; top: 0; right: -440px; width: 420px; max-width: 95vw; height: 100vh; background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.15); z-index: 501; transition: right 0.3s ease; display: flex; flex-direction: column; }
+  .settings-panel.active { right: 0; }
+  .settings-panel-header { padding: 20px 24px; background: linear-gradient(135deg, #1a1a2e, #0f3460); color: white; display: flex; align-items: center; justify-content: space-between; }
+  .settings-panel-header h2 { font-size: 15px; font-weight: 700; }
+  .settings-panel-body { padding: 24px; overflow-y: auto; flex: 1; }
+  .settings-panel-footer { padding: 16px 24px; border-top: 1px solid #edf2f7; display: flex; gap: 10px; }
+  .close-btn { background: rgba(255,255,255,0.15); border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+  .settings-step { display: flex; gap: 10px; margin-bottom: 14px; }
+  .settings-step-num { width: 22px; height: 22px; background: #ebf4ff; color: #3182ce; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .settings-step p { font-size: 13px; color: #4a5568; line-height: 1.5; }
+  .settings-step code { font-family: Monaco, Menlo, monospace; font-size: 11px; background: #edf2f7; padding: 1px 5px; border-radius: 3px; }
+  .settings-divider { border: none; border-top: 1px solid #edf2f7; margin: 16px 0; }
+  .settings-field label { display: block; font-size: 11px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .settings-field input { width: 100%; padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 7px; font-size: 13px; font-family: Monaco, Menlo, monospace; color: #2d3748; }
+  .settings-field input:focus { outline: none; border-color: #4299e1; }
+  .settings-status { margin-top: 10px; font-size: 12px; padding: 8px 12px; border-radius: 6px; display: none; }
+  .settings-status.ok { display: block; background: #f0fff4; color: #276749; border: 1px solid #9ae6b4; }
+  .settings-status.err { display: block; background: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 24px 32px; }
+
+  .proto-notice { background: #fffbeb; border: 1px solid #fbd38d; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 13px; color: #744210; display: flex; gap: 10px; align-items: flex-start; }
+  .proto-notice strong { color: #92400e; }
+
+  .url-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 14px; }
+  .card-label { font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .url-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 10px; flex-shrink: 0; }
+  .url-badge.required { background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2; }
+  .url-badge.optional { background: #f7fafc; color: #718096; border: 1px solid #e2e8f0; }
+  .url-input-row { display: flex; align-items: center; gap: 10px; }
+  .url-input-row input { flex: 1; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #2d3748; background: #fafafa; transition: border-color 0.2s; }
+  .url-input-row input:focus { outline: none; border-color: #4299e1; background: white; }
+  .url-input-row input::placeholder { color: #a0aec0; }
+
+  .action-bar { display: flex; gap: 12px; margin-bottom: 24px; align-items: center; }
+  .btn { padding: 10px 24px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-primary { background: #4299e1; color: white; }
+  .btn-primary:hover:not(:disabled) { background: #3182ce; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(66,153,225,0.4); }
+  .btn-primary:disabled { background: #a0aec0; cursor: not-allowed; }
+  .btn-secondary { background: white; color: #4a5568; border: 1.5px solid #e2e8f0; }
+  .btn-secondary:hover { background: #f7fafc; }
+  .btn-example { background: #ebf4ff; color: #3182ce; border: 1px solid #bee3f8; padding: 8px 16px; font-size: 12px; font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.15s; }
+  .btn-example:hover { background: #dbeafe; }
+
+  .fetch-status { display: none; align-items: center; gap: 10px; padding: 12px 16px; background: #ebf8ff; border: 1px solid #bee3f8; border-radius: 8px; font-size: 13px; color: #2b6cb0; margin-bottom: 20px; }
+  .fetch-status.active { display: flex; }
+  .fetch-status.error { background: #fff5f5; border-color: #feb2b2; color: #c53030; }
+  .fetch-status.success { background: #f0fff4; border-color: #9ae6b4; color: #276749; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { width: 16px; height: 16px; border: 2px solid #bee3f8; border-top-color: #4299e1; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+  .fetch-status.error .spinner, .fetch-status.success .spinner { display: none; }
+
+  #results { display: none; }
+  .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .results-title { font-size: 18px; font-weight: 700; color: #1a202c; }
+  .score-badge { padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+
+  .record-strip { background: white; border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .record-strip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .rf { }
+  .rf-label { font-size: 10px; color: #a0aec0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .rf-value { font-size: 13px; color: #2d3748; font-weight: 500; margin-top: 2px; }
+  .rf-value.missing { color: #a0aec0; font-style: italic; }
+  .notes-box { margin-top: 14px; background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; }
+  .notes-label { font-size: 10px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .notes-text { font-size: 13px; color: #2d3748; line-height: 1.6; font-family: 'Monaco', 'Menlo', monospace; white-space: pre-wrap; word-break: break-word; }
+
+  .summary-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .summary-card { background: white; border-radius: 10px; padding: 16px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-top: 3px solid; }
+  .summary-card.critical { border-color: #e53e3e; }
+  .summary-card.warning { border-color: #ed8936; }
+  .summary-card.info { border-color: #4299e1; }
+  .summary-card.ok { border-color: #38a169; }
+  .summary-count { font-size: 32px; font-weight: 800; line-height: 1; }
+  .summary-card.critical .summary-count { color: #e53e3e; }
+  .summary-card.warning .summary-count { color: #ed8936; }
+  .summary-card.info .summary-count { color: #4299e1; }
+  .summary-card.ok .summary-count { color: #38a169; }
+  .summary-label { font-size: 11px; color: #718096; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .findings-section { margin-bottom: 16px; }
+  .section-title { font-size: 13px; font-weight: 700; color: #4a5568; text-transform: uppercase; letter-spacing: 0.5px; padding: 0 0 8px 0; border-bottom: 1px solid #edf2f7; margin-bottom: 10px; }
+  .finding { background: white; border-radius: 10px; padding: 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid; }
+  .finding.critical { border-color: #e53e3e; }
+  .finding.warning { border-color: #ed8936; }
+  .finding.info { border-color: #4299e1; }
+  .finding.ok { border-color: #38a169; }
+  .finding-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .finding-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; margin-top: 1px; }
+  .finding.critical .finding-icon { background: #fff5f5; color: #e53e3e; }
+  .finding.warning .finding-icon { background: #fffaf0; color: #ed8936; }
+  .finding.info .finding-icon { background: #ebf8ff; color: #4299e1; }
+  .finding.ok .finding-icon { background: #f0fff4; color: #38a169; }
+  .finding-title { font-size: 14px; font-weight: 700; color: #1a202c; flex: 1; }
+  .finding-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
+  .finding.critical .finding-badge { background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2; }
+  .finding.warning .finding-badge { background: #fffaf0; color: #ed8936; border: 1px solid #fbd38d; }
+  .finding.info .finding-badge { background: #ebf8ff; color: #4299e1; border: 1px solid #bee3f8; }
+  .finding.ok .finding-badge { background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4; }
+  .finding-body { font-size: 13px; color: #4a5568; line-height: 1.5; }
+  .finding-body strong { color: #2d3748; }
+  .fix-box { margin-top: 10px; background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; font-size: 12px; color: #4a5568; }
+  .fix-box-label { font-size: 10px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .fix-code { font-family: 'Monaco', 'Menlo', monospace; background: #edf2f7; padding: 2px 6px; border-radius: 3px; font-size: 11px; }
+
+  .email-block { background: white; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-top: 8px; }
+  .email-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .email-meta { font-size: 13px; color: #4a5568; margin-bottom: 4px; }
+  .email-meta strong { color: #2d3748; }
+  .email-body-text { font-size: 13px; color: #2d3748; line-height: 1.7; white-space: pre-wrap; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; background: #fafafa; font-family: Georgia, serif; }
+  .btn-copy { background: #edf2f7; color: #4a5568; border: none; padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .btn-copy:hover { background: #e2e8f0; }
+
+  .copied-toast { position: fixed; bottom: 24px; right: 24px; background: #2d3748; color: white; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 2000; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .copied-toast.show { opacity: 1; }
+
+  .no-token-banner { background: #fff5f5; border: 1px solid #feb2b2; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; font-size: 13px; color: #742a2a; display: none; }
+  .no-token-banner.active { display: block; }
+  .no-token-banner a { color: #c53030; font-weight: 600; cursor: pointer; text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <h1>PACE Renewal Compliance Validator</h1>
+      <p>Enter Org62 URLs — Claude fetches and validates automatically</p>
+      <div class="header-badges">
+        <span class="header-badge badge-proto">Prototype A</span>
+        <span class="header-badge badge-api">Anthropic API</span>
+      </div>
+    </div>
+    <button class="gear-btn" onclick="openSettings()" title="API Key Settings">⚙</button>
+  </div>
+</div>
+
+<!-- Settings panel -->
+<div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-panel-header">
+    <h2>API Key Setup</h2>
+    <button class="close-btn" onclick="closeSettings()">✕</button>
+  </div>
+  <div class="settings-panel-body">
+    <p style="font-size:13px;color:#4a5568;margin-bottom:16px;">One-time setup. Your key is stored only in this browser and never leaves your machine except to call Claude.</p>
+    <div class="settings-step"><div class="settings-step-num">1</div><p>Go to <strong>console.anthropic.com</strong> and sign in.</p></div>
+    <div class="settings-step"><div class="settings-step-num">2</div><p>Click <strong>API Keys</strong> in the left nav → <strong>Create Key</strong>.</p></div>
+    <div class="settings-step"><div class="settings-step-num">3</div><p>Copy the key (starts with <code>sk-ant-</code>). You won't see it again.</p></div>
+    <div class="settings-step"><div class="settings-step-num">4</div><p>Paste it below and click <strong>Save &amp; Test</strong>.</p></div>
+    <div class="settings-step"><div class="settings-step-num">5</div><p><strong>Salesforce fetch</strong> uses your Claude Code + Org62 MCP connection — no extra setup needed once you have Claude Code installed.</p></div>
+    <hr class="settings-divider">
+    <div class="settings-field">
+      <label>Anthropic API Key</label>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off">
+    </div>
+    <div class="settings-status" id="apiKeyStatus"></div>
+  </div>
+  <div class="settings-panel-footer">
+    <button class="btn btn-primary" onclick="saveAndTestKey()" style="flex:1">Save &amp; Test</button>
+    <button class="btn btn-secondary" onclick="closeSettings()">Cancel</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="proto-notice">
+    <span style="font-size:18px;flex-shrink:0;">🧪</span>
+    <div><strong>Prototype A demo.</strong> Salesforce data is pre-loaded from a real Org62 fetch (Wolverine World Wide). In production, entering any Org62 URL triggers a live fetch. The validation and coaching email are generated by Claude in real time.</div>
+  </div>
+
+  <div class="no-token-banner" id="noTokenBanner">
+    No API key found. <a onclick="openSettings()">Click here to add your Anthropic API key</a> — it takes 30 seconds. You only do this once.
+  </div>
+
+  <div class="url-card">
+    <div class="card-label">Renewal Opportunity URL <span class="url-badge required">Required</span></div>
+    <div class="url-input-row">
+      <input type="url" id="renewalUrl" placeholder="https://org62.lightning.force.com/lightning/r/Opportunity/006.../view">
+    </div>
+  </div>
+
+  <div class="url-card">
+    <div class="card-label">Red Account URL <span class="url-badge optional">Optional</span></div>
+    <div class="url-input-row">
+      <input type="url" id="redAccountUrl" placeholder="https://org62.lightning.force.com/lightning/r/Red_Account__c/a00.../view">
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button class="btn btn-primary" id="validateBtn" onclick="runValidation()">Validate from Org62</button>
+    <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+    <button class="btn-example" onclick="loadExample()">Load Wolverine Example</button>
+  </div>
+
+  <div class="fetch-status" id="fetchStatus">
+    <div class="spinner"></div>
+    <span id="fetchStatusText">Fetching from Org62…</span>
+  </div>
+
+  <div id="results">
+    <div class="results-header">
+      <div class="results-title" id="resultsTitle">Validation Results</div>
+      <div class="score-badge" id="scoreBadge"></div>
+    </div>
+
+    <div class="record-strip" id="recordStrip"></div>
+
+    <div class="summary-row">
+      <div class="summary-card critical"><div class="summary-count" id="critCount">0</div><div class="summary-label">Critical</div></div>
+      <div class="summary-card warning"><div class="summary-count" id="warnCount">0</div><div class="summary-label">Warnings</div></div>
+      <div class="summary-card info"><div class="summary-count" id="infoCount">0</div><div class="summary-label">Info / Gaps</div></div>
+      <div class="summary-card ok"><div class="summary-count" id="okCount">0</div><div class="summary-label">Passed</div></div>
+    </div>
+
+    <div id="findingsContainer"></div>
+
+    <div class="findings-section" id="emailSection" style="display:none">
+      <div class="section-title">Coaching Email</div>
+      <div class="email-block">
+        <div class="email-header-row">
+          <div>
+            <div class="email-meta"><strong>To:</strong> <span id="emailTo"></span></div>
+            <div class="email-meta"><strong>Subject:</strong> <span id="emailSubject"></span></div>
+          </div>
+          <button class="btn-copy" onclick="copyEmail()">Copy Email</button>
+        </div>
+        <div class="email-body-text" id="emailBody"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="copied-toast" id="copiedToast">Copied to clipboard!</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// PRE-LOADED EXAMPLE DATA (real Org62 fetch — Wolverine World Wide)
+// ─────────────────────────────────────────────────────────────────────────────
+const EXAMPLE_RENEWAL = {
+  Id: '0063y000019usTFAAY',
+  Name: 'Wolverine World Wide Inc. ** Renewal 161173 Commerce Cloud',
+  accountName: 'Wolverine World Wide Inc. **',
+  ownerName: 'Lindsey Ells',
+  StageName: '01 Initiate',
+  CloseDate: '2027-02-28',
+  Forecasted_Attrition__c: -1600000,
+  Forecasted_Renewal_Rate__c: 100,
+  IsPremier_Attached__c: true,
+  Targeted_Clouds__c: 'Commerce Cloud',
+  License_Renewal_Status__c: 'Will Reduce (Actionable)',
+  License_At_Risk_Reason__c: 'Customer Relationship',
+  ACV_Reason_Detail__c: 'Product-Market Fit Mismatch/Oversold',
+  SEM_Notes__c: '6/9/26: James Nommensen #LicPartialAttrit est. $1.6M #NoSigRisk - Loyalty call 5/19 w/CIO; FDE pod assigned July for Shopper Agent. Expansion of Shopper Agent + Loyalty expected to mitigate most underutilization #RA https://sfdc.co/bnAAuT',
+  Forecasted_Annual_Contract_Value__c: 4479993.97,
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TOKEN STORAGE
+// ─────────────────────────────────────────────────────────────────────────────
+function saveKey(k) { localStorage.setItem('pace_anthropic_key', k); }
+function loadKey() { return localStorage.getItem('pace_anthropic_key') || null; }
+
+function openSettings() {
+  const k = loadKey();
+  if (k) document.getElementById('apiKeyInput').value = k;
+  document.getElementById('settingsOverlay').classList.add('active');
+  document.getElementById('settingsPanel').classList.add('active');
+}
+function closeSettings() {
+  document.getElementById('settingsOverlay').classList.remove('active');
+  document.getElementById('settingsPanel').classList.remove('active');
+}
+
+async function saveAndTestKey() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  const status = document.getElementById('apiKeyStatus');
+  if (!key.startsWith('sk-ant-')) {
+    status.className = 'settings-status err';
+    status.textContent = 'Key must start with sk-ant-';
+    return;
+  }
+  status.className = 'settings-status ok';
+  status.textContent = 'Testing…';
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-calls': 'true' },
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 10, messages: [{ role: 'user', content: 'ping' }] }),
+    });
+    if (!res.ok) throw new Error('API returned ' + res.status);
+    saveKey(key);
+    status.textContent = '✓ Connected — API key saved';
+    document.getElementById('noTokenBanner').classList.remove('active');
+  } catch (e) {
+    status.className = 'settings-status err';
+    status.textContent = 'Error: ' + e.message;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VALIDATION VIA CLAUDE API
+// ─────────────────────────────────────────────────────────────────────────────
+function buildPrompt(renewal, redAccount) {
+  const fmt = v => v == null ? 'Not populated' : String(v);
+  const fmtMoney = v => v == null ? 'Not populated' : '$' + Math.abs(v).toLocaleString('en-US', {minimumFractionDigits: 0});
+
+  let prompt = `You are a PACE Renewal Compliance Validator. Validate the following Salesforce record against the PACE Attrition Hashtag Guidance and return a structured JSON report.
+
+## RENEWAL OPPORTUNITY RECORD (fetched live from Org62)
+- Opportunity Name: ${fmt(renewal.Name)}
+- Account Name: ${fmt(renewal.accountName)}
+- Owner: ${fmt(renewal.ownerName)}
+- Stage: ${fmt(renewal.StageName)}
+- Close Date: ${fmt(renewal.CloseDate)}
+- Forecasted Attrition: ${fmtMoney(renewal.Forecasted_Attrition__c)}
+- Forecasted Renewal Rate: ${fmt(renewal.Forecasted_Renewal_Rate__c)}%
+- Premier Attached: ${renewal.IsPremier_Attached__c ? 'Yes' : 'No'}
+- Targeted Clouds: ${fmt(renewal.Targeted_Clouds__c)}
+- License Renewal Status: ${fmt(renewal.License_Renewal_Status__c)}
+- Attrition Reason: ${fmt(renewal.License_At_Risk_Reason__c)}
+- Attrition Reason Detail: ${fmt(renewal.ACV_Reason_Detail__c)}
+- New ACV: ${fmtMoney(renewal.Forecasted_Annual_Contract_Value__c)}
+- CSG Notes (SEM_Notes__c): ${fmt(renewal.SEM_Notes__c)}
+`;
+
+  if (redAccount) {
+    prompt += `
+## RED ACCOUNT RECORD (fetched live from Org62)
+- Name: ${fmt(redAccount.Name)}
+- Stage: ${fmt(redAccount.Stage__c)}
+- ECOMM Headline: ${fmt(redAccount.ECOMM_Headline__c)}
+- Latest Update: ${fmt(redAccount.Latest_Updates__c)}
+- Closure Summary: ${fmt(redAccount.Reason_for_Closure__c)}
+- Primary Competitor: ${fmt(redAccount.Primary_Competitor__c)}
+- Other Competitor: ${fmt(redAccount.Other_Competitor__c)}
+- APM L1: ${fmt(redAccount.APM_Level_1__c)}
+- APM L2: ${fmt(redAccount.APM_Level_2__c)}
+- Attrition Reason: ${fmt(redAccount.Key_Risk_Category__c)}
+- Forecasted Attrition: ${fmtMoney(redAccount.Forecasted_Attrition__c)}
+`;
+  }
+
+  prompt += `
+## VALID HASHTAGS
+Offense (Red Account ECOMM Headline only): #SIGTRIAL, #ARI, #SWAP, #IMPLEMENT, #ADOPT, #RFP, #REVIVE
+Defense (Renewal CSG Notes only): #RA, #SigRisk, #NoSigRisk, #LicNoAttrit, #LicPartialAttrit, #LicFullAttrit, #AFAttrit, #AfNoRisk, #D360Attrit, #D360NoRisk, #PBI
+Known invalid: #PartialAttrit (→ #LicPartialAttrit), #FullAttrit (→ #LicFullAttrit), #NoAttrit (→ #LicNoAttrit), #PRECAUTIONARY, #AOVPP
+
+## VALIDATION RULES
+Run ALL of these checks:
+
+CSG Notes:
+1. CSG Notes empty or < 10 chars → CRITICAL
+2. No date in notes → WARNING
+3. No license hashtag (#LicNoAttrit/#LicPartialAttrit/#LicFullAttrit) → CRITICAL
+4. Premier Attached = Yes but no #SigRisk or #NoSigRisk → CRITICAL
+5. Red Account present (URL provided or #RA or "red account" in notes) but #RA absent → CRITICAL
+6. #LicPartialAttrit/#LicFullAttrit/#SigRisk present but no dollar estimate → WARNING
+7. Known invalid hashtag found → CRITICAL (state the correction)
+8. Unrecognized hashtag → INFO
+9. License_Renewal_Status = "Will Reduce" or "Will Not Renew" but #LicNoAttrit present → WARNING
+10. License_Renewal_Status = "Will Renew in Full" but #LicPartialAttrit or #LicFullAttrit present → WARNING
+11. Renewal Rate = 0% but only #LicPartialAttrit (should be #LicFullAttrit) → WARNING
+12. Forecasted Renewal Rate and License Renewal Status are contradictory → WARNING
+
+${redAccount ? `Red Account:
+13. ECOMM Headline empty → CRITICAL
+14. ECOMM Headline has no offense hashtag → CRITICAL
+15. Defense hashtag in ECOMM Headline → WARNING
+16. Invalid hashtag in ECOMM Headline → CRITICAL
+17. Latest Update empty → WARNING
+18. Stage = Closed/Resolved but Closure Summary empty → WARNING
+19. APM L1 empty → INFO
+20. Both competitors empty → INFO
+
+Cross-record:
+21. Attrition Reason differs meaningfully between records (< 30% word overlap) → WARNING
+22. Red Account Stage = Precautionary but renewal shows full attrition → WARNING
+` : ''}
+
+For each check that passes, include it in the passed list.
+
+## OUTPUT FORMAT
+Return ONLY valid JSON, no markdown fences, exactly this structure:
+{
+  "findings": [
+    {
+      "severity": "critical|warning|info|ok",
+      "category": "string",
+      "title": "string",
+      "finding": "string",
+      "fix": "string or null"
+    }
+  ],
+  "coachingEmail": {
+    "to": "CSM first name only",
+    "subject": "Data Quality Review — Account Name",
+    "body": "full email text ready to send, plain text, no markdown"
+  }
+}`;
+
+  return prompt;
+}
+
+async function callClaude(prompt) {
+  const key = loadKey();
+  if (!key) throw new Error('No API key. Click ⚙ to add your Anthropic API key first.');
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+      'anthropic-dangerous-direct-browser-calls': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4096,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || 'API error ' + res.status);
+  }
+
+  const data = await res.json();
+  const text = data.content?.[0]?.text || '';
+  try {
+    return JSON.parse(text);
+  } catch {
+    // try to extract JSON from response
+    const match = text.match(/\{[\s\S]*\}/);
+    if (match) return JSON.parse(match[0]);
+    throw new Error('Claude returned unexpected format. Try again.');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SIMULATE ORG62 FETCH (prototype: returns pre-loaded data)
+// In production this would call Salesforce REST API with OAuth token
+// ─────────────────────────────────────────────────────────────────────────────
+function extractRecordId(url) {
+  const m = url.match(/\/([a-zA-Z0-9]{15,18})(?:\/|$)/);
+  return m ? m[1] : null;
+}
+
+async function fetchRenewalFromOrg62(url, setStatus) {
+  const id = extractRecordId(url);
+  if (!id) throw new Error('Could not extract a Salesforce record ID from the Renewal URL.');
+  setStatus('Fetching renewal from Org62… (prototype: using pre-loaded Wolverine data)');
+  await new Promise(r => setTimeout(r, 800)); // simulate network
+  // In production: call Salesforce REST API
+  // GET /services/data/v64.0/sobjects/Opportunity/{id}?fields=Name,SEM_Notes__c,...
+  return { ...EXAMPLE_RENEWAL, Id: id };
+}
+
+async function fetchRedAccountFromOrg62(url, setStatus) {
+  const id = extractRecordId(url);
+  if (!id) throw new Error('Could not extract a Salesforce record ID from the Red Account URL.');
+  setStatus('Fetching Red Account from Org62… (prototype: no Red Account data pre-loaded)');
+  await new Promise(r => setTimeout(r, 600));
+  // In production: call Salesforce REST API
+  // GET /services/data/v64.0/sobjects/Red_Account__c/{id}?fields=ECOMM_Headline__c,...
+  return null; // prototype returns null — no Red Account data pre-loaded
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAIN FLOW
+// ─────────────────────────────────────────────────────────────────────────────
+let lastResult = null;
+
+async function runValidation() {
+  const renewalUrl = document.getElementById('renewalUrl').value.trim();
+  const redUrl = document.getElementById('redAccountUrl').value.trim();
+
+  if (!renewalUrl) {
+    document.getElementById('fetchStatus').className = 'fetch-status error active';
+    document.getElementById('fetchStatusText').textContent = 'Please enter a Renewal Opportunity URL.';
+    return;
+  }
+
+  if (!loadKey()) {
+    document.getElementById('noTokenBanner').classList.add('active');
+    document.getElementById('noTokenBanner').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+
+  const statusEl = document.getElementById('fetchStatus');
+  const statusText = document.getElementById('fetchStatusText');
+  const btn = document.getElementById('validateBtn');
+  const setStatus = msg => { statusText.textContent = msg; };
+
+  btn.disabled = true;
+  statusEl.className = 'fetch-status active';
+  document.getElementById('results').style.display = 'none';
+
+  try {
+    const renewal = await fetchRenewalFromOrg62(renewalUrl, setStatus);
+    const redAccount = redUrl ? await fetchRedAccountFromOrg62(redUrl, setStatus) : null;
+
+    setStatus('Sending to Claude for validation…');
+    const prompt = buildPrompt(renewal, redAccount);
+    const result = await callClaude(prompt);
+    lastResult = { result, renewal, redAccount };
+
+    renderResults(result, renewal, redAccount);
+
+    statusEl.className = 'fetch-status success active';
+    statusText.textContent = '✓ Done — ' + (renewal.accountName || 'record') + ' validated.';
+  } catch (e) {
+    statusEl.className = 'fetch-status error active';
+    statusText.textContent = e.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function loadExample() {
+  document.getElementById('renewalUrl').value = 'https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019usTFAAY/view';
+  document.getElementById('redAccountUrl').value = '';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('fetchStatus').className = 'fetch-status';
+}
+
+function clearAll() {
+  document.getElementById('renewalUrl').value = '';
+  document.getElementById('redAccountUrl').value = '';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('fetchStatus').className = 'fetch-status';
+  lastResult = null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────────────────────────────────────
+function renderResults(result, renewal, redAccount) {
+  const findings = result.findings || [];
+  const critical = findings.filter(f => f.severity === 'critical');
+  const warnings = findings.filter(f => f.severity === 'warning');
+  const info = findings.filter(f => f.severity === 'info');
+  const ok = findings.filter(f => f.severity === 'ok');
+
+  document.getElementById('critCount').textContent = critical.length;
+  document.getElementById('warnCount').textContent = warnings.length;
+  document.getElementById('infoCount').textContent = info.length;
+  document.getElementById('okCount').textContent = ok.length;
+
+  const badge = document.getElementById('scoreBadge');
+  if (critical.length > 0) {
+    badge.textContent = '⚠ Needs Attention';
+    badge.style.cssText = 'background:#fff5f5;color:#e53e3e;border:1px solid #feb2b2;';
+  } else if (warnings.length > 0) {
+    badge.textContent = '⚡ Minor Issues';
+    badge.style.cssText = 'background:#fffaf0;color:#dd6b20;border:1px solid #fbd38d;';
+  } else {
+    badge.textContent = '✓ Compliant';
+    badge.style.cssText = 'background:#f0fff4;color:#38a169;border:1px solid #9ae6b4;';
+  }
+
+  document.getElementById('resultsTitle').textContent = 'Results: ' + (renewal.accountName || renewal.Name);
+
+  // Record strip
+  const fmtM = v => v == null ? '—' : '$' + Math.abs(v).toLocaleString('en-US', {minimumFractionDigits: 0});
+  const strip = document.getElementById('recordStrip');
+  const fields = [
+    { label: 'Account', value: renewal.accountName },
+    { label: 'Owner / CSM', value: renewal.ownerName },
+    { label: 'Stage', value: renewal.StageName },
+    { label: 'Close Date', value: renewal.CloseDate },
+    { label: 'Forecast Attrition', value: fmtM(renewal.Forecasted_Attrition__c) },
+    { label: 'Renewal Rate', value: (renewal.Forecasted_Renewal_Rate__c ?? '—') + '%' },
+    { label: 'Premier Attached', value: renewal.IsPremier_Attached__c ? 'Yes' : 'No' },
+    { label: 'License Status', value: renewal.License_Renewal_Status__c || '—' },
+    { label: 'Attrition Reason', value: renewal.License_At_Risk_Reason__c || '—' },
+    { label: 'Red Account', value: redAccount ? 'Present' : 'Not provided' },
+  ];
+  strip.innerHTML = '<div class="record-strip-grid">' +
+    fields.map(f => `<div class="rf"><div class="rf-label">${f.label}</div><div class="rf-value ${f.value && f.value !== '—' ? '' : 'missing'}">${f.value || '—'}</div></div>`).join('') +
+    '</div>' +
+    (renewal.SEM_Notes__c ? `<div class="notes-box"><div class="notes-label">CSG Notes (as fetched from Org62)</div><div class="notes-text">${escHtml(renewal.SEM_Notes__c)}</div></div>` : '');
+
+  // Findings
+  const container = document.getElementById('findingsContainer');
+  const sections = [
+    { key: 'critical', label: '🔴 Critical Issues', items: critical },
+    { key: 'warning', label: '🟠 Warnings', items: warnings },
+    { key: 'info', label: '🔵 Info / Gaps', items: info },
+    { key: 'ok', label: '✅ Passed Checks', items: ok },
+  ];
+  container.innerHTML = sections.filter(s => s.items.length > 0).map(s => `
+    <div class="findings-section">
+      <div class="section-title">${s.label}</div>
+      ${s.items.map(f => renderFinding(f)).join('')}
+    </div>
+  `).join('');
+
+  // Email
+  const email = result.coachingEmail;
+  if (email) {
+    document.getElementById('emailTo').textContent = email.to || '';
+    document.getElementById('emailSubject').textContent = email.subject || '';
+    document.getElementById('emailBody').textContent = email.body || '';
+    document.getElementById('emailSection').style.display = 'block';
+  }
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderFinding(f) {
+  const icons = { critical: '!', warning: '⚡', info: 'i', ok: '✓' };
+  const badges = { critical: 'CRITICAL', warning: 'WARNING', info: 'INFO', ok: 'PASSED' };
+  return `
+    <div class="finding ${f.severity}">
+      <div class="finding-header">
+        <div class="finding-icon">${icons[f.severity] || 'i'}</div>
+        <div class="finding-title">${escHtml(f.title)}</div>
+        <div class="finding-badge">${badges[f.severity] || f.severity.toUpperCase()}</div>
+      </div>
+      <div class="finding-body">
+        <strong>Category:</strong> ${escHtml(f.category)}<br>
+        <strong>Finding:</strong> ${escHtml(f.finding || '')}
+        ${f.fix ? `<div class="fix-box"><div class="fix-box-label">Recommended Fix</div>${escHtml(f.fix)}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function copyEmail() {
+  const to = document.getElementById('emailTo').textContent;
+  const subject = document.getElementById('emailSubject').textContent;
+  const body = document.getElementById('emailBody').textContent;
+  navigator.clipboard.writeText(`To: ${to}\nSubject: ${subject}\n\n${body}`).then(() => {
+    const t = document.getElementById('copiedToast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  });
+}
+
+// Check for saved key on load
+window.addEventListener('load', () => {
+  if (!loadKey()) {
+    document.getElementById('noTokenBanner').classList.add('active');
+  }
+});
+</script>
+</body>
+</html>

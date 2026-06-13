@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PACE Renewal Validator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
+
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: white; padding: 24px 32px; }
+  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+  .header p { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px 32px; }
+
+  .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  @media (max-width: 900px) { .input-grid { grid-template-columns: 1fr; } }
+
+  .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .card-label { font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .card-label .required { color: #e53e3e; font-size: 11px; background: #fff5f5; border: 1px solid #feb2b2; padding: 1px 6px; border-radius: 10px; text-transform: none; letter-spacing: 0; }
+  .card-label .optional { color: #718096; font-size: 11px; background: #f7fafc; border: 1px solid #e2e8f0; padding: 1px 6px; border-radius: 10px; text-transform: none; letter-spacing: 0; }
+  textarea { width: 100%; height: 220px; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 12px; font-family: 'Monaco', 'Menlo', monospace; resize: vertical; color: #2d3748; background: #fafafa; transition: border-color 0.2s; }
+  textarea:focus { outline: none; border-color: #4299e1; background: white; }
+  textarea::placeholder { color: #a0aec0; }
+
+  .action-bar { display: flex; gap: 12px; margin-bottom: 24px; }
+  .btn { padding: 10px 24px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-primary { background: #4299e1; color: white; }
+  .btn-primary:hover { background: #3182ce; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(66,153,225,0.4); }
+  .btn-primary:disabled { background: #a0aec0; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-secondary { background: white; color: #4a5568; border: 1.5px solid #e2e8f0; }
+  .btn-secondary:hover { background: #f7fafc; border-color: #cbd5e0; }
+  .btn-email { background: #38a169; color: white; }
+  .btn-email:hover { background: #2f855a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(56,161,105,0.4); }
+  .btn-email:disabled { background: #a0aec0; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  #results { display: none; }
+  .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .results-title { font-size: 18px; font-weight: 700; color: #1a202c; }
+  .score-badge { padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+
+  .summary-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .summary-card { background: white; border-radius: 10px; padding: 16px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-top: 3px solid; }
+  .summary-card.critical { border-color: #e53e3e; }
+  .summary-card.warning { border-color: #ed8936; }
+  .summary-card.info { border-color: #4299e1; }
+  .summary-card.ok { border-color: #38a169; }
+  .summary-count { font-size: 32px; font-weight: 800; line-height: 1; }
+  .summary-card.critical .summary-count { color: #e53e3e; }
+  .summary-card.warning .summary-count { color: #ed8936; }
+  .summary-card.info .summary-count { color: #4299e1; }
+  .summary-card.ok .summary-count { color: #38a169; }
+  .summary-label { font-size: 11px; color: #718096; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .findings-section { margin-bottom: 16px; }
+  .section-title { font-size: 13px; font-weight: 700; color: #4a5568; text-transform: uppercase; letter-spacing: 0.5px; padding: 0 0 8px 0; border-bottom: 1px solid #edf2f7; margin-bottom: 10px; }
+
+  .finding { background: white; border-radius: 10px; padding: 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid; }
+  .finding.critical { border-color: #e53e3e; }
+  .finding.warning { border-color: #ed8936; }
+  .finding.info { border-color: #4299e1; }
+  .finding.ok { border-color: #38a169; }
+  .finding-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .finding-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; margin-top: 1px; }
+  .finding.critical .finding-icon { background: #fff5f5; color: #e53e3e; }
+  .finding.warning .finding-icon { background: #fffaf0; color: #ed8936; }
+  .finding.info .finding-icon { background: #ebf8ff; color: #4299e1; }
+  .finding.ok .finding-icon { background: #f0fff4; color: #38a169; }
+  .finding-title { font-size: 14px; font-weight: 700; color: #1a202c; flex: 1; }
+  .finding-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
+  .finding.critical .finding-badge { background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2; }
+  .finding.warning .finding-badge { background: #fffaf0; color: #ed8936; border: 1px solid #fbd38d; }
+  .finding.info .finding-badge { background: #ebf8ff; color: #4299e1; border: 1px solid #bee3f8; }
+  .finding.ok .finding-badge { background: #f0fff4; color: #38a169; border: 1px solid #9ae6b4; }
+  .finding-body { font-size: 13px; color: #4a5568; line-height: 1.5; }
+  .finding-body strong { color: #2d3748; }
+  .fix-box { margin-top: 10px; background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; font-size: 12px; color: #4a5568; }
+  .fix-box-label { font-size: 10px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .fix-code { font-family: 'Monaco', 'Menlo', monospace; background: #edf2f7; padding: 2px 6px; border-radius: 3px; font-size: 11px; color: #2d3748; }
+
+  .no-issues { background: white; border-radius: 10px; padding: 24px; text-align: center; color: #38a169; font-weight: 600; font-size: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+  .opty-info { background: white; border-radius: 10px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .opty-info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .opty-field { }
+  .opty-field-label { font-size: 10px; color: #a0aec0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .opty-field-value { font-size: 13px; color: #2d3748; font-weight: 500; margin-top: 2px; }
+  .opty-field-value.missing { color: #a0aec0; font-style: italic; }
+  .debug-toggle { font-size: 11px; color: #a0aec0; cursor: pointer; margin-top: 8px; display: inline-block; }
+  .debug-toggle:hover { color: #718096; }
+  .debug-box { display: none; margin-top: 10px; background: #1a202c; border-radius: 8px; padding: 12px 14px; font-size: 11px; font-family: 'Monaco','Menlo',monospace; color: #a0aec0; white-space: pre-wrap; word-break: break-all; }
+
+  .email-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+  .email-modal.active { display: flex; }
+  .email-panel { background: white; border-radius: 14px; width: 680px; max-width: 95vw; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .email-panel-header { padding: 20px 24px; background: linear-gradient(135deg, #1a1a2e, #0f3460); color: white; }
+  .email-panel-header h2 { font-size: 16px; font-weight: 700; }
+  .email-panel-header p { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+  .email-panel-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+  .email-field { margin-bottom: 14px; }
+  .email-field label { display: block; font-size: 12px; font-weight: 600; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .email-field input { width: 100%; padding: 8px 12px; border: 1.5px solid #e2e8f0; border-radius: 6px; font-size: 13px; color: #2d3748; }
+  .email-field input:focus { outline: none; border-color: #4299e1; }
+  .email-body-area { width: 100%; height: 320px; border: 1.5px solid #e2e8f0; border-radius: 6px; padding: 12px; font-size: 12.5px; font-family: 'Georgia', serif; line-height: 1.6; resize: vertical; color: #2d3748; }
+  .email-body-area:focus { outline: none; border-color: #4299e1; }
+  .email-panel-footer { padding: 16px 24px; border-top: 1px solid #edf2f7; display: flex; gap: 10px; justify-content: flex-end; background: #f7fafc; }
+  .close-btn { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.15); border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+  .email-panel-header { position: relative; }
+
+  .copied-toast { position: fixed; bottom: 24px; right: 24px; background: #2d3748; color: white; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; z-index: 2000; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .copied-toast.show { opacity: 1; }
+
+  .examples-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding: 10px 16px; background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 3px solid #667eea; flex-wrap: wrap; }
+  .examples-label { font-size: 11px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; margin-right: 2px; }
+  .btn-example { background: #ebf4ff; color: #3182ce; border: 1px solid #bee3f8; padding: 5px 14px; font-size: 12px; font-weight: 600; border-radius: 20px; cursor: pointer; transition: all 0.15s; }
+  .btn-example:hover { background: #dbeafe; border-color: #93c5fd; transform: translateY(-1px); }
+
+  /* ── Gear / Settings ── */
+  .header-inner { display: flex; align-items: flex-start; justify-content: space-between; }
+  .gear-btn { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: white; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; margin-top: 2px; }
+  .gear-btn:hover { background: rgba(255,255,255,0.22); }
+  .settings-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 500; }
+  .settings-overlay.active { display: block; }
+  .settings-panel { position: fixed; top: 0; right: -420px; width: 400px; max-width: 95vw; height: 100vh; background: white; box-shadow: -4px 0 24px rgba(0,0,0,0.15); z-index: 501; transition: right 0.3s ease; display: flex; flex-direction: column; }
+  .settings-panel.active { right: 0; }
+  .settings-panel-header { padding: 20px 24px; background: linear-gradient(135deg, #1a1a2e, #0f3460); color: white; display: flex; align-items: center; justify-content: space-between; }
+  .settings-panel-header h2 { font-size: 15px; font-weight: 700; }
+  .settings-panel-body { padding: 24px; overflow-y: auto; flex: 1; }
+  .settings-step { display: flex; gap: 10px; margin-bottom: 14px; }
+  .settings-step-num { width: 22px; height: 22px; background: #ebf4ff; color: #3182ce; border-radius: 50%; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .settings-step p { font-size: 13px; color: #4a5568; line-height: 1.5; }
+  .settings-step code { font-family: Monaco, Menlo, monospace; font-size: 11px; background: #edf2f7; padding: 1px 5px; border-radius: 3px; }
+  .settings-divider { border: none; border-top: 1px solid #edf2f7; margin: 16px 0; }
+  .settings-field label { display: block; font-size: 11px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .settings-field input { width: 100%; padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 7px; font-size: 13px; font-family: Monaco, Menlo, monospace; color: #2d3748; }
+  .settings-field input:focus { outline: none; border-color: #4299e1; }
+  .settings-status { margin-top: 10px; font-size: 12px; padding: 8px 12px; border-radius: 6px; display: none; }
+  .settings-status.ok { display: block; background: #f0fff4; color: #276749; border: 1px solid #9ae6b4; }
+  .settings-status.err { display: block; background: #fff5f5; color: #c53030; border: 1px solid #feb2b2; }
+  .settings-panel-footer { padding: 16px 24px; border-top: 1px solid #edf2f7; display: flex; gap: 10px; }
+
+  /* ── Tabs ── */
+  .tab-bar { display: flex; gap: 4px; margin-bottom: 16px; background: white; padding: 6px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); width: fit-content; }
+  .tab-btn { padding: 7px 18px; border: none; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; color: #718096; background: transparent; }
+  .tab-btn.active { background: #4299e1; color: white; box-shadow: 0 2px 6px rgba(66,153,225,0.35); }
+  .tab-btn:not(.active):hover { background: #edf2f7; color: #4a5568; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── URL fetch inputs ── */
+  .url-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 16px; }
+  .url-input-row { display: flex; align-items: center; gap: 10px; }
+  .url-input-row input { flex: 1; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #2d3748; background: #fafafa; transition: border-color 0.2s; }
+  .url-input-row input:focus { outline: none; border-color: #4299e1; background: white; }
+  .url-input-row input::placeholder { color: #a0aec0; }
+  .url-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 10px; flex-shrink: 0; white-space: nowrap; }
+  .url-badge.required { background: #fff5f5; color: #e53e3e; border: 1px solid #feb2b2; }
+  .url-badge.optional { background: #f7fafc; color: #718096; border: 1px solid #e2e8f0; }
+
+  /* ── Fetch status ── */
+  .fetch-status { display: none; align-items: center; gap: 10px; margin-top: 14px; padding: 10px 14px; background: #ebf8ff; border: 1px solid #bee3f8; border-radius: 8px; font-size: 13px; color: #2b6cb0; }
+  .fetch-status.active { display: flex; }
+  .fetch-status.error { background: #fff5f5; border-color: #feb2b2; color: #c53030; }
+  .fetch-status.success { background: #f0fff4; border-color: #9ae6b4; color: #276749; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { width: 16px; height: 16px; border: 2px solid #bee3f8; border-top-color: #4299e1; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+  .fetch-status.error .spinner, .fetch-status.success .spinner { display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <h1>PACE Renewal Compliance Validator</h1>
+      <p>Validate hashtag compliance and story readiness against PACE Attrition Hashtag Guidance</p>
+    </div>
+    <button class="gear-btn" onclick="openSettings()" title="Slack Token Settings">⚙</button>
+  </div>
+</div>
+
+<!-- Settings overlay + panel -->
+<div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-panel-header">
+    <h2>Slack Token Setup</h2>
+    <button class="close-btn" onclick="closeSettings()">✕</button>
+  </div>
+  <div class="settings-panel-body">
+    <p style="font-size:13px;color:#4a5568;margin-bottom:16px;">One-time setup. Your token is stored only in this browser and is never shared.</p>
+    <div class="settings-step"><div class="settings-step-num">1</div><p>Open <strong>api.slack.com/apps</strong> and sign in with your Salesforce Slack account.</p></div>
+    <div class="settings-step"><div class="settings-step-num">2</div><p>Select your app (or create one). Under <strong>OAuth &amp; Permissions</strong>, add User Token Scopes: <code>channels:history</code>, <code>im:history</code>, <code>im:write</code>, <code>chat:write</code>.</p></div>
+    <div class="settings-step"><div class="settings-step-num">3</div><p>Copy the <strong>User OAuth Token</strong> (starts with <code>xoxp-</code>).</p></div>
+    <div class="settings-step"><div class="settings-step-num">4</div><p>Paste it below and click <strong>Save &amp; Test</strong>.</p></div>
+    <hr class="settings-divider">
+    <div class="settings-field">
+      <label>Slack User Token</label>
+      <input type="password" id="tokenInput" placeholder="xoxp-..." autocomplete="off">
+    </div>
+    <div class="settings-status" id="tokenStatus"></div>
+  </div>
+  <div class="settings-panel-footer">
+    <button class="btn btn-primary" onclick="saveAndTestToken()" style="flex:1">Save &amp; Test</button>
+    <button class="btn btn-secondary" onclick="closeSettings()">Cancel</button>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabFetch" onclick="switchTab('fetch')">Fetch from Org62</button>
+    <button class="tab-btn" id="tabPaste" onclick="switchTab('paste')">Paste Manually</button>
+  </div>
+
+  <!-- Tab 1: Fetch from Org62 -->
+  <div class="tab-panel active" id="panelFetch">
+    <div class="url-card">
+      <div class="card-label" style="margin-bottom:12px;">Renewal Opportunity URL <span class="required">Required</span></div>
+      <div class="url-input-row">
+        <input type="url" id="renewalUrl" placeholder="https://org62.lightning.force.com/lightning/r/Opportunity/006.../view">
+        <span class="url-badge required">Required</span>
+      </div>
+    </div>
+    <div class="url-card">
+      <div class="card-label" style="margin-bottom:12px;">Red Account URL <span class="optional">Optional</span></div>
+      <div class="url-input-row">
+        <input type="url" id="redAccountUrl" placeholder="https://org62.lightning.force.com/lightning/r/Red_Account__c/a00.../view">
+        <span class="url-badge optional">Optional</span>
+      </div>
+    </div>
+    <div class="action-bar">
+      <button class="btn btn-primary" id="fetchBtn" onclick="fetchAndValidate()">Fetch from Org62</button>
+      <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+      <button class="btn btn-email" id="emailBtn" onclick="openEmailModal()" disabled>Share with Owner</button>
+    </div>
+    <div class="fetch-status" id="fetchStatus">
+      <div class="spinner"></div>
+      <span id="fetchStatusText">Connecting to Slackbot…</span>
+    </div>
+  </div>
+
+  <!-- Tab 2: Paste Manually -->
+  <div class="tab-panel" id="panelPaste">
+    <div class="examples-bar">
+      <span class="examples-label">Load Example:</span>
+      <button class="btn-example" onclick="loadExample('gnc')">GNC Holdings</button>
+      <button class="btn-example" onclick="loadExample('wolverine')">Wolverine World Wide</button>
+    </div>
+    <div class="input-grid">
+      <div class="card">
+        <div class="card-label">Renewal Opportunity <span class="required">Required</span></div>
+        <textarea id="renewalInput" placeholder="Paste your renewal opportunity data here from Salesforce Org62.
+
+Include fields such as:
+• CSG Notes
+• Account Name / Opportunity Name
+• Owner / CSM Name
+• Attrition Reason
+• Forecast Attrition (ACV)
+• Renewal Rate
+• Current ACV
+• Premier Attached (True/False)
+• Products / APM L1/L2
+• Renewal Close Date
+• Opportunity Stage
+• Red Account ID (if any)"></textarea>
+      </div>
+      <div class="card">
+        <div class="card-label">Red Account <span class="optional">Optional</span></div>
+        <textarea id="redAccountInput" placeholder="If a Red Account exists for this renewal, paste its data here.
+
+Include fields such as:
+• ECOMM Headline
+• Latest Update
+• Closure Summary
+• Red Account Stage
+• Attrition Reason
+• Competitor (Primary / Other)
+• APM L1 / L2 / L3
+• Forecast Attrition Amount"></textarea>
+      </div>
+    </div>
+    <div class="action-bar">
+      <button class="btn btn-primary" id="validateBtn" onclick="runValidation()">Run Validation</button>
+      <button class="btn btn-secondary" onclick="clearAll()">Clear</button>
+      <button class="btn btn-email" id="emailBtnPaste" onclick="openEmailModal()" disabled>Share with Owner</button>
+    </div>
+  </div>
+
+  <div id="results">
+    <div class="results-header">
+      <div class="results-title" id="resultsTitle">Validation Results</div>
+      <div class="score-badge" id="scoreBadge"></div>
+    </div>
+
+    <div class="opty-info" id="optyInfo"></div>
+
+    <div class="summary-row">
+      <div class="summary-card critical"><div class="summary-count" id="critCount">0</div><div class="summary-label">Critical</div></div>
+      <div class="summary-card warning"><div class="summary-count" id="warnCount">0</div><div class="summary-label">Warnings</div></div>
+      <div class="summary-card info"><div class="summary-count" id="infoCount">0</div><div class="summary-label">Info / Gaps</div></div>
+      <div class="summary-card ok"><div class="summary-count" id="okCount">0</div><div class="summary-label">Passed</div></div>
+    </div>
+
+    <div id="findingsContainer"></div>
+  </div>
+</div>
+
+<div class="email-modal" id="emailModal">
+  <div class="email-panel">
+    <div class="email-panel-header">
+      <h2>Compose Coaching Email</h2>
+      <p>Review and edit before copying or opening in your mail client</p>
+      <button class="close-btn" onclick="closeEmailModal()">✕</button>
+    </div>
+    <div class="email-panel-body">
+      <div class="email-field">
+        <label>To</label>
+        <input type="text" id="emailTo" placeholder="CSM Name / Email">
+      </div>
+      <div class="email-field">
+        <label>Subject</label>
+        <input type="text" id="emailSubject" placeholder="Subject">
+      </div>
+      <div class="email-field" style="margin-bottom:0">
+        <label>Email Body</label>
+        <textarea class="email-body-area" id="emailBody"></textarea>
+      </div>
+    </div>
+    <div class="email-panel-footer">
+      <button class="btn btn-secondary" onclick="copyEmail()">Copy to Clipboard</button>
+      <button class="btn btn-primary" onclick="openMailto()">Open in Mail</button>
+      <button class="btn btn-secondary" onclick="closeEmailModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="copied-toast" id="copiedToast">Copied to clipboard!</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// VALID HASHTAGS (from PACE Attrition Hashtag Guidance)
+// ─────────────────────────────────────────────────────────────────────────────
+const VALID_OFFENSE_HASHTAGS = ['#SIGTRIAL','#ARI','#SWAP','#IMPLEMENT','#ADOPT','#RFP','#REVIVE'];
+const VALID_DEFENSE_HASHTAGS = ['#RA','#SigRisk','#NoSigRisk','#LicNoAttrit','#LicPartialAttrit','#LicFullAttrit','#AFAttrit','#D360Attrit','#AfNoRisk','#D360NoRisk','#PBI'];
+const ALL_VALID_HASHTAGS = [...VALID_OFFENSE_HASHTAGS, ...VALID_DEFENSE_HASHTAGS];
+const ALL_VALID_LOWER = ALL_VALID_HASHTAGS.map(h => h.toLowerCase());
+
+// Known invalid / mis-used hashtags — #PartialAttrit is listed here only, NOT separately
+const KNOWN_INVALID_HASHTAGS = {
+  '#PartialAttrit': '#LicPartialAttrit',
+  '#FullAttrit': '#LicFullAttrit',
+  '#NoAttrit': '#LicNoAttrit',
+  '#PRECAUTIONARY': null,
+  '#Precautionary': null,
+  '#AOVPP': null,
+};
+const KNOWN_INVALID_LOWER = Object.fromEntries(
+  Object.entries(KNOWN_INVALID_HASHTAGS).map(([k,v]) => [k.toLowerCase(), v])
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXTRACTION HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Parse the pasted text into a key→value map.
+// Handles two formats:
+//   (A) Salesforce Lightning UI:  label on one line, value on the NEXT line (no colon)
+//   (B) Manual / colon-separated: "Label: value" on the same line
+//
+// We build a flat map of { normalisedLabel → valueText } so both formats work.
+function buildFieldMap(text) {
+  const map = {};
+  // Normalize "--- SECTION HEADER ---" lines (Slackbot skill output format) to bare label lines
+  // so they get picked up by the label/value passes below
+  text = text.replace(/^---\s*([A-Za-z][A-Za-z0-9 \/]+?)\s*---$/gm, '$1');
+  const lines = text.split(/\r?\n/);
+
+  // Pass 1 — colon-separated: "Label: value" or "Label - value"
+  // For multiline fields, also collect continuation lines (lines indented with whitespace)
+  const MULTILINE_KEYS = new Set([
+    'csg notes','renewal csg notes','description','next steps',
+    'co-prime notes','manager forecast judgement','latest update',
+    'closure summary','premier notes & next steps','ecomm headline',
+  ]);
+  for (let i = 0; i < lines.length; i++) {
+    const colonMatch = lines[i].match(/^([A-Za-z][A-Za-z0-9 _\/\-()]+?)\s*[:\-]\s*(.+)$/);
+    if (colonMatch) {
+      const key = colonMatch[1].trim().toLowerCase().replace(/\s+/g,' ');
+      let val = colonMatch[2].trim();
+      if (val) {
+        // Collect indented continuation lines for multiline fields
+        if (MULTILINE_KEYS.has(key)) {
+          while (i + 1 < lines.length && /^\s+\S/.test(lines[i + 1])) {
+            val += '\n' + lines[i + 1].trim();
+            i++;
+          }
+        }
+        map[key] = val;
+      }
+    }
+  }
+
+  // Pass 2 — Salesforce Lightning "label\nvalue" blocks.
+  // A "label" line: short (≤60 chars), no digits, not all-caps noise, ends without punctuation.
+  // The "value" line immediately follows and is non-empty.
+  const KNOWN_LABELS = [
+    'account name','opportunity name','opportunity owner','owner','csm name','csm',
+    'close date','stage','opportunity stage','renewal stage',
+    'amount','forecasted attrition','forecast attrition','prior annual contract value',
+    'forecasted annual contract value - new','forecasted annual contract value',
+    'forecasted renewal %','forecasted renewal % - new','forecasted renewal % new',
+    'prior annual contract value - new',
+    'renewal rate','attrition reason','attrition reason detail',
+    'license renewal status','premier attached','premier success attach status',
+    'csg notes','renewal csg notes','next steps','description',
+    'co-prime notes','manager forecast judgement',
+    'red account id','red acct',
+    'targeted clouds','apm l1','apm l2','apm l3',
+    'ecomm headline','headline','latest update','closure summary',
+    'red account stage','ra stage','status',
+    'competitor','primary competitor','other competitor',
+    'attrition amount','ra attrition amount',
+    'swing','prior total amount','acv',
+  ];
+  const KNOWN_LOWER = new Set(KNOWN_LABELS.map(l => l.toLowerCase()));
+
+  for (let i = 0; i < lines.length - 1; i++) {
+    const label = lines[i].trim();
+    const value = lines[i + 1].trim();
+    if (!label || !value) continue;
+    // Label line: ≤60 chars, doesn't start with a # or digit, not a URL
+    if (label.length > 60) continue;
+    if (/^[#\d$]/.test(label)) continue;
+    if (/^https?:\/\//.test(label)) continue;
+    // Value line: non-empty, not another known label
+    const labelKey = label.toLowerCase().replace(/\s+/g,' ');
+    if (KNOWN_LOWER.has(labelKey) && value && !map[labelKey]) {
+      map[labelKey] = value;
+    }
+  }
+
+  // Pass 3 — For fields with long multi-line values (CSG Notes, Description, Next Steps),
+  // scan for the label appearing alone on a line and grab everything until the next
+  // recognised label-only line or a double blank line.
+  const MULTILINE_LABELS = [
+    'csg notes','renewal csg notes','description','next steps',
+    'co-prime notes','manager forecast judgement','latest update',
+    'closure summary','premier notes & next steps',
+  ];
+  for (const ml of MULTILINE_LABELS) {
+    if (map[ml]) continue; // already found via colon-pass
+    // Find the line that is exactly this label (case-insensitive)
+    const idx = lines.findIndex(l => l.trim().toLowerCase() === ml);
+    if (idx === -1) continue;
+    // Collect subsequent lines until we hit a known-label-only line or 2 blank lines in a row
+    const collected = [];
+    let blanks = 0;
+    for (let j = idx + 1; j < lines.length; j++) {
+      const l = lines[j].trim();
+      if (l === '') { blanks++; if (blanks >= 2) break; collected.push(''); continue; }
+      blanks = 0;
+      const lk = l.toLowerCase().replace(/\s+/g,' ');
+      if (KNOWN_LOWER.has(lk) && collected.length > 0) break;
+      collected.push(l);
+    }
+    const val = collected.join('\n').trim();
+    if (val) map[ml] = val;
+  }
+
+  return map;
+}
+
+// Look up a value from the field map, trying multiple label aliases
+function getField(map, ...labels) {
+  for (const label of labels) {
+    const key = label.toLowerCase().replace(/\s+/g,' ');
+    if (map[key] && map[key].trim()) return map[key].trim();
+  }
+  return null;
+}
+
+// Legacy single-field extractor for colon-format fallback (used by parseRedAccount raw text)
+function extractField(text, ...labels) {
+  for (const label of labels) {
+    const esc = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(esc + '\\s*[:\\-]\\s*(.+?)(?=\\r?\\n|$)', 'im');
+    const m = text.match(re);
+    if (m && m[1].trim()) return m[1].trim();
+  }
+  return null;
+}
+
+// Extract a potentially multi-line value — colon-format fallback
+function extractMultilineField(text, ...labels) {
+  for (const label of labels) {
+    const esc = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const startRe = new RegExp(esc + '\\s*[:\\-]', 'im');
+    const startMatch = text.match(startRe);
+    if (!startMatch) continue;
+    const afterColon = text.slice(startMatch.index + startMatch[0].length).replace(/^\s*/, '');
+    if (!afterColon) continue;
+    const stopRe = /\n[ \t]*\n|\n(?=[A-Z][A-Za-z0-9 _]{0,40}:)/;
+    const stopMatch = afterColon.match(stopRe);
+    const value = stopMatch ? afterColon.slice(0, stopMatch.index).trim() : afterColon.trim();
+    if (value) return value;
+  }
+  return null;
+}
+
+// Return hashtags exactly as typed
+function extractHashtags(text) {
+  if (!text) return [];
+  return (text.match(/#[A-Za-z0-9]+/g) || []).map(h => h.trim());
+}
+
+// Case-insensitive hashtag inclusion check
+function hasHashtag(list, tag) {
+  const tl = tag.toLowerCase();
+  return list.some(h => h.toLowerCase() === tl);
+}
+
+// Parse a dollar value — handles K/M/B suffixes, "USD" prefix, negative values
+// e.g. "$1.76M", "$450K", "USD -1,761,666.70", "-1,761,666.70"
+function parseCurrency(val) {
+  if (!val) return null;
+  // Strip currency symbols, USD prefix, spaces — keep minus sign and digits
+  const cleaned = val.replace(/USD|[$,\s]/gi, '').trim();
+  const m = cleaned.match(/^(-?[\d.]+)([KkMmBb]?)$/);
+  if (!m) return null;
+  let n = parseFloat(m[1]);
+  if (isNaN(n)) return null;
+  const suf = m[2].toUpperCase();
+  if (suf === 'K') n *= 1000;
+  else if (suf === 'M') n *= 1000000;
+  else if (suf === 'B') n *= 1000000000;
+  return Math.abs(n); // always return positive magnitude
+}
+
+function parsePercent(val) {
+  if (!val) return null;
+  const n = parseFloat(val.replace(/%/g,''));
+  return isNaN(n) ? null : n;
+}
+
+function isYes(val) {
+  if (!val) return null;
+  return /^(yes|true|1)$/i.test(val.trim());
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PARSE RENEWAL OPPORTUNITY
+// ─────────────────────────────────────────────────────────────────────────────
+function parseRenewal(text) {
+  const map = buildFieldMap(text);
+
+  // Helper: prefer field map, fall back to raw colon-search
+  const get = (mapLabels, rawLabels) => getField(map, ...mapLabels) || (rawLabels ? extractField(text, ...rawLabels) : null);
+  const getML = (mapLabels, rawLabels) => getField(map, ...mapLabels) || (rawLabels ? extractMultilineField(text, ...rawLabels) : null);
+
+  // CSG Notes: try map first; also scan the raw text for the label on its own line
+  const csgNotes = getML(
+    ['csg notes','renewal csg notes'],
+    ['CSG Notes','Renewal CSG Notes']
+  );
+
+  // Forecasted Attrition: Salesforce shows "Forecasted Attrition\nUSD -1,761,666.70"
+  // Also try "Forecasted Annual Contract Value - New" which is the $0 new ACV line
+  const forecastAttrition =
+    get(['forecasted attrition','forecast attrition'], ['Forecasted Attrition','Forecast Attrition']) ||
+    get(['forecasted change in total acv - new','forecasted change in total acv new'], null);
+
+  // Current ACV: "Prior Annual Contract Value" is the baseline
+  const currentACV =
+    get(['prior annual contract value','prior annual contract value - new','acv'], ['Prior Annual Contract Value','ACV','Current ACV']);
+
+  // Renewal rate: "Forecasted Renewal % - New" is the key field (0% = full attrit)
+  const renewalRate =
+    get(['forecasted renewal % - new','forecasted renewal % new','forecasted renewal %','renewal rate'], ['Forecasted Renewal % - New','Renewal Rate']);
+
+  // Premier Attached: look for "Premier Attached" or "Premier Success Attach Status"
+  // The UI renders "TruePremier Attached" as a concatenated string — handle that
+  let premierRaw = get(['premier attached','premier success attach status'], ['Premier Attached','Premier Success Attach Status']);
+  if (!premierRaw) {
+    // Scan for "TruePremier Attached" or "FalsePremier Attached" in raw text
+    const pm = text.match(/\b(True|False)Premier Attached\b/i);
+    if (pm) premierRaw = pm[1];
+  }
+
+  // Owner: SF sometimes shows "Eric Askew\nEric Askew" — deduplicate
+  let ownerRaw = get(['opportunity owner','owner','csm name','csm'], ['Opportunity Owner','Owner','CSM Name']);
+  if (ownerRaw) {
+    const halves = ownerRaw.split('\n');
+    ownerRaw = halves[0].trim();
+  }
+
+  // Stage: avoid picking up "02 Negotiate" from mid-text; prefer explicit field
+  const stage = get(['opportunity stage','renewal stage','stage'], ['Opportunity Stage','Renewal Stage','Stage']);
+
+  return {
+    raw: text,
+    fieldMap: map,
+    accountName:      get(['account name','account'], ['Account Name','Account']),
+    opportunityName:  get(['opportunity name','opportunity'], ['Opportunity Name','Opportunity']),
+    ownerName:        ownerRaw,
+    ownerEmail:       get(['owner email','csm email','email'], ['Owner Email','CSM Email']),
+    csgNotes:         csgNotes,
+    attritionReason:  get(['attrition reason'], ['Attrition Reason']),
+    attritionReasonDetail: get(['attrition reason detail'], ['Attrition Reason Detail']),
+    renewalRiskDetail:getML(['renewal risk detail'], ['Renewal Risk Detail']),
+    forecastAttrition:forecastAttrition,
+    currentACV:       currentACV,
+    renewalRate:      renewalRate,
+    premierAttached:  premierRaw,
+    products:         get(['targeted clouds','products','product','cloud'], ['Targeted Clouds','Products']),
+    redAccountId:     get(['red account id','red acct','ra id'], ['Red Account ID','Red Acct']),
+    stage:            stage,
+    closeDate:        get(['close date','renewal date','renewal close date'], ['Close Date','Renewal Close Date']),
+    opMgrNotes:       getML(['manager forecast judgement','op mgr notes'], ['Manager Forecast Judgement','OP MGR Notes']),
+    licenseRenewalStatus: get(['license renewal status'], ['License Renewal Status']),
+    nextSteps:        getML(['next steps'], ['Next Steps']),
+    description:      getML(['description'], ['Description']),
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PARSE RED ACCOUNT
+// ─────────────────────────────────────────────────────────────────────────────
+function parseRedAccount(text) {
+  if (!text || !text.trim()) return null;
+  const map = buildFieldMap(text);
+  const get = (mapLabels, rawLabels) => getField(map, ...mapLabels) || (rawLabels ? extractField(text, ...rawLabels) : null);
+  const getML = (mapLabels, rawLabels) => getField(map, ...mapLabels) || (rawLabels ? extractMultilineField(text, ...rawLabels) : null);
+  return {
+    raw: text,
+    fieldMap: map,
+    ecommHeadline:  get(['ecomm headline','headline','ecomm'], ['ECOMM Headline','Headline']),
+    latestUpdate:   getML(['latest update','update'], ['Latest Update']),
+    closureSummary: getML(['closure summary','closure'], ['Closure Summary']),
+    stage:          get(['red account stage','ra stage','stage','status'], ['Red Account Stage','Stage','Status']),
+    attritionReason:get(['attrition reason','ra attrition reason'], ['Attrition Reason']),
+    competitor:     get(['competitor','primary competitor','other competitor'], ['Competitor','Primary Competitor']),
+    apmL1:          get(['apm l1','apm_l1'], ['APM L1']),
+    apmL2:          get(['apm l2','apm_l2'], ['APM L2']),
+    forecastAmount: get(['attrition amount','ra attrition amount','forecast'], ['Attrition Amount','Forecast']),
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VALIDATION ENGINE
+// ─────────────────────────────────────────────────────────────────────────────
+let lastFindings = [];
+let lastRenewal = null;
+let lastRedAccount = null;
+
+function runValidation() {
+  const renewalText = document.getElementById('renewalInput').value.trim();
+  if (!renewalText) {
+    alert('Please paste a renewal opportunity before running validation.');
+    return;
+  }
+  const redText = document.getElementById('redAccountInput').value.trim();
+  const renewal = parseRenewal(renewalText);
+  const redAccount = parseRedAccount(redText || null);
+  lastRenewal = renewal;
+  lastRedAccount = redAccount;
+  const findings = buildFindings(renewal, redAccount);
+  lastFindings = findings;
+  renderResults(findings, renewal, redAccount);
+  document.getElementById('emailBtnPaste').disabled = false;
+}
+
+function buildFindings(renewal, redAccount) {
+  const findings = [];
+
+  // ── 1. CSG NOTES PRESENCE ─────────────────────────────────────────────────
+  if (!renewal.csgNotes || renewal.csgNotes.length < 10) {
+    findings.push({
+      severity: 'critical',
+      category: 'CSG Notes',
+      title: 'CSG Notes are missing or too short',
+      finding: 'No CSG Notes were found in the renewal opportunity. CSG Notes are required for all renewals and must include hashtags per PACE Attrition Hashtag Guidance.',
+      fix: 'Add CSG Notes with the required format: (Date) (CSM Name) (#hashtag) (short comment with estimated $ if applicable).\nExample: 8/22/24 Jane Doe #LicFullAttrit est. $450K attrition; migrating to Shopify',
+    });
+  } else {
+    // ── 2. CSG NOTES CONTENT CHECKS ───────────────────────────────────────
+    const notes = renewal.csgNotes;
+    const noteHashtags = extractHashtags(notes);
+
+    // Date check
+    const hasDate = /\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|\d{1,2}\/\d{1,2}(\/\d{2,4})?)\b/i.test(notes);
+    if (!hasDate) {
+      findings.push({
+        severity: 'warning',
+        category: 'CSG Notes Format',
+        title: 'Date missing from CSG Notes',
+        finding: 'CSG Notes should begin with a date (e.g., 8/22/24 or Aug 22, 2024). No date was detected.',
+        fix: 'Prepend the date to each CSG Note entry: (Date) (CSM Name) (#hashtag) (comment)',
+      });
+    }
+
+    // Required license attrition hashtag
+    const licHashtags = ['#LicNoAttrit','#LicPartialAttrit','#LicFullAttrit'];
+    const hasLicHashtag = licHashtags.some(h => hasHashtag(noteHashtags, h));
+    if (!hasLicHashtag) {
+      findings.push({
+        severity: 'critical',
+        category: 'CSG Notes — License Hashtag',
+        title: 'Missing required license attrition hashtag',
+        finding: 'All license renewals must include one of: #LicNoAttrit, #LicPartialAttrit, or #LicFullAttrit in CSG Notes. None were found.',
+        fix: '• #LicNoAttrit — no known attrition, expect full renewal\n• #LicPartialAttrit — partial attrition expected, state what and why\n• #LicFullAttrit — confirmed full attrition, state why and new provider',
+      });
+    }
+
+    // Premier Attached → requires #SigRisk or #NoSigRisk
+    const premierYes = isYes(renewal.premierAttached);
+    if (premierYes === true) {
+      const hasSigHashtag = hasHashtag(noteHashtags, '#SigRisk') || hasHashtag(noteHashtags, '#NoSigRisk');
+      if (!hasSigHashtag) {
+        findings.push({
+          severity: 'critical',
+          category: 'CSG Notes — Signature Hashtag',
+          title: 'Premier Attached = True requires #SigRisk or #NoSigRisk',
+          finding: 'This renewal has Premier Attached = True (Signature Success Plan), which mandates either #SigRisk or #NoSigRisk in CSG Notes. Neither was found.',
+          fix: '• #SigRisk — risk of Signature Success attrition (include est. $ amount)\n• #NoSigRisk — Signature Success expected to renew in full',
+        });
+      }
+    }
+
+    // #RA hashtag — only flag if there is clear evidence of a Red Account
+    // (a non-empty Red Account ID field, or the user also pasted a Red Account)
+    // Only flag #RA missing if CSG Notes explicitly mention a Red Account
+    // (a Red-URL pattern, the words "red account", or "red acct")
+    const notesLower = (renewal.csgNotes || '').toLowerCase();
+    const redAccountLinked = !!redAccount ||
+      /red[-\s]https?:\/\//i.test(renewal.csgNotes || '') ||
+      /#RA\s+https?:\/\//i.test(renewal.csgNotes || '') ||
+      /\bred\s*acct\b|\bred\s*account\b/.test(notesLower);
+    if (redAccountLinked && !hasHashtag(noteHashtags, '#RA')) {
+      findings.push({
+        severity: 'warning',
+        category: 'CSG Notes — Red Account Link',
+        title: 'Red Account linked but #RA hashtag missing from CSG Notes',
+        finding: 'A Red Account is associated with this renewal, but the #RA hashtag was not found in CSG Notes. The #RA hashtag links the renewal to the Red Account in dashboards.',
+        fix: 'Add #RA to CSG Notes. If space permits, include a shortened URL to the Red Account.\nExample: #RA [sfdc.co/shortlink]',
+      });
+    }
+
+    // Dollar estimate — recommended best practice per format examples ("if any")
+    // Guidance says: "Short comment with estimated attrition amount, if any"
+    const attrRiskHashtags = ['#LicPartialAttrit','#LicFullAttrit','#SigRisk'];
+    const hasAttrRiskHashtag = attrRiskHashtags.some(h => hasHashtag(noteHashtags, h));
+    const hasDollarEstimate = /(\$[\d,.]+[KkMmBb]?|est\.?\s*\$|\d+[KkMmBb]\s+attrition)/i.test(notes);
+    if (hasAttrRiskHashtag && !hasDollarEstimate) {
+      findings.push({
+        severity: 'info',
+        category: 'CSG Notes — Dollar Estimate',
+        title: 'Best practice: include an estimated dollar amount with attrition hashtags',
+        finding: 'The PACE format recommends including an estimated attrition amount when using #LicPartialAttrit, #LicFullAttrit, or #SigRisk ("if any"). No dollar estimate was detected.',
+        fix: 'Add est. $[amount] to the note.\nExample: #LicFullAttrit est. $450K attrition; migrating to Shopify',
+      });
+    }
+
+    // Known invalid hashtags (single loop — no separate #PartialAttrit check)
+    for (const [invalid, suggestion] of Object.entries(KNOWN_INVALID_HASHTAGS)) {
+      if (hasHashtag(noteHashtags, invalid)) {
+        findings.push({
+          severity: 'critical',
+          category: 'CSG Notes — Invalid Hashtag',
+          title: `${invalid} is not a valid PACE hashtag`,
+          finding: `"${invalid}" appears in CSG Notes but is not in the PACE Attrition Hashtag Guidance.${suggestion ? ` The correct hashtag is ${suggestion}.` : ' This hashtag should be removed.'}`,
+          fix: suggestion ? `Replace ${invalid} with ${suggestion}.` : `Remove ${invalid} from CSG Notes. Capture the status in plain text instead.`,
+        });
+      }
+    }
+
+    // Unrecognized hashtags not in valid list and not in known-invalid list
+    const unrecognized = noteHashtags.filter(h =>
+      !ALL_VALID_LOWER.includes(h.toLowerCase()) &&
+      !Object.keys(KNOWN_INVALID_LOWER).includes(h.toLowerCase())
+    );
+    if (unrecognized.length > 0) {
+      findings.push({
+        severity: 'info',
+        category: 'CSG Notes — Unrecognized Hashtags',
+        title: `Unrecognized hashtag(s) in CSG Notes: ${unrecognized.join(', ')}`,
+        finding: `These hashtags are not in the PACE Attrition Hashtag Guidance: ${unrecognized.join(', ')}. Only official hashtags drive dashboard reporting.`,
+        fix: 'Verify against the PACE guidance and replace with the correct official hashtag, or remove if informal.',
+      });
+    }
+
+    // ── Passed checks ──────────────────────────────────────────────────────
+    if (licHashtags.some(h => hasHashtag(noteHashtags, h))) {
+      findings.push({
+        severity: 'ok',
+        category: 'CSG Notes',
+        title: 'License attrition hashtag correctly present',
+        finding: `A valid license attrition hashtag was found in CSG Notes: ${noteHashtags.filter(h => licHashtags.some(v => v.toLowerCase() === h.toLowerCase())).join(', ')}`,
+      });
+    }
+    if (premierYes === true && (hasHashtag(noteHashtags, '#SigRisk') || hasHashtag(noteHashtags, '#NoSigRisk'))) {
+      findings.push({
+        severity: 'ok',
+        category: 'CSG Notes',
+        title: 'Signature hashtag correctly present for Premier Attached renewal',
+        finding: '#SigRisk or #NoSigRisk is present as required for a Signature Success renewal.',
+      });
+    }
+    if (redAccountLinked && hasHashtag(noteHashtags, '#RA')) {
+      findings.push({
+        severity: 'ok',
+        category: 'CSG Notes',
+        title: '#RA hashtag correctly links renewal to Red Account',
+        finding: '#RA hashtag found in CSG Notes.',
+      });
+    }
+  }
+
+  // ── 3. RED ACCOUNT VALIDATION (if provided) ───────────────────────────────
+  if (redAccount) {
+    const EMPTY_VALUES = /^\s*(\[not populated\]|none|n\/a|not populated|—|-|null|undefined)\s*$/i;
+    const headline = redAccount.ecommHeadline || '';
+    const headlineHashtags = extractHashtags(headline);
+
+    // Invalid hashtags in headline
+    for (const [invalid, suggestion] of Object.entries(KNOWN_INVALID_HASHTAGS)) {
+      if (hasHashtag(headlineHashtags, invalid)) {
+        findings.push({
+          severity: 'critical',
+          category: 'Red Account — ECOMM Headline',
+          title: `${invalid} is not valid in ECOMM Headline`,
+          finding: `"${invalid}" appears in the ECOMM Headline but is not a valid PACE hashtag.${suggestion ? ` The correct hashtag is ${suggestion}.` : ''}`,
+          fix: suggestion
+            ? `Replace ${invalid} with ${suggestion} in ECOMM Headline.`
+            : `Remove ${invalid} from ECOMM Headline. Only active play hashtags belong here: ${VALID_OFFENSE_HASHTAGS.join(', ')}`,
+        });
+      }
+    }
+
+    // Defense hashtags in headline (they belong in CSG Notes, not here)
+    const defenseInHeadline = headlineHashtags.filter(h =>
+      VALID_DEFENSE_HASHTAGS.some(v => v.toLowerCase() === h.toLowerCase())
+    );
+    if (defenseInHeadline.length > 0) {
+      findings.push({
+        severity: 'warning',
+        category: 'Red Account — ECOMM Headline',
+        title: `Defense hashtag(s) in ECOMM Headline: ${defenseInHeadline.join(', ')}`,
+        finding: 'The ECOMM Headline field should contain active offense play hashtags only. Defense/status hashtags belong in CSG Notes on the renewal opportunity.',
+        fix: `Remove from ECOMM Headline: ${defenseInHeadline.join(', ')}. Move to Renewal CSG Notes if applicable.`,
+      });
+    }
+
+    // Unrecognized hashtags in headline
+    const unrecognizedHeadline = headlineHashtags.filter(h =>
+      !ALL_VALID_LOWER.includes(h.toLowerCase()) &&
+      !Object.keys(KNOWN_INVALID_LOWER).includes(h.toLowerCase())
+    );
+    if (unrecognizedHeadline.length > 0) {
+      findings.push({
+        severity: 'info',
+        category: 'Red Account — ECOMM Headline',
+        title: `Unrecognized hashtag(s) in ECOMM Headline: ${unrecognizedHeadline.join(', ')}`,
+        finding: `These hashtags are not in the PACE guidance: ${unrecognizedHeadline.join(', ')}. Reporting is built from this field — unrecognized hashtags will not surface in dashboards.`,
+        fix: 'Replace with valid offense play hashtags: ' + VALID_OFFENSE_HASHTAGS.join(', '),
+      });
+    }
+
+    // Cross-field: Attrition Reason consistency — word-level Jaccard similarity
+    if (renewal.attritionReason && redAccount.attritionReason) {
+      const words = s => new Set(s.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(w => w.length > 2));
+      const rWords = words(renewal.attritionReason);
+      const raWords = words(redAccount.attritionReason);
+      const intersection = [...rWords].filter(w => raWords.has(w)).length;
+      const union = new Set([...rWords, ...raWords]).size;
+      const similarity = union > 0 ? intersection / union : 0;
+      if (similarity < 0.3) {
+        findings.push({
+          severity: 'warning',
+          category: 'Cross-Field Consistency',
+          title: 'Attrition Reason differs between Renewal and Red Account',
+          finding: `Renewal Attrition Reason: "${renewal.attritionReason}"\nRed Account Attrition Reason: "${redAccount.attritionReason}"\n\nThese should reflect the same root cause across both records.`,
+          fix: 'Align the Attrition Reason on both records. Coordinate with the Escalation Manager if needed.',
+        });
+      }
+    }
+
+    // Cross-field: Red Account Stage vs. financial posture
+    const stageIsPrec = /precautionary|prec/i.test(redAccount.stage || '');
+    const forecastVal = parseCurrency(renewal.forecastAttrition);
+    const renewalRateVal = parsePercent(renewal.renewalRate);
+    const isFullAttrition =
+      (forecastVal !== null && forecastVal === 0 && renewalRateVal !== null && renewalRateVal === 0) ||
+      (renewal.csgNotes && /#LicFullAttrit/i.test(renewal.csgNotes));
+    if (stageIsPrec && isFullAttrition) {
+      findings.push({
+        severity: 'warning',
+        category: 'Cross-Field Consistency',
+        title: 'Red Account Stage (Precautionary) inconsistent with full attrition posture',
+        finding: `Red Account Stage: "${redAccount.stage}"\nRenewal Rate: ${renewal.renewalRate || 'n/a'} | Forecast Attrition: ${renewal.forecastAttrition || 'n/a'}\n\nPrecautionary implies low risk — this contradicts a full-attrition scenario.`,
+        fix: 'Update the Red Account Stage to reflect the actual risk level (e.g., At Risk or At Risk – Escalated). Coordinate with the Escalation Manager.',
+      });
+    }
+
+    // APM L1 not populated
+    const apmMissing = !redAccount.apmL1 || EMPTY_VALUES.test(redAccount.apmL1);
+    if (apmMissing) {
+      findings.push({
+        severity: 'info',
+        category: 'Red Account — Product Details',
+        title: 'APM L1 not populated on Red Account',
+        finding: 'PACE guidance states product reporting should live on the Red Account (APM L1/L2/L3). No APM L1 was detected. This field identifies exactly which cloud/product is at risk.',
+        fix: 'Populate APM L1 (and L2/L3 as applicable). For Agentforce or Data Cloud risk, select AI & Data in APM L1.',
+      });
+    }
+
+    // Competitor not populated — treat Slackbot empty-value strings as missing
+    const competitorMissing = !redAccount.competitor || EMPTY_VALUES.test(redAccount.competitor);
+    if (competitorMissing) {
+      findings.push({
+        severity: 'info',
+        category: 'Red Account — Competitor',
+        title: 'Competitor field not populated on Red Account',
+        finding: 'PACE guidance asks CSMs to populate competitor information to identify threats and enable targeted defensive plays. No competitor was detected.',
+        fix: 'Populate the Competitor field (Primary and/or Other) if a competitive threat exists.',
+      });
+    }
+  }
+
+  // ── 4. STORY READINESS ────────────────────────────────────────────────────
+  const forecastVal2 = parseCurrency(renewal.forecastAttrition);
+  if (forecastVal2 !== null && forecastVal2 >= 100000) {
+    findings.push({
+      severity: 'info',
+      category: 'Story Readiness',
+      title: `Qualifies for Win/Loss Story (≥$100K threshold) — ${renewal.forecastAttrition}`,
+      finding: `Forecast attrition of ${renewal.forecastAttrition} meets the $100K threshold for Win/Loss story qualification. A complete story requires: Situation, Response, Outcome, and Learnings.`,
+      fix: 'Begin drafting the Win/Loss story. Ensure Supplemental Questions are answered (Q2 for Response; Q1/Q3–Q5 for Outcome) and a CSG Audit is completed for Learnings.',
+    });
+  }
+
+  // Competitive platform detected — suggest #RFP
+  const notesText = (renewal.csgNotes || '') + ' ' + (renewal.raw || '');
+  const hasCompetitor = /shopify|salesforce b2b|b2b commerce|magento|bigcommerce|woocommerce|adobe commerce/i.test(notesText);
+  const noteHashtagsAll = extractHashtags(renewal.csgNotes || '');
+  if (hasCompetitor && !hasHashtag(noteHashtagsAll, '#RFP')) {
+    findings.push({
+      severity: 'info',
+      category: 'Offense Plays',
+      title: 'Competitive platform referenced — consider #RFP',
+      finding: 'A competitive platform appears to be referenced. If an open RFP exists creating a competitive situation at renewal, the #RFP hashtag should be added to the Red Account ECOMM Headline.',
+      fix: 'If an active RFP or competitive bid exists, add #RFP to the Red Account ECOMM Headline and engage the Commercial Tactics team.',
+    });
+  }
+
+  return findings;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────────────────────────────────────
+function renderResults(findings, renewal, redAccount) {
+  const critical = findings.filter(f => f.severity === 'critical');
+  const warnings = findings.filter(f => f.severity === 'warning');
+  const info = findings.filter(f => f.severity === 'info');
+  const ok = findings.filter(f => f.severity === 'ok');
+
+  document.getElementById('critCount').textContent = critical.length;
+  document.getElementById('warnCount').textContent = warnings.length;
+  document.getElementById('infoCount').textContent = info.length;
+  document.getElementById('okCount').textContent = ok.length;
+
+  const totalIssues = critical.length + warnings.length;
+  const badge = document.getElementById('scoreBadge');
+  if (critical.length > 0) {
+    badge.textContent = '⚠ Needs Attention';
+    badge.style.background = '#fff5f5';
+    badge.style.color = '#e53e3e';
+    badge.style.border = '1px solid #feb2b2';
+  } else if (warnings.length > 0) {
+    badge.textContent = '⚡ Minor Issues';
+    badge.style.background = '#fffaf0';
+    badge.style.color = '#dd6b20';
+    badge.style.border = '1px solid #fbd38d';
+  } else {
+    badge.textContent = '✓ Compliant';
+    badge.style.background = '#f0fff4';
+    badge.style.color = '#38a169';
+    badge.style.border = '1px solid #9ae6b4';
+  }
+
+  const title = document.getElementById('resultsTitle');
+  const acctName = renewal.accountName || renewal.opportunityName || 'Renewal Opportunity';
+  title.textContent = `Results: ${acctName}`;
+
+  // Opty info
+  const optyEl = document.getElementById('optyInfo');
+  const fields = [
+    { label: 'Account', value: renewal.accountName },
+    { label: 'Opportunity', value: renewal.opportunityName },
+    { label: 'Owner / CSM', value: renewal.ownerName },
+    { label: 'Stage', value: renewal.stage },
+    { label: 'Close Date', value: renewal.closeDate },
+    { label: 'Forecast Attrition', value: renewal.forecastAttrition },
+    { label: 'Current ACV', value: renewal.currentACV },
+    { label: 'Renewal Rate', value: renewal.renewalRate },
+    { label: 'Premier Attached', value: renewal.premierAttached },
+    { label: 'Red Account', value: redAccount ? 'Present' : (renewal.redAccountId || 'None detected') },
+  ];
+  const debugObj = {
+    '--- PARSED FIELDS ---': '',
+    accountName: renewal.accountName,
+    opportunityName: renewal.opportunityName,
+    ownerName: renewal.ownerName,
+    premierAttached: renewal.premierAttached,
+    forecastAttrition: renewal.forecastAttrition,
+    renewalRate: renewal.renewalRate,
+    currentACV: renewal.currentACV,
+    attritionReason: renewal.attritionReason,
+    redAccountId: renewal.redAccountId,
+    stage: renewal.stage,
+    closeDate: renewal.closeDate,
+    licenseRenewalStatus: renewal.licenseRenewalStatus,
+    csgNotes: renewal.csgNotes,
+    csgHashtags: extractHashtags(renewal.csgNotes || ''),
+    '--- RED ACCOUNT ---': '',
+    redAccount_ecommHeadline: redAccount ? redAccount.ecommHeadline : null,
+    redAccount_stage: redAccount ? redAccount.stage : null,
+    redAccount_attritionReason: redAccount ? redAccount.attritionReason : null,
+    redAccount_apmL1: redAccount ? redAccount.apmL1 : null,
+    redAccount_competitor: redAccount ? redAccount.competitor : null,
+    '--- FULL FIELD MAP (renewal) ---': renewal.fieldMap,
+  };
+
+  optyEl.innerHTML = '<div class="opty-info-grid">' + fields.map(f => `
+    <div class="opty-field">
+      <div class="opty-field-label">${f.label}</div>
+      <div class="opty-field-value ${f.value ? '' : 'missing'}">${f.value || 'Not found'}</div>
+    </div>
+  `).join('') + '</div>' +
+  `<span class="debug-toggle" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display==='block'?'none':'block'">▶ Show parsed fields (debug)</span>
+   <div class="debug-box">${JSON.stringify(debugObj, null, 2)}</div>`;
+
+  // Findings
+  const container = document.getElementById('findingsContainer');
+  if (findings.length === 0) {
+    container.innerHTML = '<div class="no-issues">✓ No issues found — this renewal looks compliant with PACE Hashtag Guidance!</div>';
+  } else {
+    const sections = [
+      { key: 'critical', label: 'Critical Issues', items: critical },
+      { key: 'warning', label: 'Warnings', items: warnings },
+      { key: 'info', label: 'Information & Gaps', items: info },
+      { key: 'ok', label: 'Passed Checks', items: ok },
+    ];
+    container.innerHTML = sections.filter(s => s.items.length > 0).map(section => `
+      <div class="findings-section">
+        <div class="section-title">${section.label}</div>
+        ${section.items.map(f => renderFinding(f)).join('')}
+      </div>
+    `).join('');
+  }
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderFinding(f) {
+  const icons = { critical: '!', warning: '⚡', info: 'i', ok: '✓' };
+  const badges = { critical: 'CRITICAL', warning: 'WARNING', info: 'INFO', ok: 'PASSED' };
+  return `
+    <div class="finding ${f.severity}">
+      <div class="finding-header">
+        <div class="finding-icon">${icons[f.severity]}</div>
+        <div class="finding-title">${f.title}</div>
+        <div class="finding-badge">${badges[f.severity]}</div>
+      </div>
+      <div class="finding-body">
+        <strong>Category:</strong> ${f.category}<br>
+        <strong>Finding:</strong> ${(f.finding || '').replace(/\n/g, '<br>')}
+        ${f.fix ? `<div class="fix-box"><div class="fix-box-label">Recommended Fix</div>${f.fix.replace(/\n/g, '<br>')}</div>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EMAIL
+// ─────────────────────────────────────────────────────────────────────────────
+function openEmailModal() {
+  if (lastFindings.length === 0 && !lastRenewal) return;
+  const renewal = lastRenewal;
+  const findings = lastFindings;
+  const acctName = (renewal.accountName || renewal.opportunityName || 'your renewal opportunity');
+  const ownerName = renewal.ownerName || '';
+  const critical = findings.filter(f => f.severity === 'critical');
+  const warnings = findings.filter(f => f.severity === 'warning');
+  const info = findings.filter(f => f.severity === 'info');
+  const actionable = [...critical, ...warnings, ...info];
+
+  document.getElementById('emailTo').value = ownerName;
+  document.getElementById('emailSubject').value = `Data Quality Review — ${acctName}`;
+
+  const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  let body = '';
+  body += `Hi ${ownerName || '[CSM Name]'},\n\n`;
+  body += `I wanted to connect with you on the ${acctName} renewal to walk through some data quality and compliance items I noticed when reviewing the record. Keeping our Org62 data clean is critical — it drives our attrition dashboards, story qualifications, and leadership visibility. Here's what I'd ask you to address:\n\n`;
+
+  if (critical.length > 0) {
+    body += `── CRITICAL ITEMS (Please fix ASAP) ──────────────────────\n\n`;
+    critical.forEach((f, i) => {
+      body += `${i + 1}. ${f.title.toUpperCase()}\n`;
+      body += `   Category: ${f.category}\n`;
+      body += `   Issue: ${(f.finding || '').replace(/<br>/g, '\n   ')}\n`;
+      if (f.fix) body += `   Fix: ${f.fix.replace(/<br>/g, '\n   ')}\n`;
+      body += '\n';
+    });
+  }
+
+  if (warnings.length > 0) {
+    body += `── WARNINGS (Please address this week) ──────────────────\n\n`;
+    warnings.forEach((f, i) => {
+      body += `${i + 1}. ${f.title}\n`;
+      body += `   Category: ${f.category}\n`;
+      body += `   Issue: ${(f.finding || '').replace(/<br>/g, '\n   ')}\n`;
+      if (f.fix) body += `   Fix: ${f.fix.replace(/<br>/g, '\n   ')}\n`;
+      body += '\n';
+    });
+  }
+
+  if (info.length > 0) {
+    body += `── INFORMATION & GAPS (Good to address) ─────────────────\n\n`;
+    info.forEach((f, i) => {
+      body += `${i + 1}. ${f.title}\n`;
+      body += `   Category: ${f.category}\n`;
+      body += `   Issue: ${(f.finding || '').replace(/<br>/g, '\n   ')}\n`;
+      if (f.fix) body += `   Fix: ${f.fix.replace(/<br>/g, '\n   ')}\n`;
+      body += '\n';
+    });
+  }
+
+  if (actionable.length === 0) {
+    body += `Great news — this renewal looks compliant with PACE Hashtag Guidance! No issues were found.\n\n`;
+  }
+
+  body += `── QUICK REFERENCE: REQUIRED CSG NOTE FORMAT ────────────\n\n`;
+  body += `License renewal:  (Date) (CSM Name) #LicNoAttrit/#LicPartialAttrit/#LicFullAttrit (comment + est. $ if applicable)\n`;
+  body += `Signature renewal: (Date) (CSM Name) #SigRisk/#NoSigRisk (comment + est. $ if applicable)\n`;
+  body += `Both:              (Date) (CSM Name) #LicNoAttrit #NoSigRisk (comment)\n`;
+  body += `With Red Account:  (Date) (CSM Name) #RA #LicFullAttrit est. $450K (comment)\n\n`;
+
+  body += `Valid offense hashtags for Red Account ECOMM Headline: #SIGTRIAL, #ARI, #SWAP, #IMPLEMENT, #ADOPT, #RFP, #REVIVE\n`;
+  body += `Valid defense hashtags for CSG Notes: #RA, #SigRisk, #NoSigRisk, #LicNoAttrit, #LicPartialAttrit, #LicFullAttrit, #AFAttrit, #D360Attrit, #AfNoRisk, #D360NoRisk, #PBI\n\n`;
+
+  body += `Let's plan to review this together at our next 1:1 or reach out if you have questions. Building these habits now will help us qualify stories and ensure our portfolio view is accurate.\n\n`;
+  body += `Thank you,\n[Your Name]\n`;
+
+  document.getElementById('emailBody').value = body;
+  document.getElementById('emailModal').classList.add('active');
+}
+
+function closeEmailModal() {
+  document.getElementById('emailModal').classList.remove('active');
+}
+
+function copyEmail() {
+  const body = document.getElementById('emailBody').value;
+  const subject = document.getElementById('emailSubject').value;
+  const to = document.getElementById('emailTo').value;
+  const full = `To: ${to}\nSubject: ${subject}\n\n${body}`;
+  navigator.clipboard.writeText(full).then(() => {
+    const toast = document.getElementById('copiedToast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  });
+}
+
+function openMailto() {
+  const body = document.getElementById('emailBody').value;
+  const subject = document.getElementById('emailSubject').value;
+  const to = document.getElementById('emailTo').value;
+  const url = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.open(url, '_blank');
+}
+
+function clearAll() {
+  document.getElementById('renewalInput').value = '';
+  document.getElementById('redAccountInput').value = '';
+  document.getElementById('renewalUrl').value = '';
+  document.getElementById('redAccountUrl').value = '';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('emailBtn').disabled = true;
+  document.getElementById('emailBtnPaste').disabled = true;
+  document.getElementById('fetchStatus').className = 'fetch-status';
+  lastFindings = [];
+  lastRenewal = null;
+  lastRedAccount = null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EXAMPLES
+// ─────────────────────────────────────────────────────────────────────────────
+const EXAMPLES = {
+  wolverine: {
+    renewal: `Opportunity Name: Wolverine World Wide Inc. ** Renewal 161173 Commerce Cloud
+Opportunity Owner: Lindsey Ells
+Account Name: Wolverine World Wide Inc. **
+Opportunity Record Type: Renewal/Attrition
+Opportunity Type: Renewal
+Stage: 01 Initiate
+Forecast Category: Pipeline
+Close Date: 2/28/2027
+Contract End Date: 2/28/2027
+Prior Contract Start Date: 3/1/2024
+Prior Contract (Primary): 03811753
+Opportunity Currency: USD - U.S. Dollar
+Targeted Clouds: Commerce Cloud
+Price Book: CPQ - Direct - Commercial - Ohana - WW - USD
+Success Planning Stage: Initial Assessment
+
+--- FINANCIALS ---
+Amount: USD 2,879,993.97
+Adjustment Amount: USD 1,600,000.00
+Expected Amount: USD 719,998.49
+Swing: USD 1,600,000.00
+
+Prior Annual Contract Value: USD 4,479,993.97
+Prior Annual Contract Value - New: USD 4,479,993.97
+Forecasted Annual Contract Value: USD 4,479,993.97
+Forecasted Annual Contract Value - New: USD 4,479,993.97
+Forecasted Change in Total ACV: USD 0.00
+Forecasted Change in Total ACV - New: USD 0.00
+
+--- ATTRITION ---
+License Renewal Status: Will Reduce (Actionable)
+Forecasted Attrition: USD -1,600,000.00
+Predicted Attrition (converted): USD -1,805,885.57
+Attrition Reason: Customer Relationship
+Attrition Reason Detail: Product-Market Fit Mismatch/Oversold
+
+--- CSG NOTES ---
+6/9/26: James Nommensen #LicPartialAttrit est. $1.6M #NoSigRisk - Loyalty call 5/19 w/CIO; FDE pod assigned July for Shopper Agent. Expansion of Shopper Agent + Loyalty expected to mitigate most underutilization #RA https://sfdc.co/bnAAuT
+
+--- PARTNER ---
+Reseller Partner Type: None
+
+--- RECORD INFO ---
+Created By: OrderSummary API - DO NOT TOUCH
+Created Date: 3/2/2024, 7:28 PM
+Last Modified By: James Nommensen
+Last Modified Date: 6/10/2026, 3:11 PM`,
+    redAccount: '',
+  },
+  gnc: {
+    renewal: `Account Name
+GNC Holdings, LLC
+Opportunity Name
+GNC Holdings, LLC Renewal 60114 Commerce Cloud
+Opportunity Owner
+Eric Askew
+Stage
+02 Negotiate
+Close Date
+7/26/2027
+Forecasted Attrition
+USD -1,761,666.70
+Forecasted Renewal % - New
+0.00%
+Premier Attached
+True
+Targeted Clouds
+Commerce Cloud
+CSG Notes
+6/04/26, Raj - #PartialAttrit. Exploring ARI, Delayed SFRA Migration to 2027-concerning, alerted AE team. GNC Leadership Change. Sam Biswas planing to initiate renewal conversation with GNC. AD not assigned, impact renewal time, Red-http://sfdc.co/b4M0qB`,
+    redAccount: '',
+  },
+};
+
+function loadExample(key) {
+  const ex = EXAMPLES[key];
+  if (!ex) return;
+  switchTab('paste');
+  document.getElementById('renewalInput').value = ex.renewal.trim();
+  document.getElementById('redAccountInput').value = (ex.redAccount || '').trim();
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('emailBtn').disabled = true;
+  document.getElementById('emailBtnPaste').disabled = true;
+  lastFindings = [];
+  lastRenewal = null;
+  lastRedAccount = null;
+  runValidation();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('tabFetch').classList.toggle('active', tab === 'fetch');
+  document.getElementById('tabPaste').classList.toggle('active', tab === 'paste');
+  document.getElementById('panelFetch').classList.toggle('active', tab === 'fetch');
+  document.getElementById('panelPaste').classList.toggle('active', tab === 'paste');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SETTINGS / TOKEN
+// ─────────────────────────────────────────────────────────────────────────────
+function openSettings() {
+  const stored = loadToken();
+  if (stored) document.getElementById('tokenInput').value = stored;
+  document.getElementById('settingsOverlay').classList.add('active');
+  document.getElementById('settingsPanel').classList.add('active');
+}
+function closeSettings() {
+  document.getElementById('settingsOverlay').classList.remove('active');
+  document.getElementById('settingsPanel').classList.remove('active');
+}
+function saveToken(token) { localStorage.setItem('pace_slack_token', token); }
+function loadToken() { return localStorage.getItem('pace_slack_token') || null; }
+
+async function testConnection(token) {
+  const res = await fetch('https://slack.com/api/auth.test', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+  });
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || 'auth failed');
+  return data.real_name || data.user || 'Connected';
+}
+
+async function saveAndTestToken() {
+  const token = document.getElementById('tokenInput').value.trim();
+  const status = document.getElementById('tokenStatus');
+  if (!token.startsWith('xoxp-')) {
+    status.className = 'settings-status err';
+    status.textContent = 'Token must start with xoxp-';
+    return;
+  }
+  status.className = 'settings-status ok';
+  status.textContent = 'Testing…';
+  try {
+    const name = await testConnection(token);
+    saveToken(token);
+    status.textContent = '✓ Connected as ' + name;
+  } catch (e) {
+    status.className = 'settings-status err';
+    status.textContent = 'Error: ' + e.message;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SLACK API HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+function extractRecordId(url) {
+  const m = url.match(/\/([a-zA-Z0-9]{15,18})(?:\/|$)/);
+  return m ? m[1] : null;
+}
+
+function buildSlackbotQuery(recordId, type) {
+  if (type === 'opportunity') {
+    return `Read Opportunity ${recordId} and return the following fields: Opportunity Name, Account Name, Owner, Stage, Close Date, Forecasted Attrition, Forecasted Renewal % - New, Premier Attached, Targeted Clouds, License Renewal Status, Attrition Reason, Attrition Reason Detail, CSG Notes`;
+  }
+  return `Read Red_Account__c ${recordId} and return the following fields: Account Name, Stage, ECOMM Headline, Latest Update, Closure Summary, Primary Competitor, Other Competitor, APM L1, APM L2, APM L3, Attrition Reason, Forecast Attrition Amount`;
+}
+
+async function openDMWithSlackbot(token) {
+  const res = await fetch('https://slack.com/api/conversations.open', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ users: 'USLACKBOT' }),
+  });
+  const data = await res.json();
+  if (!data.ok) throw new Error('conversations.open failed: ' + data.error);
+  return data.channel.id;
+}
+
+async function sendSlackMessage(token, channelId, text) {
+  const res = await fetch('https://slack.com/api/chat.postMessage', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ channel: channelId, text }),
+  });
+  const data = await res.json();
+  if (!data.ok) throw new Error('chat.postMessage failed: ' + data.error);
+  return data.ts;
+}
+
+async function pollForResponse(token, channelId, afterTs, timeoutMs = 45000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    await new Promise(r => setTimeout(r, 2500));
+    const res = await fetch(`https://slack.com/api/conversations.history?channel=${channelId}&oldest=${afterTs}&limit=10`, {
+      headers: { 'Authorization': 'Bearer ' + token },
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error('conversations.history failed: ' + data.error);
+    const botMsg = (data.messages || []).find(m => m.bot_id || m.user === 'USLACKBOT' || (m.username && m.username.toLowerCase().includes('slackbot')));
+    if (botMsg) return botMsg.text || (botMsg.blocks || []).map(b => b.text?.text || '').join('\n');
+  }
+  throw new Error('Slackbot did not respond within 45 seconds. Try again or use Paste Manually.');
+}
+
+async function fetchFromSlackbot(url, type, statusFn) {
+  const token = loadToken();
+  if (!token) throw new Error('No Slack token found. Click the ⚙ gear icon to set up your token first.');
+  const recordId = extractRecordId(url);
+  if (!recordId) throw new Error('Could not extract a Salesforce record ID from the URL.');
+  statusFn('Opening DM with Slackbot…');
+  const channelId = await openDMWithSlackbot(token);
+  const query = buildSlackbotQuery(recordId, type);
+  statusFn('Sending query to Slackbot…');
+  const ts = await sendSlackMessage(token, channelId, query);
+  statusFn('Waiting for Slackbot response…');
+  const response = await pollForResponse(token, channelId, ts);
+  return response;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FETCH + VALIDATE FLOW
+// ─────────────────────────────────────────────────────────────────────────────
+async function fetchAndValidate() {
+  const renewalUrl = document.getElementById('renewalUrl').value.trim();
+  const redUrl = document.getElementById('redAccountUrl').value.trim();
+  const statusEl = document.getElementById('fetchStatus');
+  const statusText = document.getElementById('fetchStatusText');
+  const fetchBtn = document.getElementById('fetchBtn');
+
+  if (!renewalUrl) {
+    statusEl.className = 'fetch-status error active';
+    statusText.textContent = 'Please enter a Renewal Opportunity URL.';
+    return;
+  }
+
+  fetchBtn.disabled = true;
+  statusEl.className = 'fetch-status active';
+  statusText.textContent = 'Connecting…';
+
+  const setStatus = msg => { statusText.textContent = msg; };
+
+  try {
+    setStatus('Fetching renewal details from Org62…');
+    const renewalRaw = await fetchFromSlackbot(renewalUrl, 'opportunity', setStatus);
+
+    let redRaw = null;
+    if (redUrl) {
+      setStatus('Fetching Red Account details from Org62…');
+      redRaw = await fetchFromSlackbot(redUrl, 'redaccount', setStatus);
+    }
+
+    setStatus('Running validation…');
+
+    // Populate paste textareas (for debug visibility) and run
+    document.getElementById('renewalInput').value = renewalRaw;
+    document.getElementById('redAccountInput').value = redRaw || '';
+
+    const renewal = parseRenewal(renewalRaw);
+    const redAccount = parseRedAccount(redRaw || null);
+    lastRenewal = renewal;
+    lastRedAccount = redAccount;
+    lastFindings = [];
+
+    const findings = buildFindings(renewal, redAccount);
+    lastFindings = findings;
+    renderResults(findings, renewal, redAccount);
+    document.getElementById('emailBtn').disabled = false;
+
+    statusEl.className = 'fetch-status success active';
+    statusText.textContent = '✓ Done — ' + (renewal.accountName || 'record') + ' validated.';
+  } catch (e) {
+    statusEl.className = 'fetch-status error active';
+    statusText.textContent = e.message;
+  } finally {
+    fetchBtn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
