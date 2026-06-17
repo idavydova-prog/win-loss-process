@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q3 FY27 Commerce Cloud Attrition Analysis | PACE AMER</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root{--slds-blue:#0176d3;--slds-dark:#032d60;--slds-light:#f3f3f3;--slds-white:#fff;--slds-border:#e5e5e5;--slds-success:#2e844a;--slds-warning:#fe9339;--slds-error:#ea001e;--slds-info:#0176d3;--slds-text:#181818;--slds-text-weak:#706e6b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Salesforce Sans',Arial,sans-serif;background:var(--slds-light);color:var(--slds-text);line-height:1.5}
+.header{background:var(--slds-dark);color:var(--slds-white);padding:1.5rem 2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.header h1{font-size:1.25rem;font-weight:700}
+.header .badge{background:var(--slds-blue);padding:.25rem .75rem;border-radius:12px;font-size:.75rem;font-weight:600}
+.header .badge-warning{background:var(--slds-warning);padding:.25rem .75rem;border-radius:12px;font-size:.75rem;font-weight:600;color:#000}
+.tabs{display:flex;background:var(--slds-white);border-bottom:2px solid var(--slds-border);padding:0 2rem;overflow-x:auto}
+.tab{padding:.75rem 1.25rem;cursor:pointer;font-size:.8125rem;font-weight:600;color:var(--slds-text-weak);border-bottom:3px solid transparent;white-space:nowrap;transition:all .2s}
+.tab:hover{color:var(--slds-blue)}
+.tab.active{color:var(--slds-blue);border-bottom-color:var(--slds-blue)}
+.content{padding:1.5rem 2rem;max-width:1400px;margin:0 auto}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1.25rem;margin-bottom:1rem}
+.card h3{font-size:.9375rem;font-weight:700;margin-bottom:.75rem;color:var(--slds-dark)}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem}
+.metric{background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1rem;text-align:center}
+.metric .value{font-size:1.5rem;font-weight:700;color:var(--slds-dark)}
+.metric .label{font-size:.75rem;color:var(--slds-text-weak);margin-top:.25rem}
+table{width:100%;border-collapse:collapse;font-size:.8125rem}
+th{background:var(--slds-light);padding:.625rem .75rem;text-align:left;font-weight:600;color:var(--slds-dark);border-bottom:2px solid var(--slds-border)}
+td{padding:.625rem .75rem;border-bottom:1px solid var(--slds-border);vertical-align:top}
+tr:hover{background:#f0f7ff}
+.tag{display:inline-block;padding:.125rem .5rem;border-radius:10px;font-size:.6875rem;font-weight:600;margin:.125rem}
+.tag-success{background:#ecfbf1;color:var(--slds-success)}
+.tag-warning{background:#fff8e6;color:#946f00}
+.tag-error{background:#fef1f1;color:var(--slds-error)}
+.tag-info{background:#eaf5fe;color:var(--slds-blue)}
+.tag-neutral{background:var(--slds-light);color:var(--slds-text-weak)}
+.insight-box{border-left:4px solid var(--slds-blue);padding:.75rem 1rem;margin-bottom:1rem;background:#f8fbfe;border-radius:0 4px 4px 0}
+.insight-box.warn{border-left-color:var(--slds-warning);background:#fffbf5}
+.insight-box.error{border-left-color:var(--slds-error);background:#fef8f8}
+.insight-box h4{font-size:.8125rem;font-weight:700;margin-bottom:.25rem}
+.insight-box p{font-size:.8125rem;color:var(--slds-text-weak)}
+a{color:var(--slds-blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.notes-cell{max-width:300px;white-space:pre-wrap;word-break:break-word;font-size:.75rem;color:var(--slds-text-weak)}
+.compliance-pass{color:var(--slds-success);font-weight:600}
+.compliance-fail{color:var(--slds-error);font-weight:600}
+</style>
+</head>
+<body>
+
+<nav style="position:sticky;top:0;z-index:999;background:#021b3d;display:flex;align-items:center;gap:12px;padding:8px 24px;font-family:'Salesforce Sans',Arial,sans-serif;font-size:12px;border-bottom:1px solid var(--slds-border);">
+<a href="dashboard.html" style="color:#fff;text-decoration:none;font-weight:700;margin-right:8px;display:flex;align-items:center;gap:4px;" title="Dashboard">&#9664; Home</a>
+<span style="color:rgba(255,255,255,0.3);">|</span>
+<a href="Q1 FY27 Commerce Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Q1</a>
+<a href="Q2 FY27 Commerce Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Q2</a>
+<span style="background:rgba(1,118,211,0.25);color:#90cdf4;padding:2px 10px;border-radius:10px;font-weight:700;">Q3</span>
+<span style="color:rgba(255,255,255,0.3);">|</span>
+<span style="background:rgba(1,118,211,0.25);color:#90cdf4;padding:2px 10px;border-radius:10px;font-weight:700;">Commerce</span>
+<a href="Q3 FY27 MC Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Marketing</a>
+<a href="Q3 FY27 Core Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Core</a>
+</nav>
+
+<div class="header">
+<h1>Q3 FY27 Commerce Cloud Attrition Analysis</h1>
+<span class="badge">PACE AMER</span>
+<span class="badge">13 Records</span>
+<span class="badge">Aug&ndash;Oct 2026</span>
+<span class="badge-warning">At-Risk (Pipeline)</span>
+</div>
+
+<div class="tabs">
+<div class="tab active" onclick="showPanel('summary')">Summary</div>
+<div class="tab" onclick="showPanel('not-actionable')">Not Actionable (3)</div>
+<div class="tab" onclick="showPanel('wins')">Wins (0)</div>
+<div class="tab" onclick="showPanel('losses')">Losses (10)</div>
+<div class="tab" onclick="showPanel('compliance')">&#35;Compliance</div>
+<div class="tab" onclick="showPanel('methodology')">Methodology</div>
+</div>
+
+<div class="content">
+
+<!-- SUMMARY PANEL -->
+<div class="panel active" id="summary">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
+<div style="display:flex;align-items:center;gap:2rem;grid-column:1/-1;background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1.25rem 2rem;">
+<div style="text-align:center;"><div style="font-size:2rem;font-weight:700;color:var(--slds-dark);">$8.58M</div><div style="font-size:.75rem;color:var(--slds-text-weak);">Total At-Risk Attrition</div></div>
+<div style="width:1px;height:40px;background:var(--slds-border);"></div>
+<div style="text-align:center;"><div style="font-size:2rem;font-weight:700;color:var(--slds-dark);">13</div><div style="font-size:.75rem;color:var(--slds-text-weak);">Total Records</div></div>
+<div style="width:1px;height:40px;background:var(--slds-border);"></div>
+<div style="text-align:center;"><div style="font-size:2rem;font-weight:700;color:var(--slds-warning);">0</div><div style="font-size:.75rem;color:var(--slds-text-weak);">Closed Records</div></div>
+</div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Classification (Projected)</h3><div style="position:relative;height:200px;"><canvas id="chart-classification"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">At-Risk Reason</h3><div style="position:relative;height:200px;"><canvas id="chart-reason"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Oncycle vs Offcycle</h3><div style="position:relative;height:200px;"><canvas id="chart-type"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Top 5 Accounts by At-Risk Amount</h3><div style="position:relative;height:200px;"><canvas id="chart-top5"></canvas></div></div>
+</div>
+
+<div class="card">
+<h3>Classification Breakdown (Projected)</h3>
+<table>
+<tr><th>Category</th><th>Count</th><th>At-Risk Attrition</th><th>Key Accounts</th></tr>
+<tr><td><span class="tag tag-neutral">Not Actionable</span></td><td>3</td><td>$555K</td><td>1916 MS&amp;CC ($238K), Christy Sports ($166K), PetMed Express ($151K)</td></tr>
+<tr><td><span class="tag tag-success">Win (Projected)</span></td><td>0</td><td>&mdash;</td><td>&mdash;</td></tr>
+<tr><td><span class="tag tag-error">Logo Loss (Projected)</span></td><td>6</td><td>$6.07M</td><td>Duluth Trading ($2.43M), e.l.f. Beauty ($2.07M), Fanatics ($567K), Alice+Olivia ($448K), Nexeo Plastics ($328K), Fruit of the Loom ($138K)</td></tr>
+<tr><td><span class="tag tag-warning">Partial Save (Projected)</span></td><td>4</td><td>$1.94M</td><td>Instacart ($1.23M), Fullbeauty Brands ($417K), Ecolab Connect ($285K), Spartannash ($100K)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Compliance Overview</h3>
+<div class="metric-grid">
+<div class="metric"><div class="value" style="color:var(--slds-success)">3</div><div class="label">Fully Compliant</div></div>
+<div class="metric"><div class="value" style="color:var(--slds-error)">10</div><div class="label">Non-Compliant</div></div>
+<div class="metric"><div class="value">23%</div><div class="label">Compliance Rate</div></div>
+</div>
+<p style="font-size:.8125rem;color:var(--slds-text-weak)">3 records (Alice + Olivia, Fullbeauty Brands, Ecolab Connect) fully pass CSG Notes compliance. 6 records have empty/null CSG Notes. Invalid hashtags detected in 3 records (#FullAttrit, #SigAttrit, #PartialAttrit, #AlibabaExcluded).</p>
+</div>
+
+<div class="insight-box warn">
+<h4>Pipeline Warning: Q3 Has NOT Closed &mdash; All Records Are Projections</h4>
+<p>All 13 records remain in open stages (01 Initiate through 04 Pending). No StageName filter was applied. Classifications shown are projections based on current License_Renewal_Status and forecasted values. Outcomes may change before close.</p>
+</div>
+
+<div class="insight-box error">
+<h4>Critical: $6.07M in Projected Logo Losses (6 Full Platform Exits)</h4>
+<p>Duluth Trading ($2.43M, Low Perceived ROI), e.l.f. Beauty ($2.07M, moved to Shopify), Fanatics ($567K, in-house replacement), Alice+Olivia ($448K, product-market fit), Nexeo Plastics ($328K, product retirement), and Fruit of the Loom ($138K, price uplift) represent projected complete Commerce Cloud departures.</p>
+</div>
+
+<div class="insight-box warn">
+<h4>Pattern: 6 Records with Empty CSG Notes (46%)</h4>
+<p>Fanatics Holdings, 1916 (MS&amp;CC), Christy Sports, PetMed Express, Fruit of the Loom, and Spartannash have no CSG Notes documentation. These represent $1.36M in undocumented at-risk attrition events. CSMs need to document status before close.</p>
+</div>
+
+<div class="insight-box">
+<h4>Bright Spot: Instacart ARI Approved &mdash; Executive Engagement Active</h4>
+<p>Instacart ($1.23M at-risk) has an approved ARI with executive presentations underway. Shelfware reduction is the driver, not competitive loss. Active CSM engagement suggests potential for save or partial retention.</p>
+</div>
+
+<details class="attrition-events" style="margin-top:1.5rem;border:1px solid var(--slds-border);border-radius:8px;background:var(--slds-white);">
+<summary style="padding:1rem 1.25rem;cursor:pointer;font-size:1rem;font-weight:700;color:var(--slds-dark);list-style:none;display:flex;align-items:center;gap:.5rem;">
+<span style="transition:transform .2s;display:inline-block;" class="chevron">&#9654;</span> Attrition Events &mdash; Detailed View (13 Records)
+</summary>
+<div style="padding:0 1.25rem 1.25rem;">
+<div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;align-items:center;">
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Aug 2026</option><option>Sep 2026</option><option>Oct 2026</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">At-Risk Reason <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Adoption</option><option>Business Change &amp; Distress</option><option>Competitive</option><option>Customer Relationship</option><option>Financial &amp; Contractual</option><option>Product</option><option>Unspecified</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="5" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
+</div>
+<div style="overflow-x:auto;">
+<table id="attrition-events-table">
+<thead><tr><th>Account Name</th><th>Event Month</th><th>Full/Partial</th><th>At-Risk Reason</th><th>At-Risk Reason Detail</th><th>Attrition Type</th><th style="text-align:right">At-Risk Amount</th></tr></thead>
+<tbody>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017eEf2AAE/view" target="_blank">Duluth Trading Company</a></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,430,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198FdUAAU/view" target="_blank">e.l.f. Beauty, Inc.</a></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,074,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wHTxAAM/view" target="_blank">Instacart (Maplebear Inc.)</a></td><td>Aug 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Expertise</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,234,062</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000drsVFAAY/view" target="_blank">Fanatics Holdings, Inc.</a></td><td>Sep 2026</td><td>Full</td><td>Competitive</td><td>Replaced with an In-House Solution</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$567,494</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004NbUSAA0/view" target="_blank">Alice + Olivia, LLC</a></td><td>Oct 2026</td><td>Full</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$448,144</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198M6XAAU/view" target="_blank">Fullbeauty Brands, Inc.</a></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$417,263</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bLRzAAM/view" target="_blank">Nexeo Plastics, LLC</a></td><td>Aug 2026</td><td>Full</td><td>Product</td><td>Product Retirement - Replacement Lacks Parity</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$328,320</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wGKzAAM/view" target="_blank">Ecolab Connect</a></td><td>Aug 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$285,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000JypzCAAR/view" target="_blank">1916 (MS &amp; CC)</a></td><td>Aug 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$238,015</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000MEIDLAA5/view" target="_blank">Christy Sports</a></td><td>Oct 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$165,500</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000OQeOzAAL/view" target="_blank">PetMed Express, Inc.</a></td><td>Oct 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$151,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Nu1PDAAZ/view" target="_blank">Fruit of the Loom, Inc.</a></td><td>Oct 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Price Uplift</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$137,622</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198WgVAAU/view" target="_blank">Spartannash Company</a></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$100,002</td></tr>
+</tbody>
+</table>
+</div>
+<div style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--slds-border);display:flex;justify-content:flex-end;font-size:.8125rem;font-weight:700;color:var(--slds-dark);">
+Total At-Risk Attrition: <span style="color:var(--slds-error);margin-left:.5rem;">$8,576,422</span>
+</div>
+</div>
+</details>
+
+</div>
+
+<!-- NOT ACTIONABLE PANEL -->
+<div class="panel" id="not-actionable">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Not Actionable &mdash; 3 Records | $555K</h2>
+
+<div class="insight-box warn">
+<h4>Classification Basis</h4>
+<p>These records have no License_Renewal_Status set and lack sufficient data signals (no ACV Reason, no At-Risk Reason) to classify as actionable. They require CSM documentation to determine disposition.</p>
+</div>
+
+<div class="card">
+<table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>At-Risk Amount</th><th>Rate</th><th>Status</th><th>CSM Notes</th></tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000JypzCAAR/view" target="_blank">1916 (MS &amp; CC)</a></td>
+<td>Commerce Cloud</td><td>Jana Long</td><td>2026-08-31</td><td>$238,015</td><td>23.84%</td><td>&mdash;</td>
+<td class="notes-cell">(empty)</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000MEIDLAA5/view" target="_blank">Christy Sports</a></td>
+<td>Commerce Cloud</td><td>Ramneek Sohi</td><td>2026-10-05</td><td>$165,500</td><td>0%</td><td>&mdash;</td>
+<td class="notes-cell">(empty)</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000OQeOzAAL/view" target="_blank">PetMed Express, Inc.</a></td>
+<td>Commerce Cloud</td><td>Holly Lesperance</td><td>2026-10-30</td><td>$151,000</td><td>&mdash;</td><td>&mdash;</td>
+<td class="notes-cell">(empty)</td>
+</tr>
+</table>
+</div>
+</div>
+
+<!-- WINS PANEL -->
+<div class="panel" id="wins">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Wins &mdash; 0 Records</h2>
+
+<div class="insight-box">
+<h4>No Wins Recorded Yet</h4>
+<p>Q3 FY27 has not closed. No records have reached a final "Win" state ($0 attrition, renewed in full). Monitor pipeline for potential saves as engagements progress &mdash; Instacart (ARI active) and Fullbeauty Brands (SA engagements active) show positive signals.</p>
+</div>
+</div>
+
+<!-- LOSSES PANEL -->
+<div class="panel" id="losses">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">At-Risk Losses (Projected) &mdash; 10 Records | $8.02M</h2>
+
+<div class="insight-box warn">
+<h4>Pipeline Warning: All Classifications Are Projected</h4>
+<p>These records are in open stages. Final outcomes depend on active engagements (ARIs, executive meetings, Signature reboots). Projected Logo Losses may become Partial Saves if plays succeed.</p>
+</div>
+
+<div class="card">
+<h3>Logo Loss (Projected) &mdash; 6 Records | $6.07M</h3>
+<table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>At-Risk Amount</th><th>Rate</th><th>Status</th><th>CSM Notes</th></tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017eEf2AAE/view" target="_blank">Duluth Trading Company</a></td>
+<td>Commerce Cloud</td><td>Marquel Bivens</td><td>2026-09-30</td><td style="color:var(--slds-error);font-weight:600">$2,430,000</td><td>100%</td><td>Will Attrit</td>
+<td class="notes-cell">06/15/26 (Meeta Malhi) : #RA #LicPartialAttrit #ARI Renewal 9/30. Likely July onsite meeting, CSM working on a priority architect engagement.</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198FdUAAU/view" target="_blank">e.l.f. Beauty, Inc.</a></td>
+<td>Commerce Cloud</td><td>Jana Long</td><td>2026-09-30</td><td style="color:var(--slds-error);font-weight:600">$2,074,000</td><td>99.99%</td><td>Will Attrit</td>
+<td class="notes-cell">06/15/2026 Shelley Whatley #FullAttrit , #SigAttrit - e.l.f. Beauty went live on Shopify and launched on Salesforce OMS on 6/3,</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000drsVFAAY/view" target="_blank">Fanatics Holdings, Inc.</a></td>
+<td>MC ExactTarget; Commerce Cloud; B2B Commerce</td><td>Eric Askew</td><td>2026-09-06</td><td style="color:var(--slds-error);font-weight:600">$567,494</td><td>0%</td><td>Will Attrit</td>
+<td class="notes-cell">(empty)</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004NbUSAA0/view" target="_blank">Alice + Olivia, LLC</a></td>
+<td>Commerce Cloud; B2B Commerce</td><td>Holly Lesperance</td><td>2026-10-31</td><td style="color:var(--slds-error);font-weight:600">$448,144</td><td>100%</td><td>Will Attrit</td>
+<td class="notes-cell">6/5/26 Karen Kozlowski #LicFullAttrit #SigRisk -AO confirms Summer Attrit (Aug) for CC + MC. SI had OMS obstacles; AO has resource gaps to maintain platform. AOVPP and ARI attempted. Legacy Zones communicated but not updated - reminders sent bi-weekly.</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bLRzAAM/view" target="_blank">Nexeo Plastics, LLC</a></td>
+<td>B2B Commerce</td><td>Holly Lesperance</td><td>2026-08-01</td><td style="color:var(--slds-error);font-weight:600">$328,320</td><td>100%</td><td>Will Attrit</td>
+<td class="notes-cell">#AlibabaExcluded</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Nu1PDAAZ/view" target="_blank">Fruit of the Loom, Inc.</a></td>
+<td>B2B Commerce</td><td>Cara Holm</td><td>2026-10-31</td><td style="color:var(--slds-error);font-weight:600">$137,622</td><td>0%</td><td>Will Attrit</td>
+<td class="notes-cell">(empty)</td>
+</tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Partial Save (Projected) &mdash; 4 Records | $1.94M</h3>
+<table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>At-Risk Amount</th><th>Rate</th><th>Status</th><th>CSM Notes</th></tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wHTxAAM/view" target="_blank">Instacart (Maplebear Inc.)</a></td>
+<td>MC ExactTarget; B2B Commerce</td><td>Ramneek Sohi</td><td>2026-08-14</td><td style="color:var(--slds-warning);font-weight:600">$1,234,062</td><td>75.08%</td><td>Will Reduce (Actionable)</td>
+<td class="notes-cell">#ARI approved 5/20/26 SAW &amp; JK - #PartialAttrit due to shelfware, 60%LA. Presenting investment w/ Insta Execs 5/21/26.</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198M6XAAU/view" target="_blank">Fullbeauty Brands, Inc.</a></td>
+<td>Commerce Cloud</td><td>Marquel Bivens</td><td>2026-10-04</td><td style="color:var(--slds-warning);font-weight:600">$417,263</td><td>86.17%</td><td>Will Reduce (Actionable)</td>
+<td class="notes-cell">06/08/2026 A.L. #LicPartialAttrit #SigRisk $300K attrit risk; GMV ~61%, YoY -9.5%; proxy zone migration complete; Cimulate (GA July) intro'd, cust. asking re: SKU; SA engmts active; DXL merger ongoing.</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wGKzAAM/view" target="_blank">Ecolab Connect</a></td>
+<td>B2B Commerce</td><td>Andrew Chabot</td><td>2026-08-13</td><td style="color:var(--slds-warning);font-weight:600">$285,000</td><td>0%</td><td>Will Reduce (Actionable)</td>
+<td class="notes-cell">5/20: AK #LicPartialAttrit #SigRisk - Had a signature reboot on this org. Uptick in the level of engagement on ecolab connect(B2B) org. We have admin, devs, product owners engaged with Signature. Meeting with key stakeholders being scheduled for 6/2.</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198WgVAAU/view" target="_blank">Spartannash Company</a></td>
+<td>B2B Commerce</td><td>Lindsey Ells</td><td>2026-10-14</td><td style="color:var(--slds-warning);font-weight:600">$100,002</td><td>0%</td><td>Will Attrit (Actionable)</td>
+<td class="notes-cell">(empty)</td>
+</tr>
+</table>
+</div>
+</div>
+
+<!-- COMPLIANCE PANEL -->
+<div class="panel" id="compliance">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">&#35;Compliance &mdash; CSG Notes Validation</h2>
+
+<div class="insight-box error">
+<h4>6 of 13 Records (46%) Have Empty CSG Notes</h4>
+<p>Fanatics Holdings, 1916 (MS&amp;CC), Christy Sports, PetMed Express, Fruit of the Loom, and Spartannash require immediate CSG Notes documentation before quarter close.</p>
+</div>
+
+<div class="insight-box warn">
+<h4>Invalid Hashtags Detected in 3 Records</h4>
+<p><strong>e.l.f. Beauty:</strong> Uses #FullAttrit (invalid &mdash; should be #LicFullAttrit) and #SigAttrit (invalid &mdash; not a valid hashtag; use #SigRisk).<br>
+<strong>Instacart:</strong> Uses #PartialAttrit (invalid &mdash; should be #LicPartialAttrit).<br>
+<strong>Nexeo Plastics:</strong> Uses #AlibabaExcluded (not a recognized PACE hashtag).</p>
+</div>
+
+<div class="insight-box warn">
+<h4>Offense Tags in CSG Notes (Should Be on Red Account ECOMM Headline Only)</h4>
+<p><strong>Duluth Trading:</strong> #ARI appears in CSG Notes. Per guidance, offense hashtags belong on the Red Account ECOMM Headline field, not in renewal CSG Notes. The #RA reference is correct.<br>
+<strong>Instacart:</strong> #ARI appears in CSG Notes. Same issue &mdash; offense tag should be on Red Account only.</p>
+</div>
+
+<div class="card">
+<h3>Record-by-Record Compliance</h3>
+<div style="overflow-x:auto;">
+<table>
+<thead>
+<tr><th>Account</th><th>Premier?</th><th>License Tag</th><th>Sig Tag</th><th>Date Stamp</th><th>Invalid Tags</th><th>Offense in CSG</th><th>Result</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017eEf2AAE/view" target="_blank">Duluth Trading Company</a></td>
+<td>Yes</td>
+<td><span class="compliance-pass">#LicPartialAttrit</span></td>
+<td><span class="compliance-fail">Missing</span></td>
+<td><span class="compliance-pass">06/15/26</span></td>
+<td><span class="compliance-pass">None</span></td>
+<td><span class="compliance-fail">#ARI</span></td>
+<td><span class="compliance-fail">FAIL</span></td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198FdUAAU/view" target="_blank">e.l.f. Beauty, Inc.</a></td>
+<td>Yes</td>
+<td><span class="compliance-fail">#FullAttrit (invalid)</span></td>
+<td><span class="compliance-fail">#SigAttrit (invalid)</span></td>
+<td><span class="compliance-pass">06/15/2026</span></td>
+<td><span class="compliance-fail">#FullAttrit, #SigAttrit</span></td>
+<td><span class="compliance-pass">None</span></td>
+<td><span class="compliance-fail">FAIL</span></td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wHTxAAM/view" target="_blank">Instacart (Maplebear Inc.)</a></td>
+<td>Yes</td>
+<td><span class="compliance-fail">#PartialAttrit (invalid)</span></td>
+<td><span class="compliance-fail">Missing</span></td>
+<td><span class="compliance-fail">Missing</span></td>
+<td><span class="compliance-fail">#PartialAttrit</span></td>
+<td><span class="compliance-fail">#ARI</span></td>
+<td><span class="compliance-fail">FAIL</span></td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000drsVFAAY/view" target="_blank">Fanatics Holdings, Inc.</a></td>
+<td>Yes</td>
+<td><span class="compliance-fail">Empty</span></td>
+<td><span class="compliance-fail">Empty</span></td>
+<td><span class="compliance-fail">Empty</span></td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td><span class="compliance-fail">FAIL</span></td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004NbUSAA0/view" target="_blank">Alice + Olivia, LLC</a></td>
+<td>Yes</td>
+<td><span class="compliance-pass">#LicFullAttrit</span></td>
+<td><span class="compliance-pass">#SigRisk</span></td>
+<td><span class="compliance-pass">6/5/26</span></td>
+<td><span class="compliance-pass">None</span></td>
+<td><span class="compliance-pass">None</span></td>
+<td><span class="compliance-pass">PASS</span></td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198M6XAAU/view" target="_blank">Fullbeauty Brands, Inc.</a></td>
+<td>Yes</td>
+<td><span class="compliance-pass">#LicPartialAttrit</span></td>
+<td><span class="compliance-pass">#SigRisk</span></td>
+<td><span class="compliance-pass">06/08/2026</span></td>
+<td><span class="compliance-pass">None</span></td>
+<td><span class="compliance-pass">None</span></td>
+<td><span class="compliance-pass">PASS</span></td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bLRzAAM/view" target="_blank">Nexeo Plastics, LLC</a></td>
+<td>Yes</td>
+<td><span class="compliance-fail">Missing</span></td>
+<td><span class="compliance-fail">Missing</span></td>
+<td><span class="compliance-fail">Missing</span></td>
+<td><span class="compliance-fail">#AlibabaExcluded</span></td>
+<td><span class="compliance-pass">None</span></td>
+<td><span class="compliance-fail">FAIL</span></td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wGKzAAM/view" target="_blank">Ecolab Connect</a></td>
+<td>Yes</td>
+<td><span class="compliance-pass">#LicPartialAttrit</span></td>
+<td><span class="compliance-pass">#SigRisk</span></td>
+<td><span class="compliance-pass">5/20</span></td>
+<td><span class="compliance-pass">None</span></td>
+<td><span class="compliance-pass">None</span></td>
+<td><span class="compliance-pass">PASS</span></td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000JypzCAAR/view" target="_blank">1916 (MS &amp; CC)</a></td>
+<td>Yes</td>
+<td><span class="compliance-fail">Empty</span></td>
+<td><span class="compliance-fail">Empty</span></td>
+<td><span class="compliance-fail">Empty</span></td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td><span class="compliance-fail">FAIL</span></td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000MEIDLAA5/view" target="_blank">Christy Sports</a></td>
+<td>Yes</td>
+<td><span class="compliance-fail">Empty</span></td>
+<td><span class="compliance-fail">Empty</span></td>
+<td><span class="compliance-fail">Empty</span></td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td><span class="compliance-fail">FAIL</span></td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000OQeOzAAL/view" target="_blank">PetMed Express, Inc.</a></td>
+<td>No</td>
+<td><span class="compliance-fail">Empty</span></td>
+<td><span class="tag tag-neutral">N/A (no Premier)</span></td>
+<td><span class="compliance-fail">Empty</span></td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td><span class="compliance-fail">FAIL</span></td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Nu1PDAAZ/view" target="_blank">Fruit of the Loom, Inc.</a></td>
+<td>Yes</td>
+<td><span class="compliance-fail">Empty</span></td>
+<td><span class="compliance-fail">Empty</span></td>
+<td><span class="compliance-fail">Empty</span></td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td><span class="compliance-fail">FAIL</span></td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198WgVAAU/view" target="_blank">Spartannash Company</a></td>
+<td>Yes</td>
+<td><span class="compliance-fail">Empty</span></td>
+<td><span class="compliance-fail">Empty</span></td>
+<td><span class="compliance-fail">Empty</span></td>
+<td>&mdash;</td>
+<td>&mdash;</td>
+<td><span class="compliance-fail">FAIL</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3>Compliance Issues Detail</h3>
+<table>
+<thead><tr><th>Issue Type</th><th>Count</th><th>Affected Records</th></tr></thead>
+<tbody>
+<tr><td>Empty CSG Notes (no documentation)</td><td>6</td><td>Fanatics, 1916, Christy Sports, PetMed Express, Fruit of the Loom, Spartannash</td></tr>
+<tr><td>Invalid license hashtag (#FullAttrit, #PartialAttrit)</td><td>2</td><td>e.l.f. Beauty, Instacart</td></tr>
+<tr><td>Invalid/unrecognized hashtag (#SigAttrit, #AlibabaExcluded)</td><td>2</td><td>e.l.f. Beauty, Nexeo Plastics</td></tr>
+<tr><td>Missing Sig tag (Premier = Yes)</td><td>3</td><td>Duluth Trading, Instacart, Nexeo Plastics</td></tr>
+<tr><td>Offense tag (#ARI) in CSG Notes</td><td>2</td><td>Duluth Trading, Instacart</td></tr>
+<tr><td>Missing date stamp</td><td>2</td><td>Instacart, Nexeo Plastics</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- METHODOLOGY PANEL -->
+<div class="panel" id="methodology">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Methodology</h2>
+
+<div class="card">
+<h3>Data Source &amp; Query</h3>
+<p style="font-size:.8125rem;margin-bottom:.75rem;">Data pulled from Org62 via SOQL on June 16, 2026. Q3 FY27 = Aug 1 &ndash; Oct 31, 2026.</p>
+<pre style="background:var(--slds-light);padding:.75rem;border-radius:4px;font-size:.75rem;overflow-x:auto;white-space:pre-wrap;">SELECT Id, Name, Account.Name, Account.CSG_Region__c, Owner.Name, StageName, CloseDate,
+       Targeted_Clouds__c, Forecasted_Attrition__c, Forecasted_Renewal_Rate__c,
+       sfbase__ACV__c, Forecasted_Annual_Contract_Value__c,
+       License_Renewal_Status__c, License_At_Risk_Reason__c, ACV_Reason_Detail__c,
+       IsPremier_Attached__c, SEM_Notes__c
+FROM Opportunity
+WHERE CloseDate >= 2026-08-01 AND CloseDate <= 2026-10-31
+  AND Targeted_Clouds__c INCLUDES ('Commerce Cloud','B2B Commerce','Order Management')
+  AND Forecasted_Attrition__c <= -100000
+  AND Account.CSG_Region__c = 'AMER PACE'
+ORDER BY Forecasted_Attrition__c ASC</pre>
+<p style="font-size:.8125rem;margin-top:.75rem;color:var(--slds-text-weak)"><strong>Note:</strong> No StageName filter applied. Q3 has not closed &mdash; all stages included. 13 records returned.</p>
+</div>
+
+<div class="card">
+<h3>Classification Logic (Projected)</h3>
+<table>
+<tr><th>Rule</th><th>Logic</th></tr>
+<tr><td><strong>Full vs Partial</strong></td><td>License_Renewal_Status__c = "Will Attrit" (exact) &rarr; Full; anything else &rarr; Partial</td></tr>
+<tr><td><strong>Oncycle vs Offcycle</strong></td><td>Opportunity Name contains "Off Cycle", "Offcycle", or "Non-Coterminous" &rarr; Offcycle; otherwise Oncycle</td></tr>
+<tr><td><strong>Not Actionable</strong></td><td>License_Renewal_Status is null AND License_At_Risk_Reason is null (insufficient data to classify)</td></tr>
+<tr><td><strong>Logo Loss (Projected)</strong></td><td>Full attrition (Will Attrit exact) &mdash; entire renewal at risk of non-renewal</td></tr>
+<tr><td><strong>Partial Save (Projected)</strong></td><td>Partial attrition &mdash; some ACV expected to be retained, some at risk</td></tr>
+<tr><td><strong>Win (Projected)</strong></td><td>$0 final attrition &mdash; none recorded yet (quarter still open)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>CSG Notes Compliance Rules (PACE Guidance)</h3>
+<table>
+<tr><th>Requirement</th><th>Valid Values</th><th>Global Standard?</th></tr>
+<tr><td>License hashtag</td><td>#LicNoAttrit, #LicPartialAttrit, #LicFullAttrit</td><td>Yes</td></tr>
+<tr><td>Signature hashtag (Premier only)</td><td>#SigRisk, #NoSigRisk</td><td>Yes</td></tr>
+<tr><td>Date stamp</td><td>Date in any standard format</td><td>Yes</td></tr>
+<tr><td>Known-invalid hashtags</td><td>#PartAttrit, #FullAttrit, #NoAttrit, #fullattrit, #nonactionable, #PartialAttrit, #SigAttrit</td><td>&mdash;</td></tr>
+<tr><td>Offense tags in CSG Notes</td><td>#ARI, #SIGTRIAL, #SWAP, etc. belong on Red Account ECOMM Headline only</td><td>&mdash;</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Pipeline Context</h3>
+<p style="font-size:.8125rem;color:var(--slds-text-weak)">This report was generated while Q3 FY27 remains open. All records are in stages 01&ndash;04 (Initiate through Pending). No closed/won outcomes exist. Classifications are projections based on current field values and will be updated upon quarter close. The "At-Risk" label is used throughout instead of "Attrition" to reflect the pipeline nature of these events.</p>
+</div>
+</div>
+
+</div>
+
+<script>
+function showPanel(id){
+document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+event.currentTarget.classList.add('active');
+}
+
+function filterAttritionTable(sel){
+const col=parseInt(sel.dataset.col);
+const val=sel.value;
+const rows=document.querySelectorAll('#attrition-events-table tbody tr');
+rows.forEach(row=>{
+if(!val){row.style.display='';return;}
+const cell=row.cells[col];
+if(cell&&cell.textContent.trim()===val) row.style.display='';
+else row.style.display='none';
+});
+}
+
+// Chart.js initialization
+document.addEventListener('DOMContentLoaded',function(){
+// Classification chart
+new Chart(document.getElementById('chart-classification'),{
+type:'doughnut',
+data:{labels:['Logo Loss (Projected)','Partial Save (Projected)','Not Actionable'],datasets:[{data:[6,4,3],backgroundColor:['#ea001e','#fe9339','#706e6b']}]},
+options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11}}}}}
+});
+
+// Reason chart
+new Chart(document.getElementById('chart-reason'),{
+type:'bar',
+data:{labels:['Financial & Contractual','Adoption','Competitive','Customer Relationship','Business Change','Product','Unspecified'],datasets:[{label:'Count',data:[5,1,1,1,1,1,3],backgroundColor:'#0176d3'}]},
+options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1}}}}
+});
+
+// Type chart
+new Chart(document.getElementById('chart-type'),{
+type:'doughnut',
+data:{labels:['Oncycle','Offcycle'],datasets:[{data:[12,1],backgroundColor:['#0176d3','#706e6b']}]},
+options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11}}}}}
+});
+
+// Top 5 chart
+new Chart(document.getElementById('chart-top5'),{
+type:'bar',
+data:{labels:['Duluth Trading','e.l.f. Beauty','Instacart','Fanatics','Alice+Olivia'],datasets:[{label:'At-Risk ($)',data:[2430000,2074000,1234062,567494,448144],backgroundColor:['#ea001e','#ea001e','#fe9339','#ea001e','#ea001e']}]},
+options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return'$'+(v/1000000).toFixed(1)+'M'}}}}}
+});
+});
+
+// Chevron toggle for details
+document.querySelectorAll('details').forEach(d=>{
+d.addEventListener('toggle',function(){
+const chev=this.querySelector('.chevron');
+if(chev) chev.style.transform=this.open?'rotate(90deg)':'rotate(0)';
+});
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q2 FY27 Commerce Attrition Analysis | PACE AMER</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root{--slds-blue:#0176d3;--slds-dark:#032d60;--slds-light:#f3f3f3;--slds-white:#fff;--slds-border:#e5e5e5;--slds-success:#2e844a;--slds-warning:#fe9339;--slds-error:#ea001e;--slds-info:#0176d3;--slds-text:#181818;--slds-text-weak:#706e6b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Salesforce Sans',Arial,sans-serif;background:var(--slds-light);color:var(--slds-text);line-height:1.5}
+.header{background:var(--slds-dark);color:var(--slds-white);padding:1.5rem 2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.header h1{font-size:1.25rem;font-weight:700}
+.header .badge{background:var(--slds-blue);padding:.25rem .75rem;border-radius:12px;font-size:.75rem;font-weight:600}
+.header .badge-success{background:var(--slds-success);padding:.25rem .75rem;border-radius:12px;font-size:.75rem;font-weight:600}
+.tabs{display:flex;background:var(--slds-white);border-bottom:2px solid var(--slds-border);padding:0 2rem;overflow-x:auto}
+.tab{padding:.75rem 1.25rem;cursor:pointer;font-size:.8125rem;font-weight:600;color:var(--slds-text-weak);border-bottom:3px solid transparent;white-space:nowrap;transition:all .2s}
+.tab:hover{color:var(--slds-blue)}
+.tab.active{color:var(--slds-blue);border-bottom-color:var(--slds-blue)}
+.content{padding:1.5rem 2rem;max-width:1400px;margin:0 auto}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1.25rem;margin-bottom:1rem}
+.card h3{font-size:.9375rem;font-weight:700;margin-bottom:.75rem;color:var(--slds-dark)}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem}
+.metric{background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1rem;text-align:center}
+.metric .value{font-size:1.5rem;font-weight:700;color:var(--slds-dark)}
+.metric .label{font-size:.75rem;color:var(--slds-text-weak);margin-top:.25rem}
+table{width:100%;border-collapse:collapse;font-size:.8125rem}
+th{background:var(--slds-light);padding:.625rem .75rem;text-align:left;font-weight:600;color:var(--slds-dark);border-bottom:2px solid var(--slds-border)}
+td{padding:.625rem .75rem;border-bottom:1px solid var(--slds-border);vertical-align:top}
+tr:hover{background:#f0f7ff}
+.tag{display:inline-block;padding:.125rem .5rem;border-radius:10px;font-size:.6875rem;font-weight:600;margin:.125rem}
+.tag-success{background:#ecfbf1;color:var(--slds-success)}
+.tag-warning{background:#fff8e6;color:#946f00}
+.tag-error{background:#fef1f1;color:var(--slds-error)}
+.tag-info{background:#eaf5fe;color:var(--slds-blue)}
+.tag-neutral{background:var(--slds-light);color:var(--slds-text-weak)}
+.insight-box{border-left:4px solid var(--slds-blue);padding:.75rem 1rem;margin-bottom:1rem;background:#f8fbfe;border-radius:0 4px 4px 0}
+.insight-box.warn{border-left-color:var(--slds-warning);background:#fffbf5}
+.insight-box.error{border-left-color:var(--slds-error);background:#fef8f8}
+.insight-box h4{font-size:.8125rem;font-weight:700;margin-bottom:.25rem}
+.insight-box p{font-size:.8125rem;color:var(--slds-text-weak)}
+a{color:var(--slds-blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.notes-cell{max-width:300px;white-space:pre-wrap;word-break:break-word;font-size:.75rem;color:var(--slds-text-weak)}
+.compliance-pass{color:var(--slds-success);font-weight:600}
+.compliance-fail{color:var(--slds-error);font-weight:600}
+</style>
+</head>
+<body>
+
+<nav style="position:sticky;top:0;z-index:999;background:#021b3d;display:flex;align-items:center;gap:12px;padding:8px 24px;font-family:'Salesforce Sans',Arial,sans-serif;font-size:12px;border-bottom:1px solid var(--slds-border);">
+<a href="dashboard.html" style="color:#fff;text-decoration:none;font-weight:700;margin-right:8px;display:flex;align-items:center;gap:4px;" title="Dashboard">&#9664; Home</a>
+<span style="color:rgba(255,255,255,0.3);">|</span>
+<a href="Q1 FY27 Commerce Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Q1</a>
+<span style="color:rgba(255,255,255,0.5);font-weight:600;">Q2</span>
+<a href="Q3 FY27 Commerce Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Q3</a>
+<span style="color:rgba(255,255,255,0.3);">|</span>
+<a href="Q2 FY27 Core Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Core</a>
+<span style="background:rgba(1,118,211,0.25);color:#90cdf4;padding:2px 10px;border-radius:10px;font-weight:700;">Commerce</span>
+<a href="Q2 FY27 MC Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Marketing</a>
+</nav>
+
+<div class="header">
+<h1>Q2 FY27 Commerce Cloud Attrition Analysis</h1>
+<span class="badge">PACE AMER</span>
+<span class="badge">9 Records</span>
+<span class="badge">May&ndash;Jul 2026</span>
+<span class="badge-success">05 Closed + Dead Attrition</span>
+</div>
+
+<div class="tabs">
+<div class="tab active" onclick="showPanel('summary')">Summary</div>
+<div class="tab" onclick="showPanel('not-actionable')">Not Actionable (2)</div>
+<div class="tab" onclick="showPanel('wins')">Wins (0)</div>
+<div class="tab" onclick="showPanel('losses')">Losses (7)</div>
+<div class="tab" onclick="showPanel('compliance')">&#35;Compliance</div>
+<div class="tab" onclick="showPanel('methodology')">Methodology</div>
+</div>
+
+<div class="content">
+
+<!-- SUMMARY PANEL -->
+<div class="panel active" id="summary">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
+<div style="display:flex;align-items:center;gap:2rem;grid-column:1/-1;background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1.25rem 2rem;">
+<div style="text-align:center;"><div style="font-size:2rem;font-weight:700;color:var(--slds-dark);">$4.32M</div><div style="font-size:.75rem;color:var(--slds-text-weak);">Total Forecasted Attrition</div></div>
+<div style="width:1px;height:40px;background:var(--slds-border);"></div>
+<div style="text-align:center;"><div style="font-size:2rem;font-weight:700;color:var(--slds-dark);">9</div><div style="font-size:.75rem;color:var(--slds-text-weak);">Total Records</div></div>
+</div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Classification</h3><div style="position:relative;height:200px;"><canvas id="chart-classification"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition Reason</h3><div style="position:relative;height:200px;"><canvas id="chart-reason"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Oncycle vs Offcycle</h3><div style="position:relative;height:200px;"><canvas id="chart-type"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Top 5 Accounts by Attrition</h3><div style="position:relative;height:200px;"><canvas id="chart-top5"></canvas></div></div>
+</div>
+
+<div class="card">
+<h3>Classification Breakdown</h3>
+<table>
+<tr><th>Category</th><th>Count</th><th>Attrition</th><th>Key Accounts</th></tr>
+<tr><td><span class="tag tag-neutral">Not Actionable</span></td><td>2</td><td>$506K</td><td>BJ&rsquo;s Wholesale Club ($333K), Trends International ($173K)</td></tr>
+<tr><td><span class="tag tag-success">Win</span></td><td>0</td><td>$0</td><td>&mdash;</td></tr>
+<tr><td><span class="tag tag-error">Logo Loss</span></td><td>5</td><td>$3.35M</td><td>Otter Products ($1.29M), Dooney &amp; Bourke ($1.14M), The Honest Company ($461K), New Balance ($300K), The Reformation ($159K)</td></tr>
+<tr><td><span class="tag tag-warning">Partial Save</span></td><td>2</td><td>$468K</td><td>Fanatics Holdings ($355K), Absolute Beauty ($114K)</td></tr>
+<tr><td><span class="tag tag-info">SP Downgrade</span></td><td>0</td><td>$0</td><td>&mdash;</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Compliance Overview</h3>
+<div class="metric-grid">
+<div class="metric"><div class="value" style="color:var(--slds-success)">2</div><div class="label">Fully Compliant</div></div>
+<div class="metric"><div class="value" style="color:var(--slds-error)">7</div><div class="label">Non-Compliant</div></div>
+<div class="metric"><div class="value">22%</div><div class="label">Compliance Rate</div></div>
+</div>
+<p style="font-size:.8125rem;color:var(--slds-text-weak)">2 records (Dooney &amp; Bourke, New Balance) fully pass. 1 record has empty CSG Notes. Invalid hashtags (#fullattrit, #FullAttrit, #Full Attrit, #PartialAttrit, #nonactionable) in 5 records. Sig tag issues on 2 non-Premier records.</p>
+</div>
+
+<div class="insight-box error">
+<h4>Critical: $3.35M in Logo Losses (5 Complete Platform Exits)</h4>
+<p>Otter Products ($1.29M financial distress), Dooney &amp; Bourke ($1.14M to Shopify), The Honest Company ($461K business direction change), New Balance ($300K OMS exit), and The Reformation ($159K confirmed non-renewal) represent complete Commerce Cloud departures. One confirmed competitor win (Shopify).</p>
+</div>
+
+<div class="insight-box warn">
+<h4>Pattern: Zero Wins This Quarter</h4>
+<p>Unlike Q1, no Commerce Cloud attrition events were mitigated to a Win outcome in Q2. All 7 actionable records resulted in confirmed losses or partial reductions. This signals a gap in early intervention on Commerce Cloud renewals.</p>
+</div>
+
+<div class="insight-box">
+<h4>Bright Spot: Fanatics Retains 71% &mdash; Build-First Strategy Working</h4>
+<p>Fanatics Holdings retained $566K of a $921K renewal (71.25% rate). CSM executing a &ldquo;Build First Strategy&rdquo; focused on demonstrating value before renewal. Despite dropping Signature in FY26, the core Commerce license relationship is preserved.</p>
+</div>
+
+<details class="attrition-events" style="margin-top:1.5rem;border:1px solid var(--slds-border);border-radius:8px;background:var(--slds-white);">
+<summary style="padding:1rem 1.25rem;cursor:pointer;font-size:1rem;font-weight:700;color:var(--slds-dark);list-style:none;display:flex;align-items:center;gap:.5rem;">
+<span style="transition:transform .2s;display:inline-block;" class="chevron">&#9654;</span> Attrition Events &mdash; Detailed View (9 Records)
+</summary>
+<div style="padding:0 1.25rem 1.25rem;">
+<div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;align-items:center;">
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>May 2026</option><option>Jun 2026</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Attrition Reason <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Business Change &amp; Distress</option><option>Competitive</option><option>Implementation</option><option>Product</option><option>Success Plan &amp; Support</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="5" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
+</div>
+<div style="overflow-x:auto;">
+<table id="attrition-events-table">
+<thead><tr><th>Account Name</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Attrition Reason Detail</th><th>Attrition Type</th><th style="text-align:right">Attrition Amount</th></tr></thead>
+<tbody>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000G5fFpAAJ/view" target="_blank">Otter Products, LLC</a></td><td>Jun 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Financial Distress - Downsizing/Reduced Workforce</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,286,540</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017ltqnAAA/view" target="_blank">Dooney &amp; Bourke, Inc.</a></td><td>Jun 2026</td><td>Full</td><td>Product</td><td>Product Feature Gap</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,143,750</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EIT9xAAH/view" target="_blank">The Honest Company Inc</a></td><td>Jun 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$460,750</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XWJTAA4/view" target="_blank">Fanatics Holdings, Inc.</a></td><td>Jun 2026</td><td>Partial</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Quality/Timeline)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$354,521</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019Ix7SAAS/view" target="_blank">BJ&rsquo;s Wholesale Club, Inc</a></td><td>May 2026</td><td>Partial</td><td>Implementation</td><td>Partner Led - Partner Issue</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$332,893</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQc0YAAT/view" target="_blank">New Balance Athletics, Inc.</a></td><td>May 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$299,925</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000L3KcQAAV/view" target="_blank">Trends International (Main)</a></td><td>May 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$173,333</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FFBH4AAP/view" target="_blank">The Reformation</a></td><td>May 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$159,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018WexFAAS/view" target="_blank">Absolute Beauty LLC</a></td><td>Jun 2026</td><td>Partial</td><td>Competitive</td><td>Switched to a Direct Competitor</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$113,891</td></tr>
+</tbody>
+</table>
+</div>
+<div style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--slds-border);display:flex;justify-content:flex-end;font-size:.8125rem;font-weight:700;color:var(--slds-dark);">
+Total Attrition: <span style="color:var(--slds-error);margin-left:.5rem;">$4,324,604</span>
+</div>
+</div>
+</details>
+
+</div>
+
+<!-- NOT ACTIONABLE PANEL -->
+<div class="panel" id="not-actionable">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Not Actionable &mdash; 2 Records | $506K</h2>
+
+<div class="card">
+<table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>Attrition</th><th>Rate</th><th>Status</th><th>CSM Notes</th></tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019Ix7SAAS/view" target="_blank">BJ&rsquo;s Wholesale Club, Inc</a></td>
+<td>B2B Commerce</td><td>Eric Askew</td><td>2026-05-14</td><td>$332,893</td><td>0.3%</td><td>Will Reduce</td>
+<td class="notes-cell">4/30/26- SAW- #fullattrit #nonactionable - core contract almost finalized. Keeping bare minimum so the account team can work on use cases and grow the product. Also sold in Slack. Tab in near future. Rejected Sig and Tab at this renewal.</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000L3KcQAAV/view" target="_blank">Trends International (Main)</a></td>
+<td>Commerce Cloud</td><td>Jana Long</td><td>2026-05-28</td><td>$173,333</td><td>N/A</td><td>Will Attrit</td>
+<td class="notes-cell">June 4 Jaqueline Galindo
+#SigRisk #LicNoAttrit
+12/14
+Renewal confirmed by customer. Working to get 2 different contracts for their 2 sites to sign it. AE/RM working on it. Order 33253896 Free Commerce Signature June-Aug.</td>
+</tr>
+</table>
+</div>
+
+<div class="insight-box">
+<h4>Why Not Actionable?</h4>
+<p><strong>BJ&rsquo;s Wholesale Club:</strong> CSM explicitly labels #nonactionable. B2B Commerce being sunsetted to bare minimum ($1K ACV) while account team pursues new use cases. Core contract being finalized separately. Account relationship retained with future growth planned (Slack sold, Tab in near future).</p>
+<p style="margin-top:.5rem"><strong>Trends International:</strong> Off-cycle/non-coterminous forecasting record. CSM notes (June 4) state &ldquo;Renewal confirmed by customer&rdquo; with #LicNoAttrit, directly contradicting Dead Attrition stage. This appears to be a system-generated forecasting artifact where the actual renewal has been booked on a separate order (Order 33253896). No swing on this record.</p>
+</div>
+
+<div class="insight-box warn">
+<h4>Data Discrepancy: Trends International</h4>
+<p>Stage = Dead Attrition and License_Renewal_Status = &ldquo;Will Attrit&rdquo;, but the most recent CSM note (June 4) says #LicNoAttrit and &ldquo;Renewal confirmed by customer.&rdquo; The renewal appears booked on a different order. This forecasting record may need stage correction.</p>
+</div>
+</div>
+
+<!-- WINS PANEL -->
+<div class="panel" id="wins">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Wins &mdash; 0 Records</h2>
+
+<div class="card">
+<p style="font-size:.8125rem;color:var(--slds-text-weak);padding:2rem;text-align:center;">No attrition events were classified as Wins in Q2 FY27 Commerce Cloud. All actionable records resulted in confirmed losses or partial reductions.</p>
+</div>
+
+<div class="insight-box warn">
+<h4>No Wins: Intervention Gap Identified</h4>
+<p>Q2 Commerce Cloud produced zero Win outcomes across 7 actionable records. This contrasts with Q1 where retention plays converted to wins. Potential factors: (1) Dead Attrition records represent confirmed departures with no opportunity for late-stage saves, (2) financial distress cases (Otter Products) are inherently non-savable, (3) competitive losses (Dooney &amp; Bourke to Shopify, Absolute Beauty to competitor) may indicate product positioning challenges in the Commerce space.</p>
+</div>
+</div>
+
+<!-- LOSSES PANEL -->
+<div class="panel" id="losses">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Losses &mdash; 7 Records | $3.82M Attrition</h2>
+
+<div class="card">
+<h3>Logo Losses &mdash; 5 Records | $3.35M</h3>
+<table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>Attrition</th><th>Rate</th><th>Competitor</th></tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000G5fFpAAJ/view" target="_blank">Otter Products, LLC</a></td>
+<td>Commerce Cloud</td><td>Jana Long</td><td>2026-06-30</td><td>$1,286,540</td><td>0%</td><td>N/A (financial distress)</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017ltqnAAA/view" target="_blank">Dooney &amp; Bourke, Inc.</a></td>
+<td>Commerce Cloud; B2B Commerce</td><td>Jana Long</td><td>2026-06-30</td><td>$1,143,750</td><td>0%</td><td>Shopify</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EIT9xAAH/view" target="_blank">The Honest Company Inc</a></td>
+<td>Commerce Cloud</td><td>Jana Long</td><td>2026-06-01</td><td>$460,750</td><td>0%</td><td>N/A (business direction change)</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQc0YAAT/view" target="_blank">New Balance Athletics, Inc.</a></td>
+<td>Commerce Cloud (OMS)</td><td>Cara Holm</td><td>2026-05-14</td><td>$299,925</td><td>0%</td><td>N/A (business direction change)</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FFBH4AAP/view" target="_blank">The Reformation</a></td>
+<td>Commerce Cloud</td><td>Jana Long</td><td>2026-05-31</td><td>$159,000</td><td>N/A</td><td>N/A (confirmed non-renewal)</td>
+</tr>
+</table>
+</div>
+
+<div class="insight-box error">
+<h4>Otter Products &mdash; $1.29M Financial Distress (Largest Loss)</h4>
+<p>Complete Commerce Cloud exit due to financial distress/downsizing. Provided notice of non-renewal (Jan 14, 2026). Premier-attached account with no opportunity for intervention given the financial circumstances. CSM documented early with #fullattrit.</p>
+</div>
+
+<div class="insight-box error">
+<h4>Dooney &amp; Bourke &mdash; $1.14M Platform Exit to Shopify</h4>
+<p>Full attrition of Commerce Cloud and B2B Commerce. Customer migrating to Shopify due to product feature gap. CSAL connecting with account team to assess actionability, but departure confirmed. This represents a direct competitive loss to Shopify&rsquo;s commerce platform.</p>
+</div>
+
+<div class="insight-box error">
+<h4>The Honest Company &mdash; $461K Business Direction Change</h4>
+<p>Commerce Cloud exit. Business direction change &mdash; product no longer relevant to customer strategy. CSM notes reference &ldquo;projected GMV usage shortfall&rdquo; and attempted swap/SA engagement, but outcome was full attrition. Note: CSM Notes use #PartialAttrit/#LicPartialAttrit (stale from earlier assessment), but Dead Attrition stage confirms full loss.</p>
+</div>
+
+<div class="insight-box error">
+<h4>New Balance &mdash; $300K Order Management Exit</h4>
+<p>Full attrition of Order Management. Customer confirmed non-renewal per AE. Moved to renewal contract on separate record. Well-documented with #LicFullAttrit #NoSigRisk and AE confirmation.</p>
+</div>
+
+<div class="insight-box error">
+<h4>The Reformation &mdash; $159K Offcycle Confirmed Non-Renewal</h4>
+<p>Non-coterminous offcycle record. CTO confirmed non-renewal of Signature Success on 5/7/26. Customer onsite planned 6/24. CSM and leadership (Brandi Rajski, Stephanie Hansen) engaged. Red Account documented (#RA). Despite engagement, departure confirmed.</p>
+</div>
+
+<div class="card">
+<h3>Partial Saves &mdash; 2 Records | $468K</h3>
+<table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>Attrition</th><th>Rate</th><th>CSM Notes (Summary)</th></tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XWJTAA4/view" target="_blank">Fanatics Holdings, Inc.</a></td>
+<td>MC ExactTarget; Commerce Cloud</td><td>Eric Askew</td><td>2026-06-06</td><td>$354,521</td><td>71.25%</td><td>Build first strategy. They did drop Sig in FY26 on FHI.</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018WexFAAS/view" target="_blank">Absolute Beauty LLC</a></td>
+<td>Commerce Cloud; B2B Commerce</td><td>Jana Long</td><td>2026-06-15</td><td>$113,891</td><td>42.91%</td><td>(empty)</td>
+</tr>
+</table>
+</div>
+
+<div class="insight-box">
+<h4>Fanatics Holdings &mdash; $355K Reduced but Core Relationship Retained</h4>
+<p>71.25% renewal rate with $566K ACV preserved on a multi-cloud deal (MC ExactTarget + Commerce Cloud). CSM executing a &ldquo;Build First Strategy&rdquo; to demonstrate value. Customer dropped Signature in FY26 but retains license. Success Plan utilization is the cited risk &mdash; proactive engagement in progress.</p>
+</div>
+
+<div class="insight-box warn">
+<h4>Absolute Beauty &mdash; $114K Competitive Loss, Only 43% Retained</h4>
+<p>Customer switching to a direct competitor. Only 42.91% retention rate ($85.6K of $199.5K prior ACV). No CSM Notes documented &mdash; zero visibility into what plays were attempted or why the customer is leaving. Premier-attached record with complete documentation gap.</p>
+</div>
+</div>
+
+<!-- COMPLIANCE PANEL -->
+<div class="panel" id="compliance">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">&#35;Compliance &mdash; CSG Notes Validation</h2>
+
+<div class="metric-grid">
+<div class="metric"><div class="value" style="color:var(--slds-success)">2</div><div class="label">Fully Compliant</div></div>
+<div class="metric"><div class="value" style="color:var(--slds-error)">7</div><div class="label">Non-Compliant</div></div>
+<div class="metric"><div class="value">22%</div><div class="label">Compliance Rate</div></div>
+</div>
+
+<div class="card">
+<h3>Record-Level Compliance</h3>
+<table>
+<tr><th>Account</th><th>Status</th><th>License Tag</th><th>Sig Tag</th><th>Date</th><th>Issues</th></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017ltqnAAA/view" target="_blank">Dooney &amp; Bourke</a></td><td class="compliance-pass">PASS</td><td><span class="tag tag-success">#LicFullAttrit</span></td><td><span class="tag tag-neutral">N/A*</span></td><td>&#10003;</td><td>None. *Premier but full attrit to Shopify covers both license and sig implicitly.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQc0YAAT/view" target="_blank">New Balance Athletics</a></td><td class="compliance-pass">PASS</td><td><span class="tag tag-success">#LicFullAttrit</span></td><td><span class="tag tag-success">#NoSigRisk</span></td><td>&#10003;</td><td>None</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000G5fFpAAJ/view" target="_blank">Otter Products</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-error">#fullattrit (invalid)</span></td><td><span class="tag tag-error">Missing</span></td><td>&#10003;</td><td>Invalid: #fullattrit &rarr; #LicFullAttrit; missing sig tag (Premier)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EIT9xAAH/view" target="_blank">The Honest Company</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-error">#PartialAttrit (invalid + stale)</span></td><td><span class="tag tag-error">Missing</span></td><td>&#10003;</td><td>Invalid: #PartialAttrit &rarr; #LicFullAttrit (outcome is full loss); missing sig tag (Premier)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XWJTAA4/view" target="_blank">Fanatics Holdings</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-error">Missing</span></td><td><span class="tag tag-error">Missing</span></td><td>&#10003;</td><td>No license tag; no sig tag (Premier); informational note only</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019Ix7SAAS/view" target="_blank">BJ&rsquo;s Wholesale Club</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-error">#fullattrit (invalid)</span></td><td><span class="tag tag-error">Missing</span></td><td>&#10003;</td><td>Invalid: #fullattrit &rarr; #LicFullAttrit; #nonactionable is not a valid PACE hashtag; missing sig tag (Premier)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000L3KcQAAV/view" target="_blank">Trends International</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-warning">#LicNoAttrit (contradicts stage)</span></td><td><span class="tag tag-warning">#SigRisk</span></td><td>&#10003;</td><td>#LicNoAttrit contradicts Dead Attrition stage/Will Attrit status; #SigRisk present but IsPremier = false</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FFBH4AAP/view" target="_blank">The Reformation</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-error">#Full Attrit (invalid format)</span></td><td><span class="tag tag-warning">#SigRisk</span></td><td>&#10003;</td><td>Invalid: &ldquo;#Full Attrit&rdquo; (space in tag) &rarr; #LicFullAttrit; #SigRisk present but IsPremier = false; #RA correctly links Red Account</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018WexFAAS/view" target="_blank">Absolute Beauty LLC</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-error">Empty</span></td><td><span class="tag tag-error">Empty</span></td><td>&#10007;</td><td>CSG Notes completely empty (Premier)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Invalid Hashtags Found</h3>
+<table>
+<tr><th>Account</th><th>Invalid Tag</th><th>Correction</th><th>Severity</th></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000G5fFpAAJ/view" target="_blank">Otter Products</a></td><td><code>#fullattrit</code></td><td>#LicFullAttrit</td><td><span class="tag tag-error">CRITICAL</span></td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019Ix7SAAS/view" target="_blank">BJ&rsquo;s Wholesale Club</a></td><td><code>#fullattrit</code></td><td>#LicFullAttrit</td><td><span class="tag tag-error">CRITICAL</span></td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019Ix7SAAS/view" target="_blank">BJ&rsquo;s Wholesale Club</a></td><td><code>#nonactionable</code></td><td>(not a valid PACE hashtag)</td><td><span class="tag tag-warning">WARNING</span></td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FFBH4AAP/view" target="_blank">The Reformation</a></td><td><code>#Full Attrit</code> (space)</td><td>#LicFullAttrit</td><td><span class="tag tag-error">CRITICAL</span></td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EIT9xAAH/view" target="_blank">The Honest Company</a></td><td><code>#PartialAttrit</code></td><td>#LicPartialAttrit (and should be #LicFullAttrit given final outcome)</td><td><span class="tag tag-error">CRITICAL</span></td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Data Discrepancies: Sig Tags on Non-Premier Records</h3>
+<table>
+<tr><th>Account</th><th>Tag</th><th>Context</th><th>Severity</th></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000L3KcQAAV/view" target="_blank">Trends International</a></td><td><code>#SigRisk</code></td><td>IsPremier_Attached = false, but CSM tagged #SigRisk. Notes mention &ldquo;Free Commerce Signature June-Aug&rdquo; &mdash; possible trial/promo Signature not reflected in IsPremier field.</td><td><span class="tag tag-info">INFO</span></td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FFBH4AAP/view" target="_blank">The Reformation</a></td><td><code>#SigRisk</code></td><td>IsPremier_Attached = false, but CTO confirmed Signature non-renewal. Signature may have been removed from record when stage updated to Dead Attrition.</td><td><span class="tag tag-info">INFO</span></td></tr>
+</table>
+</div>
+
+<div class="insight-box error">
+<h4>Primary Issue: #fullattrit / #FullAttrit / #Full Attrit Variants (3 Records)</h4>
+<p>Same pattern as Q1: shortened/incorrect hashtag forms instead of the required #LicFullAttrit. Otter Products, BJ&rsquo;s Wholesale, and The Reformation all use non-standard variants. Team-wide coaching opportunity remains from Q1.</p>
+</div>
+
+<div class="insight-box warn">
+<h4>Empty CSG Notes on Premier Record: Absolute Beauty</h4>
+<p>Absolute Beauty LLC is Premier-attached with a competitive loss (switched to direct competitor) but has completely empty CSG Notes. No documentation of what plays were attempted, when the risk was identified, or what competitor won. This is a $114K undocumented attrition event.</p>
+</div>
+
+<div class="insight-box warn">
+<h4>Missing Sig Tags on Premier Records (5 of 7 Premier Records)</h4>
+<p>71% of Premier-attached records are missing #SigRisk or #NoSigRisk. Consistent with the systemic gap identified in Q1 MC and Q1 Commerce. CSMs document license risk but consistently omit Signature risk assessment.</p>
+</div>
+</div>
+
+<!-- METHODOLOGY PANEL -->
+<div class="panel" id="methodology">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Methodology</h2>
+
+<div class="card">
+<h3>Data Source</h3>
+<p style="font-size:.8125rem">SOQL query against Org62 Opportunity object. Filters: Targeted_Clouds__c INCLUDES ('Commerce Cloud', 'B2B Commerce', 'Order Management'), CloseDate May 1 &ndash; Jul 31 2026, Forecasted_Attrition__c &le; -100000, StageName IN ('05 Closed', 'Dead Attrition'), Account.CSG_Region__c = 'AMER PACE'. Total records returned: 9 (3 from 05 Closed + 6 from Dead Attrition).</p>
+</div>
+
+<div class="card">
+<h3>Two-Stage Methodology Note</h3>
+<p style="font-size:.8125rem;color:var(--slds-text-weak)">This report includes BOTH &ldquo;05 Closed&rdquo; (finalized renewals) and &ldquo;Dead Attrition&rdquo; (confirmed losses where the opportunity was closed as a complete loss). Dead Attrition records represent cases where the customer provided notice of non-renewal and the opportunity was removed from the pipeline. All 6 Dead Attrition records have License_Renewal_Status = &ldquo;Will Attrit&rdquo; and Forecasted_Renewal_Rate = 0% (full platform exits).</p>
+</div>
+
+<div class="card">
+<h3>Classification Framework</h3>
+<table>
+<tr><th>Step</th><th>Question</th><th>Logic</th></tr>
+<tr><td>1</td><td>Risk?</td><td>Forecasted Attrition &gt; $0 &rarr; Yes (all qualify)</td></tr>
+<tr><td>2</td><td>Full/Partial</td><td>License_Renewal_Status = &ldquo;Will Attrit&rdquo; (exact) &rarr; Full; anything else &rarr; Partial</td></tr>
+<tr><td>3</td><td>Attrition Type</td><td>Opp Name contains &ldquo;Off Cycle&rdquo;/&ldquo;Offcycle&rdquo;/&ldquo;Non-Coterminous&rdquo; &rarr; Offcycle; otherwise Oncycle</td></tr>
+<tr><td>4</td><td>Actionable?</td><td>Off-cycle forecasting with no swing, CSM-labeled #nonactionable, or conflicting stage/notes = Not Actionable</td></tr>
+<tr><td>5</td><td>Outcome</td><td>Win (&ge;90% rate + CSM confirms retention) | Logo Loss (0% rate or confirmed full exit via Dead Attrition) | Partial Save (partial retention confirmed) | SP Downgrade (license retained, Sig/product component removed)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Dead Attrition Records (6 of 9)</h3>
+<p style="font-size:.8125rem">6 of 9 records are in &ldquo;Dead Attrition&rdquo; stage. Per PACE process, Dead Attrition = confirmed losses where the customer has provided notice of non-renewal. These are retrospective &mdash; no further intervention possible. All have Forecasted_Renewal_Rate = 0% and Forecasted_ACV = $0.</p>
+<table>
+<tr><th>Account</th><th>Close Date</th><th>Attrition</th><th>Status</th></tr>
+<tr><td>Otter Products, LLC</td><td>2026-06-30</td><td>$1,286,540</td><td>Logo Loss</td></tr>
+<tr><td>Dooney &amp; Bourke, Inc.</td><td>2026-06-30</td><td>$1,143,750</td><td>Logo Loss</td></tr>
+<tr><td>The Honest Company Inc</td><td>2026-06-01</td><td>$460,750</td><td>Logo Loss</td></tr>
+<tr><td>New Balance Athletics, Inc.</td><td>2026-05-14</td><td>$299,925</td><td>Logo Loss</td></tr>
+<tr><td>Trends International (Main)</td><td>2026-05-28</td><td>$173,333</td><td>Not Actionable (data discrepancy)</td></tr>
+<tr><td>The Reformation</td><td>2026-05-31</td><td>$159,000</td><td>Logo Loss</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Cross-Cloud Records</h3>
+<p style="font-size:.8125rem">2 records include multiple clouds: Fanatics Holdings (MC ExactTarget + Commerce Cloud) and Dooney &amp; Bourke (Commerce Cloud + B2B Commerce). Attrition is the total opportunity amount, not split by cloud.</p>
+</div>
+
+<div class="card">
+<h3>Report Generated</h3>
+<p style="font-size:.8125rem">Date: June 16, 2026 | Period: Q2 FY27 (May&ndash;Jul 2026) | Cloud: Commerce Cloud | Portfolio: PACE AMER | Status: 05 Closed + Dead Attrition</p>
+</div>
+</div>
+
+</div>
+
+<script>
+function showPanel(id){
+document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+event.currentTarget.classList.add('active');
+}
+document.querySelectorAll('details.attrition-events').forEach(d=>{
+d.addEventListener('toggle',()=>{
+const ch=d.querySelector('.chevron');
+ch.style.transform=d.open?'rotate(90deg)':'rotate(0)';
+});
+});
+function filterAttritionTable(sel){
+const table=sel.closest('details').querySelector('table');
+const rows=table.querySelectorAll('tbody tr');
+const filters=sel.closest('details').querySelectorAll('select');
+rows.forEach(row=>{
+let show=true;
+filters.forEach(f=>{
+if(f.value){
+const col=parseInt(f.getAttribute('data-col'));
+const cell=row.cells[col]?row.cells[col].textContent.trim():'';
+if(!cell.includes(f.value))show=false;
+}
+});
+row.style.display=show?'':'none';
+});
+}
+const chartColors=['#0176d3','#2e844a','#ea001e','#fe9339','#7e57c2','#00bcd4','#ff7043','#8d6e63'];
+const doughnutOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}}};
+new Chart(document.getElementById('chart-classification'),{type:'doughnut',data:{labels:['Not Actionable','Wins','Logo Losses','Partial Saves','SP Downgrades'],datasets:[{data:[2,0,5,2,0],backgroundColor:['#8d6e63','#2e844a','#ea001e','#fe9339','#7e57c2']}]},options:doughnutOpts});
+new Chart(document.getElementById('chart-reason'),{type:'doughnut',data:{labels:['Business Change & Distress','Product','Implementation','Success Plan & Support','Competitive'],datasets:[{data:[5,1,1,1,1],backgroundColor:chartColors}]},options:doughnutOpts});
+new Chart(document.getElementById('chart-type'),{type:'doughnut',data:{labels:['Oncycle','Offcycle'],datasets:[{data:[7,2],backgroundColor:['#0176d3','#fe9339']}]},options:doughnutOpts});
+new Chart(document.getElementById('chart-top5'),{type:'bar',data:{labels:['Otter Products','Dooney & Bourke','The Honest Co.','Fanatics','BJ\'s Wholesale'],datasets:[{data:[1286540,1143750,460750,354521,332893],backgroundColor:'#0176d3'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>'$'+(v/1000000).toFixed(1)+'M'}},y:{ticks:{font:{size:11}}}}}});
+</script>
+</body>
+</html>

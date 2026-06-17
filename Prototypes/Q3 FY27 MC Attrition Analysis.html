@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q3 FY27 MC Attrition Analysis | PACE AMER</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root{--slds-blue:#0176d3;--slds-dark:#032d60;--slds-light:#f3f3f3;--slds-white:#fff;--slds-border:#e5e5e5;--slds-success:#2e844a;--slds-warning:#fe9339;--slds-error:#ea001e;--slds-info:#0176d3;--slds-text:#181818;--slds-text-weak:#706e6b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Salesforce Sans',Arial,sans-serif;background:var(--slds-light);color:var(--slds-text);line-height:1.5}
+.header{background:var(--slds-dark);color:var(--slds-white);padding:1.5rem 2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.header h1{font-size:1.25rem;font-weight:700}
+.header .badge{background:var(--slds-blue);padding:.25rem .75rem;border-radius:12px;font-size:.75rem;font-weight:600}
+.header .badge-warning{background:var(--slds-warning);padding:.25rem .75rem;border-radius:12px;font-size:.75rem;font-weight:600;color:#fff}
+.tabs{display:flex;background:var(--slds-white);border-bottom:2px solid var(--slds-border);padding:0 2rem;overflow-x:auto}
+.tab{padding:.75rem 1.25rem;cursor:pointer;font-size:.8125rem;font-weight:600;color:var(--slds-text-weak);border-bottom:3px solid transparent;white-space:nowrap;transition:all .2s}
+.tab:hover{color:var(--slds-blue)}
+.tab.active{color:var(--slds-blue);border-bottom-color:var(--slds-blue)}
+.content{padding:1.5rem 2rem;max-width:1400px;margin:0 auto}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1.25rem;margin-bottom:1rem}
+.card h3{font-size:.9375rem;font-weight:700;margin-bottom:.75rem;color:var(--slds-dark)}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem}
+.metric{background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1rem;text-align:center}
+.metric .value{font-size:1.5rem;font-weight:700;color:var(--slds-dark)}
+.metric .label{font-size:.75rem;color:var(--slds-text-weak);margin-top:.25rem}
+table{width:100%;border-collapse:collapse;font-size:.8125rem}
+th{background:var(--slds-light);padding:.625rem .75rem;text-align:left;font-weight:600;color:var(--slds-dark);border-bottom:2px solid var(--slds-border)}
+td{padding:.625rem .75rem;border-bottom:1px solid var(--slds-border);vertical-align:top}
+tr:hover{background:#f0f7ff}
+.tag{display:inline-block;padding:.125rem .5rem;border-radius:10px;font-size:.6875rem;font-weight:600;margin:.125rem}
+.tag-success{background:#ecfbf1;color:var(--slds-success)}
+.tag-warning{background:#fff8e6;color:#946f00}
+.tag-error{background:#fef1f1;color:var(--slds-error)}
+.tag-info{background:#eaf5fe;color:var(--slds-blue)}
+.tag-neutral{background:var(--slds-light);color:var(--slds-text-weak)}
+.insight-box{border-left:4px solid var(--slds-blue);padding:.75rem 1rem;margin-bottom:1rem;background:#f8fbfe;border-radius:0 4px 4px 0}
+.insight-box.warn{border-left-color:var(--slds-warning);background:#fffbf5}
+.insight-box.error{border-left-color:var(--slds-error);background:#fef8f8}
+.insight-box h4{font-size:.8125rem;font-weight:700;margin-bottom:.25rem}
+.insight-box p{font-size:.8125rem;color:var(--slds-text-weak)}
+a{color:var(--slds-blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.notes-cell{max-width:300px;white-space:pre-wrap;word-break:break-word;font-size:.75rem;color:var(--slds-text-weak)}
+.compliance-pass{color:var(--slds-success);font-weight:600}
+.compliance-fail{color:var(--slds-error);font-weight:600}
+</style>
+</head>
+<body>
+
+<nav style="position:sticky;top:0;z-index:999;background:#021b3d;display:flex;align-items:center;gap:12px;padding:8px 24px;font-family:'Salesforce Sans',Arial,sans-serif;font-size:12px;border-bottom:1px solid var(--slds-border);">
+<a href="dashboard.html" style="color:#fff;text-decoration:none;font-weight:700;margin-right:8px;display:flex;align-items:center;gap:4px;" title="Dashboard">&#9664; Home</a>
+<span style="color:rgba(255,255,255,0.3);">|</span>
+<a href="Q1 FY27 MC Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Q1</a>
+<a href="Q2 FY27 MC Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Q2</a>
+<span style="background:rgba(1,118,211,0.25);color:#90cdf4;padding:2px 10px;border-radius:10px;font-weight:700;">Q3</span>
+<span style="color:rgba(255,255,255,0.3);">|</span>
+<a href="Q3 FY27 Core Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Core</a>
+<a href="Q3 FY27 Commerce Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Commerce</a>
+<span style="background:rgba(1,118,211,0.25);color:#90cdf4;padding:2px 10px;border-radius:10px;font-weight:700;">Marketing</span>
+</nav>
+
+<div class="header">
+<h1>Q3 FY27 Marketing Cloud Attrition Analysis</h1>
+<span class="badge">PACE AMER</span>
+<span class="badge">33 Records</span>
+<span class="badge">Aug&ndash;Oct 2026</span>
+<span class="badge-warning">At-Risk (Pipeline)</span>
+</div>
+
+<div class="tabs">
+<div class="tab active" onclick="showPanel('summary')">Summary</div>
+<div class="tab" onclick="showPanel('not-actionable')">Not Actionable (4)</div>
+<div class="tab" onclick="showPanel('losses')">Losses (6)</div>
+<div class="tab" onclick="showPanel('partial-saves')">Partial Saves (23)</div>
+<div class="tab" onclick="showPanel('compliance')">&#35;Compliance</div>
+<div class="tab" onclick="showPanel('methodology')">Methodology</div>
+</div>
+
+<div class="content">
+
+<!-- SUMMARY PANEL -->
+<div class="panel active" id="summary">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
+<div style="display:flex;align-items:center;gap:2rem;grid-column:1/-1;background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1.25rem 2rem;">
+<div style="text-align:center;"><div style="font-size:2rem;font-weight:700;color:var(--slds-dark);">$28.66M</div><div style="font-size:.75rem;color:var(--slds-text-weak);">Total At-Risk Attrition</div></div>
+<div style="width:1px;height:40px;background:var(--slds-border);"></div>
+<div style="text-align:center;"><div style="font-size:2rem;font-weight:700;color:var(--slds-dark);">33</div><div style="font-size:.75rem;color:var(--slds-text-weak);">Total Records</div></div>
+<div style="width:1px;height:40px;background:var(--slds-border);"></div>
+<div style="text-align:center;"><div style="font-size:1.25rem;font-weight:700;color:var(--slds-warning);">Pipeline</div><div style="font-size:.75rem;color:var(--slds-text-weak);">Quarter Status</div></div>
+</div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Classification (Projected)</h3><div style="position:relative;height:200px;"><canvas id="chart-classification"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition Reason</h3><div style="position:relative;height:200px;"><canvas id="chart-reason"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Oncycle vs Offcycle</h3><div style="position:relative;height:200px;"><canvas id="chart-type"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Top 5 Accounts by At-Risk Attrition</h3><div style="position:relative;height:200px;"><canvas id="chart-top5"></canvas></div></div>
+</div>
+
+<div class="card">
+<h3>Classification Breakdown (Projected)</h3>
+<table>
+<tr><th>Category</th><th>Count</th><th>At-Risk Attrition</th><th>Key Accounts</th></tr>
+<tr><td><span class="tag tag-neutral">Not Actionable</span></td><td>4</td><td>$12.43M</td><td>IRB Holding ($6.40M), Nordstrom ($3.65M), Kohl's ($1.61M), Clean Earth ($771K)</td></tr>
+<tr><td><span class="tag tag-error">Logo Loss (Projected)</span></td><td>6</td><td>$3.02M</td><td>Love's Travel ($843K), Fanatics MC ($679K), Fanatics Multi ($567K), Alliance ($467K), Alice+Olivia ($330K), Fashionphile ($133K)</td></tr>
+<tr><td><span class="tag tag-warning">Partial Save (Projected)</span></td><td>23</td><td>$13.21M</td><td>Bunge ($2.07M), Ecolab ($1.56M), Albertsons ($1.50M), Instacart ($1.23M), iFIT ($1.15M), Claire's ($1.10M)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Compliance Overview</h3>
+<div class="metric-grid">
+<div class="metric"><div class="value" style="color:var(--slds-success)">4</div><div class="label">Fully Compliant</div></div>
+<div class="metric"><div class="value" style="color:var(--slds-error)">29</div><div class="label">Non-Compliant</div></div>
+<div class="metric"><div class="value">12%</div><div class="label">Compliance Rate</div></div>
+</div>
+<p style="font-size:.8125rem;color:var(--slds-text-weak)">4 records pass (Bunge, Albertsons, Sally Holdings, Hormel). 10 records have empty CSG Notes. 9 records contain invalid hashtags (#FullAttrit, #PartialAttrit, #nonactionable, etc.). 8 records have offense tags (#ARI, #SWAP, #RA) in CSG Notes instead of Red Account ECOMM Headline.</p>
+</div>
+
+<div class="insight-box error">
+<h4>Pipeline Warning: Q3 Has NOT Closed &mdash; All Classifications Are Projected</h4>
+<p>This quarter (Aug&ndash;Oct 2026) is still in progress. Classifications shown are projections based on current opportunity data and CSM commentary. Final outcomes (Win, Loss, Partial Save) will be determined after close dates pass and stages resolve. Records may shift between categories as deals progress.</p>
+</div>
+
+<div class="insight-box error">
+<h4>Critical: $12.43M in Not Actionable At-Risk (3 Confirmed Competitor Wins)</h4>
+<p>IRB Holding Corp ($6.40M to MoEngage), Nordstrom ($3.65M to Adobe), and Kohl's ($1.61M pricing exit) represent confirmed losses with no remaining swing. Clean Earth ($771K) is M&amp;A-driven via Veolia acquisition. Combined, these 4 records account for 43% of total at-risk attrition.</p>
+</div>
+
+<div class="insight-box warn">
+<h4>Pattern: 10 Records with Empty CSG Notes ($4.29M Undocumented)</h4>
+<p>Kohl's ($1.61M), Fanatics MC ($679K), Fanatics Multi ($567K), Network Distribution ($312K), DriveTime ($206K), Resco Products ($179K), XYLEM ($160K), Tooling Acquisition ($134K), Fashionphile ($133K), and Harmons ($110K) have no CSG documentation. These represent $4.09M in undocumented at-risk attrition events.</p>
+</div>
+
+<div class="insight-box warn">
+<h4>Pattern: 9 Records Using Invalid Hashtags</h4>
+<p>Common invalid tags found: #FullAttrit (should be #LicFullAttrit), #PartialAttrit/#PartialAttrition (should be #LicPartialAttrit), #nonactionable (not a valid tag), #FullAttritRisk, #SigAttrit (should be #SigRisk), #Attrit. CSMs should use the exact tags from PACE guidance.</p>
+</div>
+
+<div class="insight-box">
+<h4>Bright Spot: Active Plays on $13.21M in Partial Save Pipeline</h4>
+<p>23 records ($13.21M) have actionable status with CSM plays in motion: Bunge exploring product swaps, Albertsons pursuing ARI + MC Next, Instacart ARI approved, iFIT approved for SigTrial, H-E-B negotiating CPM pricing, Ashland evaluating sig swap. Active defense plays are documented across the majority of partial save records.</p>
+</div>
+
+<details style="margin-top:1.5rem;border:1px solid var(--slds-border);border-radius:8px;background:var(--slds-white);">
+<summary style="padding:1rem 1.25rem;cursor:pointer;font-size:1rem;font-weight:700;color:var(--slds-dark);list-style:none;display:flex;align-items:center;gap:.5rem;">
+<span style="transition:transform .2s;display:inline-block;" class="chevron">&#9654;</span> Attrition Events &mdash; Detailed View (33 Records)
+</summary>
+<div style="padding:0 1.25rem 1.25rem;">
+<div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;align-items:center;">
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Aug 2026</option><option>Sep 2026</option><option>Oct 2026</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Attrition Reason <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Adoption</option><option>Business Change &amp; Distress</option><option>Competitive</option><option>Customer Relationship</option><option>Financial &amp; Contractual</option><option>Product</option><option>Success Plan &amp; Support</option><option>Unspecified</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="5" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
+</div>
+<div style="overflow-x:auto;">
+<table id="attrition-events-table">
+<thead><tr><th>Account Name</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Attrition Reason Detail</th><th>Attrition Type</th><th style="text-align:right">At-Risk Amount</th></tr></thead>
+<tbody>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198ttNAAQ/view" target="_blank">IRB Holding Corp. (Marketing)</a></td><td>Oct 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$6,398,575</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000M1iGsAAJ/view" target="_blank">Nordstrom, Inc.</a></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$3,647,906</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000006D9BhAAK/view" target="_blank">Bunge Management Services</a></td><td>Oct 2026</td><td>Partial</td><td>Product</td><td>Product Feature Gap</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,066,226</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000OQeqPAAT/view" target="_blank">Kohl's, Inc.</a></td><td>Oct 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Pricing Change</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,612,500</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000001ZKGEAA4/view" target="_blank">Ecolab Data Cloud</a></td><td>Aug 2026</td><td>Partial</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Lack of Knowledge)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,557,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wonbAAA/view" target="_blank">Albertsons Companies, Inc.</a></td><td>Sep 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Sponsorship</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,500,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wHTxAAM/view" target="_blank">Instacart (Maplebear Inc.)</a></td><td>Aug 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Expertise</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,234,062</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I4ymSAAR/view" target="_blank">iFIT Inc.</a></td><td>Aug 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,149,526</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000003C2AoAAK/view" target="_blank">Claire's Stores, Inc.</a></td><td>Oct 2026</td><td>Partial</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,099,310</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000032dpxAAA/view" target="_blank">H-E-B, LP</a></td><td>Sep 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Pricing Tier/Term Length</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$868,129</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198v9lAAA/view" target="_blank">Love's Travel Stops</a></td><td>Oct 2026</td><td>Full</td><td>Competitive</td><td>Switched to a Direct Competitor</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$843,059</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Nu8H0AAJ/view" target="_blank">New MVP Org: One Clean Earth</a></td><td>Oct 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>M&amp;A Activity - License Reduction</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$771,490</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000NugCDAAZ/view" target="_blank">Chico's FAS Inc.</a></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$700,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000dxsifAAA/view" target="_blank">Fanatics Holdings, Inc. (MC)</a></td><td>Sep 2026</td><td>Full</td><td>Competitive</td><td>Replaced with an In-House Solution</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$678,923</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000drsVFAAY/view" target="_blank">Fanatics Holdings, Inc. (Multi)</a></td><td>Sep 2026</td><td>Full</td><td>Competitive</td><td>Replaced with an In-House Solution</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$567,494</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000L95FhAAJ/view" target="_blank">Alliance Consumer Group</a></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$466,592</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004NZkMAAW/view" target="_blank">Alice + Olivia, LLC</a></td><td>Oct 2026</td><td>Full</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$329,957</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wGQ3AAM/view" target="_blank">Network Distribution</a></td><td>Aug 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$312,403</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000KddFhAAJ/view" target="_blank">UNFI (Cub Food - MC)</a></td><td>Sep 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$300,467</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000JqzfbAAB/view" target="_blank">Johnson Controls (Pardot)</a></td><td>Aug 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$254,882</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018kF6BAAU/view" target="_blank">Ashland Inc.</a></td><td>Aug 2026</td><td>Partial</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Lack of Knowledge)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$250,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198v7LAAQ/view" target="_blank">Deere &amp; Company*</a></td><td>Oct 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$250,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198qxLAAQ/view" target="_blank">Ahold Delhaize USA Services</a></td><td>Oct 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$233,440</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198FrGAAU/view" target="_blank">Sally Holdings LLC</a></td><td>Sep 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$220,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000LLiZpAAL/view" target="_blank">DriveTime Automotive Group</a></td><td>Sep 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Price Uplift</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$205,957</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wb0UAAQ/view" target="_blank">UNFI (mybiz)</a></td><td>Aug 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$189,675</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000LhELOAA3/view" target="_blank">Resco Products, Inc.</a></td><td>Sep 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$179,330</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000NulzuAAB/view" target="_blank">XYLEM</a></td><td>Oct 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Expertise</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$160,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198pMHAAY/view" target="_blank">Hormel Foods Corporation*</a></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$140,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wHj6AAE/view" target="_blank">Tooling Acquisition Co</a></td><td>Aug 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$133,512</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019ukqTAAQ/view" target="_blank">Fashionphile Group, LLC</a></td><td>Sep 2026</td><td>Full</td><td>Competitive</td><td>Switched to a Direct Competitor</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$132,697</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004QEpqAAG/view" target="_blank">Harmons Grocery</a></td><td>Oct 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$109,620</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Jr8e2AAB/view" target="_blank">Johnson Controls, Inc. (MC)</a></td><td>Aug 2026</td><td>Partial</td><td>Customer Relationship</td><td>Lack of Executive Sponsorship</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$100,215</td></tr>
+</tbody>
+</table>
+</div>
+<div style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--slds-border);display:flex;justify-content:flex-end;font-size:.8125rem;font-weight:700;color:var(--slds-dark);">
+Total At-Risk Attrition: <span style="color:var(--slds-error);margin-left:.5rem;">$28,662,946</span>
+</div>
+</div>
+</details>
+
+</div>
+
+<!-- NOT ACTIONABLE PANEL -->
+<div class="panel" id="not-actionable">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Not Actionable (Projected) &mdash; 4 Records | $12.43M</h2>
+
+<div class="insight-box error">
+<h4>These losses are confirmed &mdash; no remaining swing opportunity</h4>
+<p>IRB signed with MoEngage, Nordstrom selected Adobe via RFP, Kohl's is an offcycle pricing restructure, and Clean Earth's attrition is M&amp;A-driven (Veolia acquisition).</p>
+</div>
+
+<div class="card">
+<table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>At-Risk Amount</th><th>Rate</th><th>Status</th><th>CSM Notes</th></tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198ttNAAQ/view" target="_blank">IRB Holding Corp. (Marketing)</a></td>
+<td>MC ExactTarget</td><td>Lindsey Ells</td><td>2026-10-30</td><td style="font-weight:600;color:var(--slds-error)">$6,398,575</td><td>0%</td><td>Will Attrit</td>
+<td class="notes-cell">6/15/26- SAW- Customer signed with competitor, MoEngage and declined the offer from Salesforce. This will be #fullattrit #ARIFALLOUT #RFP #nonactionable</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000M1iGsAAJ/view" target="_blank">Nordstrom, Inc.</a></td>
+<td>MC ExactTarget</td><td>Rachel Cutrell</td><td>2026-09-30</td><td style="font-weight:600;color:var(--slds-error)">$3,647,906</td><td>0%</td><td>Will Attrit</td>
+<td class="notes-cell">3/19/26- RM - customer went to RFP &amp; selected Adobe #FullAttrit #RFP</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000OQeqPAAT/view" target="_blank">Kohl's, Inc.</a></td>
+<td>MC ExactTarget</td><td>Eric Askew</td><td>2026-10-31</td><td style="font-weight:600;color:var(--slds-error)">$1,612,500</td><td>N/A</td><td>Will Attrit</td>
+<td class="notes-cell">(empty)</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Nu8H0AAJ/view" target="_blank">New MVP Org: One Clean Earth</a></td>
+<td>Pardot; MC ExactTarget</td><td>Graeme Schulman</td><td>2026-10-31</td><td style="font-weight:600;color:var(--slds-error)">$771,490</td><td>100%</td><td>Will Attrit</td>
+<td class="notes-cell">6/8/26 CSAL CCap #LicFullAttrit; The Veolia acquisition likely triggers a significant downsell. Full swing.</td>
+</tr>
+</table>
+</div>
+</div>
+
+<!-- LOSSES PANEL -->
+<div class="panel" id="losses">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Logo Loss (Projected) &mdash; 6 Records | $3.02M</h2>
+
+<div class="insight-box warn">
+<h4>Projected Logo Losses &mdash; Some Have Active Plays That May Change Outcome</h4>
+<p>Love's Travel Stops has active #ARI and Signature Trial pursuit despite Will Attrit status. If plays succeed, this could shift to Partial Save or Win. Fanatics (2 opps, $1.25M combined) confirmed in-house replacement with no documented CSM plays.</p>
+</div>
+
+<div class="card">
+<table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>At-Risk Amount</th><th>Rate</th><th>Status</th><th>CSM Notes</th></tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198v9lAAA/view" target="_blank">Love's Travel Stops</a></td>
+<td>MC ExactTarget</td><td>Julie Malone</td><td>2026-10-30</td><td style="font-weight:600;color:var(--slds-error)">$843,059</td><td>100%</td><td>Will Attrit</td>
+<td class="notes-cell">6/8/26 CSAL CCap #LicFullAttrit; Time-sensitive risk. New CMO RFP to Braze open. Pursuing #ARI and/or Signature Trial.</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000dxsifAAA/view" target="_blank">Fanatics Holdings, Inc. (MC)</a></td>
+<td>MC ExactTarget</td><td>Eric Askew</td><td>2026-09-07</td><td style="font-weight:600;color:var(--slds-error)">$678,923</td><td>0%</td><td>Will Attrit</td>
+<td class="notes-cell">(empty)</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000drsVFAAY/view" target="_blank">Fanatics Holdings, Inc. (Multi)</a></td>
+<td>MC ExactTarget; Commerce; B2B Commerce</td><td>Eric Askew</td><td>2026-09-06</td><td style="font-weight:600;color:var(--slds-error)">$567,494</td><td>0%</td><td>Will Attrit</td>
+<td class="notes-cell">(empty)</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000L95FhAAJ/view" target="_blank">Alliance Consumer Group</a></td>
+<td>Core; Pardot</td><td>Jana Long</td><td>2026-09-17</td><td style="font-weight:600;color:var(--slds-error)">$466,592</td><td>0%</td><td>Will Attrit</td>
+<td class="notes-cell">4/1/2026 CSAL CChau #FullAttrit #LicFullAttrit forecast - working with RM and AD to get details.</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004NZkMAAW/view" target="_blank">Alice + Olivia, LLC</a></td>
+<td>MC ExactTarget; Datorama</td><td>Holly Lesperance</td><td>2026-10-31</td><td style="font-weight:600;color:var(--slds-error)">$329,957</td><td>100%</td><td>Will Attrit</td>
+<td class="notes-cell">3/13/26 - BB - #SigAttrit #LicFullAttrit A+O has had significant struggles with the platform and has not participated in enablement.</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019ukqTAAQ/view" target="_blank">Fashionphile Group, LLC</a></td>
+<td>MC ExactTarget; Datorama</td><td>Jana Long</td><td>2026-09-25</td><td style="font-weight:600;color:var(--slds-error)">$132,697</td><td>0%</td><td>Will Attrit</td>
+<td class="notes-cell">(empty)</td>
+</tr>
+</table>
+</div>
+</div>
+
+<!-- PARTIAL SAVES PANEL -->
+<div class="panel" id="partial-saves">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Partial Save (Projected) &mdash; 23 Records | $13.21M</h2>
+
+<div class="insight-box">
+<h4>Active Defense: Majority of Partial Save Pipeline Has Documented Plays</h4>
+<p>Key plays in motion: Bunge product swaps ($2.07M), Albertsons ARI + MC Next ($1.50M), Instacart ARI approved ($1.23M), iFIT SigTrial ($1.15M). Multiple records pursuing #SWAP, #ARI, and Signature investments.</p>
+</div>
+
+<div class="card">
+<div style="overflow-x:auto;">
+<table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>At-Risk Amount</th><th>Rate</th><th>Status</th><th>CSM Notes</th></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000006D9BhAAK/view" target="_blank">Bunge Management Services</a></td><td>Pardot</td><td>Andrew Chabot</td><td>2026-10-10</td><td style="font-weight:600;color:var(--slds-error)">$2,066,226</td><td>0%</td><td>Will Reduce (Actionable)</td><td class="notes-cell">UJ 3/26 #SigRisk #LicPartialAttrit - Shelfware identified est $1.2M in MFG Cloud and CG cloud. Evaluating product swaps to fill bucket.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000001ZKGEAA4/view" target="_blank">Ecolab Data Cloud</a></td><td>MC ExactTarget</td><td>Andrew Chabot</td><td>2026-08-31</td><td style="font-weight:600;color:var(--slds-error)">$1,557,000</td><td>0%</td><td>Will Reduce (Actionable)</td><td class="notes-cell">5/20/26, AK #PartialAttrit #SigRisk - Customer engagement increased with data cloud use cases. No customer owner for Data360, utilization &lt;5%.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wonbAAA/view" target="_blank">Albertsons Companies, Inc.</a></td><td>MC ExactTarget; Datorama</td><td>Rachel Cutrell</td><td>2026-09-13</td><td style="font-weight:600;color:var(--slds-error)">$1,500,000</td><td>100%</td><td>Will Reduce (Actionable)</td><td class="notes-cell">6/15/26, PG, #LicPartialAttrit #SigRisk #RA #ARI MC Next Interest. Risk due to low utilization.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wHTxAAM/view" target="_blank">Instacart (Maplebear Inc.)</a></td><td>MC ExactTarget; B2B Commerce</td><td>Ramneek Sohi</td><td>2026-08-14</td><td style="font-weight:600;color:var(--slds-error)">$1,234,062</td><td>75.08%</td><td>Will Reduce (Actionable)</td><td class="notes-cell">#ARI approved 5/20/26 SAW &amp; JK - #PartialAttrit due to shelfware, 60%LA. Presenting investment w/ Insta Execs.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I4ymSAAR/view" target="_blank">iFIT Inc.</a></td><td>MC ExactTarget</td><td>Ramneek Sohi</td><td>2026-08-01</td><td style="font-weight:600;color:var(--slds-error)">$1,149,526</td><td>0%</td><td>&mdash;</td><td class="notes-cell">6/11/26 MC - #FullAttritRisk #SigTrial high utilization but poor sentiment. Approved for SigTrial investment.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000003C2AoAAK/view" target="_blank">Claire's Stores, Inc.</a></td><td>MC ExactTarget</td><td>Rachel Cutrell</td><td>2026-10-07</td><td style="font-weight:600;color:var(--slds-error)">$1,099,310</td><td>0%</td><td>Will Attrit (Actionable)</td><td class="notes-cell">5/13/26- SAW- filed for bankruptcy. Still waiting on update from account team if they are keeping MC or not.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000032dpxAAA/view" target="_blank">H-E-B, LP</a></td><td>MC ExactTarget</td><td>Eric Askew</td><td>2026-09-30</td><td style="font-weight:600;color:var(--slds-error)">$868,129</td><td>66.58%</td><td>Will Reduce (Actionable)</td><td class="notes-cell">5/21/26- SAW CPM 1.99 is High. Utilization forecasted to 55%. #PartialAttrition risk.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000NugCDAAZ/view" target="_blank">Chico's FAS Inc.</a></td><td>MC ExactTarget</td><td>Rachel Cutrell</td><td>2026-10-31</td><td style="font-weight:600;color:var(--slds-error)">$700,000</td><td>0%</td><td>Will Reduce (Actionable)</td><td class="notes-cell">#ARI #RA 06/09/26 #Attrit Potential to attrit as they roll up into Knitwell. MCP shelf-ware, attempting to implement davinci.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wGQ3AAM/view" target="_blank">Network Distribution</a></td><td>MC ExactTarget; Datorama</td><td>Jana Long</td><td>2026-08-13</td><td style="font-weight:600;color:var(--slds-error)">$312,403</td><td>19.85%</td><td>&mdash;</td><td class="notes-cell">(empty)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000KddFhAAJ/view" target="_blank">UNFI (Cub Food - MC)</a></td><td>MC ExactTarget</td><td>Robert Peckenpaugh</td><td>2026-09-12</td><td style="font-weight:600;color:var(--slds-error)">$300,467</td><td>98.41%</td><td>Will Attrit (Actionable)</td><td class="notes-cell">4/23/26 JSC #LicPartialAttrit Previously overbought licenses. Evaluating #sigswap for unused licenses.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000JqzfbAAB/view" target="_blank">Johnson Controls (Pardot)</a></td><td>Pardot</td><td>Andrew Chabot</td><td>2026-08-28</td><td style="font-weight:600;color:var(--slds-error)">$254,882</td><td>0%</td><td>Will Attrit</td><td class="notes-cell">6-12-26 MAN #LicFullAttrit Customer moving off MCAE (Pardot) to marketing cloud. Pulled Pardot out to shorter renewal.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018kF6BAAU/view" target="_blank">Ashland Inc.</a></td><td>Pardot</td><td>Emily Manos</td><td>2026-08-02</td><td style="font-weight:600;color:var(--slds-error)">$250,000</td><td>100%</td><td>Will Reduce</td><td class="notes-cell">3/23/26 CSAL GY #LicPartialAttrit - potential attrition from pardot. Asked for a product swap or sig swap.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198v7LAAQ/view" target="_blank">Deere &amp; Company*</a></td><td>MC ExactTarget</td><td>Emily Manos</td><td>2026-10-31</td><td style="font-weight:600;color:var(--slds-error)">$250,000</td><td>100%</td><td>Will Renew (Flat)</td><td class="notes-cell">5/22/26 CSAL GY #LicPartialAttrit - unknown potential attrition, red account created. MC health check signed.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198qxLAAQ/view" target="_blank">Ahold Delhaize USA Services</a></td><td>MC ExactTarget</td><td>Lindsey Ells</td><td>2026-10-29</td><td style="font-weight:600;color:var(--slds-error)">$233,440</td><td>0%</td><td>Will Renew (Flat)</td><td class="notes-cell">5/11/26 -SAW- Product Adoption CSS 75- healthy but underutilized on contacts- possible #swap for Sig.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198FrGAAU/view" target="_blank">Sally Holdings LLC</a></td><td>MC ExactTarget</td><td>Cara Holm</td><td>2026-09-30</td><td style="font-weight:600;color:var(--slds-error)">$220,000</td><td>100%</td><td>Will Reduce</td><td class="notes-cell">04.01.2026 AR - #LicPartialAttrit, #NoSigRisk - Shelfware for bots, CRMA and some Service Cloud.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000LLiZpAAL/view" target="_blank">DriveTime Automotive Group</a></td><td>MC ExactTarget</td><td>Alexa Votta</td><td>2026-09-21</td><td style="font-weight:600;color:var(--slds-error)">$205,957</td><td>0%</td><td>Will Attrit (Actionable)</td><td class="notes-cell">(empty)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wb0UAAQ/view" target="_blank">UNFI (mybiz)</a></td><td>Pardot</td><td>Robert Peckenpaugh</td><td>2026-08-04</td><td style="font-weight:600;color:var(--slds-error)">$189,675</td><td>100%</td><td>Will Reduce (Actionable)</td><td class="notes-cell">4/15/26 JSC #LicPartialAttrit Customer was oversold. Working with AE &amp; Sig Success on a potential lic swap. #SWAP</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000LhELOAA3/view" target="_blank">Resco Products, Inc.</a></td><td>Pardot</td><td>Raj Mayadunne</td><td>2026-09-30</td><td style="font-weight:600;color:var(--slds-error)">$179,330</td><td>100%</td><td>&mdash;</td><td class="notes-cell">(empty)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000NulzuAAB/view" target="_blank">XYLEM</a></td><td>MC ExactTarget</td><td>Joe Long</td><td>2026-10-31</td><td style="font-weight:600;color:var(--slds-error)">$160,000</td><td>50%</td><td>Will Reduce</td><td class="notes-cell">(empty)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198pMHAAY/view" target="_blank">Hormel Foods Corporation*</a></td><td>Pardot; Salesforce Maps</td><td>Robert Peckenpaugh</td><td>2026-10-28</td><td style="font-weight:600;color:var(--slds-error)">$140,000</td><td>100%</td><td>Will Reduce (Actionable)</td><td class="notes-cell">4/16/26 JSC #LicNoAttrit No known risk at this time per AE.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wHj6AAE/view" target="_blank">Tooling Acquisition Co</a></td><td>Core; Pardot</td><td>Jana Long</td><td>2026-08-14</td><td style="font-weight:600;color:var(--slds-error)">$133,512</td><td>0%</td><td>&mdash;</td><td class="notes-cell">(empty)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004QEpqAAG/view" target="_blank">Harmons Grocery</a></td><td>MC ExactTarget</td><td>Ramneek Sohi</td><td>2026-10-31</td><td style="font-weight:600;color:var(--slds-error)">$109,620</td><td>0%</td><td>&mdash;</td><td class="notes-cell">(empty)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Jr8e2AAB/view" target="_blank">Johnson Controls, Inc. (MC)</a></td><td>Core; MC ExactTarget</td><td>Andrew Chabot</td><td>2026-08-28</td><td style="font-weight:600;color:var(--slds-error)">$100,215</td><td>0%</td><td>Will Attrit</td><td class="notes-cell">6-12-26 MAN #LicPartialAttrit to full. D360 portion of contract aligned to MC. POC on D360 selected SI, reviewing Prof Services proposal.</td></tr>
+</table>
+</div>
+</div>
+</div>
+
+<!-- COMPLIANCE PANEL -->
+<div class="panel" id="compliance">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">#Compliance &mdash; CSG Notes Validation</h2>
+
+<div class="card">
+<h3>Compliance Summary</h3>
+<div class="metric-grid">
+<div class="metric"><div class="value" style="color:var(--slds-success)">4</div><div class="label">Pass</div></div>
+<div class="metric"><div class="value" style="color:var(--slds-error)">29</div><div class="label">Fail</div></div>
+<div class="metric"><div class="value">12%</div><div class="label">Compliance Rate</div></div>
+<div class="metric"><div class="value">10</div><div class="label">Empty Notes</div></div>
+</div>
+</div>
+
+<div class="insight-box warn">
+<h4>Most Common Violations</h4>
+<p><strong>Missing Sig Tag (Premier=Yes):</strong> 20 records have Premier attached but lack #SigRisk or #NoSigRisk. <strong>Invalid Hashtags:</strong> 9 records use non-standard tags (#FullAttrit, #PartialAttrit, #nonactionable, #FullAttritRisk, #SigAttrit, #Attrit, #PartialAttrition). <strong>Offense Tags in CSG Notes:</strong> 8 records place #ARI, #SWAP, #RA, #sigswap in CSG Notes (these belong on Red Account ECOMM Headline).</p>
+</div>
+
+<div class="card">
+<h3>Record-Level Compliance</h3>
+<div style="overflow-x:auto;">
+<table>
+<tr><th>Account</th><th>Result</th><th>License Tag</th><th>Sig Tag</th><th>Date</th><th>Issues</th></tr>
+<tr><td>IRB Holding Corp.</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Invalid: #fullattrit, #nonactionable. Missing valid license &amp; sig tags.</td></tr>
+<tr><td>Nordstrom, Inc.</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Invalid: #FullAttrit (use #LicFullAttrit). Missing sig tag.</td></tr>
+<tr><td>Bunge Management Services</td><td class="compliance-pass">PASS</td><td class="compliance-pass">#LicPartialAttrit</td><td class="compliance-pass">#SigRisk</td><td class="compliance-pass">Yes</td><td>&mdash;</td></tr>
+<tr><td>Kohl's, Inc.</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td style="color:var(--slds-text-weak)">N/A (No Premier)</td><td class="compliance-fail">No</td><td>Empty CSG Notes.</td></tr>
+<tr><td>Ecolab Data Cloud</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-pass">#SigRisk</td><td class="compliance-pass">Yes</td><td>Invalid: #PartialAttrit (use #LicPartialAttrit).</td></tr>
+<tr><td>Albertsons Companies</td><td class="compliance-pass">PASS</td><td class="compliance-pass">#LicPartialAttrit</td><td class="compliance-pass">#SigRisk</td><td class="compliance-pass">Yes</td><td>INFO: Offense tags #ARI, #RA in CSG Notes (belong on Red Acct).</td></tr>
+<tr><td>Instacart (Maplebear)</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Invalid: #PartialAttrit. Offense tag #ARI in CSG Notes.</td></tr>
+<tr><td>iFIT Inc.</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Invalid: #FullAttritRisk. Offense tag #SigTrial in CSG Notes.</td></tr>
+<tr><td>Claire's Stores</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>No hashtags present. Missing license &amp; sig tags.</td></tr>
+<tr><td>H-E-B, LP</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Invalid: #PartialAttrition (use #LicPartialAttrit).</td></tr>
+<tr><td>Love's Travel Stops</td><td class="compliance-fail">FAIL</td><td class="compliance-pass">#LicFullAttrit</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Missing sig tag (Premier=Yes). INFO: #ARI in CSG Notes.</td></tr>
+<tr><td>Clean Earth</td><td class="compliance-fail">FAIL</td><td class="compliance-pass">#LicFullAttrit</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Missing sig tag (Premier=Yes).</td></tr>
+<tr><td>Chico's FAS Inc.</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Invalid: #Attrit. Offense tags #ARI, #RA in CSG Notes.</td></tr>
+<tr><td>Fanatics (MC)</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-fail">No</td><td>Empty CSG Notes.</td></tr>
+<tr><td>Fanatics (Multi)</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-fail">No</td><td>Empty CSG Notes.</td></tr>
+<tr><td>Alliance Consumer Group</td><td class="compliance-fail">FAIL</td><td class="compliance-pass">#LicFullAttrit</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Also has invalid #FullAttrit. Missing sig tag (Premier=Yes).</td></tr>
+<tr><td>Alice + Olivia</td><td class="compliance-fail">FAIL</td><td class="compliance-pass">#LicFullAttrit</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Invalid: #SigAttrit (use #SigRisk). Missing valid sig tag.</td></tr>
+<tr><td>Network Distribution</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-fail">No</td><td>Empty CSG Notes.</td></tr>
+<tr><td>UNFI (Cub Food)</td><td class="compliance-fail">FAIL</td><td class="compliance-pass">#LicPartialAttrit</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Missing sig tag (Premier=Yes). INFO: #sigswap in CSG Notes.</td></tr>
+<tr><td>Johnson Controls (Pardot)</td><td class="compliance-fail">FAIL</td><td class="compliance-pass">#LicFullAttrit</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Missing sig tag (Premier=Yes).</td></tr>
+<tr><td>Ashland Inc.</td><td class="compliance-fail">FAIL</td><td class="compliance-pass">#LicPartialAttrit</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Missing sig tag (Premier=Yes).</td></tr>
+<tr><td>Deere &amp; Company*</td><td class="compliance-fail">FAIL</td><td class="compliance-pass">#LicPartialAttrit</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Missing sig tag (Premier=Yes).</td></tr>
+<tr><td>Ahold Delhaize USA</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>No valid license or sig tags. INFO: #swap in notes.</td></tr>
+<tr><td>Sally Holdings LLC</td><td class="compliance-pass">PASS</td><td class="compliance-pass">#LicPartialAttrit</td><td class="compliance-pass">#NoSigRisk</td><td class="compliance-pass">Yes</td><td>&mdash;</td></tr>
+<tr><td>DriveTime Automotive</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-fail">No</td><td>Empty CSG Notes.</td></tr>
+<tr><td>UNFI (mybiz)</td><td class="compliance-fail">FAIL</td><td class="compliance-pass">#LicPartialAttrit</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Missing sig tag (Premier=Yes). INFO: #SWAP in CSG Notes.</td></tr>
+<tr><td>Resco Products</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-fail">No</td><td>Empty CSG Notes.</td></tr>
+<tr><td>XYLEM</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-fail">No</td><td>Empty CSG Notes.</td></tr>
+<tr><td>Hormel Foods Corp.*</td><td class="compliance-pass">PASS</td><td class="compliance-pass">#LicNoAttrit</td><td style="color:var(--slds-text-weak)">N/A (No Premier)</td><td class="compliance-pass">Yes</td><td>&mdash;</td></tr>
+<tr><td>Tooling Acquisition Co</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td style="color:var(--slds-text-weak)">N/A (No Premier)</td><td class="compliance-fail">No</td><td>Empty CSG Notes.</td></tr>
+<tr><td>Fashionphile Group</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-fail">No</td><td>Empty CSG Notes.</td></tr>
+<tr><td>Harmons Grocery</td><td class="compliance-fail">FAIL</td><td class="compliance-fail">Missing</td><td class="compliance-fail">Missing</td><td class="compliance-fail">No</td><td>Empty CSG Notes.</td></tr>
+<tr><td>Johnson Controls (MC)</td><td class="compliance-fail">FAIL</td><td class="compliance-pass">#LicPartialAttrit</td><td class="compliance-fail">Missing</td><td class="compliance-pass">Yes</td><td>Missing sig tag (Premier=Yes).</td></tr>
+</table>
+</div>
+</div>
+</div>
+
+<!-- METHODOLOGY PANEL -->
+<div class="panel" id="methodology">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Methodology</h2>
+
+<div class="card">
+<h3>Data Source &amp; Filters</h3>
+<p style="font-size:.8125rem;color:var(--slds-text-weak);margin-bottom:.5rem;">SOQL query against Org62 Opportunity object with the following filters:</p>
+<ul style="font-size:.8125rem;color:var(--slds-text-weak);padding-left:1.5rem;">
+<li><strong>Close Date:</strong> Aug 1, 2026 &ndash; Oct 31, 2026 (Q3 FY27)</li>
+<li><strong>Targeted Clouds:</strong> MC ExactTarget, Marketing Cloud, Pardot, Datorama</li>
+<li><strong>Forecasted Attrition:</strong> &le; -$100,000 (at-risk attrition &ge; $100K)</li>
+<li><strong>CSG Region:</strong> AMER PACE</li>
+<li><strong>Stage Filter:</strong> None (all stages included &mdash; quarter has not closed)</li>
+<li><strong>Sort:</strong> Forecasted Attrition ascending (highest attrition first)</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>Classification Logic (Projected)</h3>
+<ul style="font-size:.8125rem;color:var(--slds-text-weak);padding-left:1.5rem;">
+<li><strong>Full vs Partial:</strong> License_Renewal_Status__c = "Will Attrit" (exact) = Full; anything else = Partial</li>
+<li><strong>Attrition Type:</strong> Opp Name contains "Off Cycle" / "Offcycle" / "Non-Coterminous" = Offcycle; otherwise = Oncycle</li>
+<li><strong>Not Actionable:</strong> Confirmed competitor win (signed/selected), M&amp;A-driven, or offcycle structural change with no remaining swing</li>
+<li><strong>Logo Loss (Projected):</strong> Will Attrit + full platform exit indicated + no active plays documented</li>
+<li><strong>Partial Save (Projected):</strong> Status contains "Reduce" or "Actionable", or evidence of partial retention / active defense plays</li>
+</ul>
+<p style="font-size:.8125rem;color:var(--slds-warning);font-weight:600;margin-top:.75rem;">Note: Classifications are projected. Final outcomes will be determined after quarter close.</p>
+</div>
+
+<div class="card">
+<h3>CSG Notes Compliance Rules (PACE Guidance)</h3>
+<ul style="font-size:.8125rem;color:var(--slds-text-weak);padding-left:1.5rem;">
+<li><strong>License Tag (Required):</strong> Must include one of: #LicNoAttrit, #LicPartialAttrit, #LicFullAttrit</li>
+<li><strong>Sig Tag (Required if Premier=Yes):</strong> Must include one of: #SigRisk, #NoSigRisk</li>
+<li><strong>Date Stamp (Required):</strong> Must include a date in the note entry</li>
+<li><strong>Invalid Tags Flagged:</strong> #PartAttrit, #FullAttrit, #NoAttrit, #fullattrit, #nonactionable, #PartialAttrition, #FullAttritRisk, #SigAttrit, #Attrit</li>
+<li><strong>Offense Tags in Wrong Location:</strong> #ARI, #SWAP, #RFP, #SIGTRIAL, #RA belong on Red Account ECOMM Headline, not in CSG Notes</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>Report Generated</h3>
+<p style="font-size:.8125rem;color:var(--slds-text-weak);">Generated on June 16, 2026 via Win/Loss Process automation. Data reflects Org62 state at time of query. Re-run after quarter close for final classifications.</p>
+</div>
+</div>
+
+</div>
+
+<script>
+function showPanel(id){
+document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+const tabs=document.querySelectorAll('.tab');
+const map={'summary':0,'not-actionable':1,'losses':2,'partial-saves':3,'compliance':4,'methodology':5};
+if(map[id]!==undefined)tabs[map[id]].classList.add('active');
+}
+
+function filterAttritionTable(sel){
+const col=parseInt(sel.dataset.col);
+const val=sel.value;
+const rows=document.querySelectorAll('#attrition-events-table tbody tr');
+rows.forEach(row=>{
+const cell=row.cells[col];
+if(!val||cell.textContent.trim()===val){
+row.style.display='';
+}else{
+row.style.display='none';
+}
+});
+}
+
+document.querySelectorAll('details').forEach(d=>{
+d.addEventListener('toggle',()=>{
+const chev=d.querySelector('.chevron');
+if(chev)chev.style.transform=d.open?'rotate(90deg)':'rotate(0deg)';
+});
+});
+
+// Charts
+document.addEventListener('DOMContentLoaded',function(){
+// Classification Chart
+new Chart(document.getElementById('chart-classification'),{type:'doughnut',data:{labels:['Not Actionable (4)','Logo Loss (6)','Partial Save (23)'],datasets:[{data:[12.43,3.02,13.21],backgroundColor:['#706e6b','#ea001e','#fe9339']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}}}});
+
+// Attrition Reason Chart
+new Chart(document.getElementById('chart-reason'),{type:'bar',data:{labels:['Financial & Contractual','Competitive','Adoption','Business Change','Customer Relationship','Product','Success Plan','Unspecified'],datasets:[{label:'Records',data:[12,5,4,4,3,1,2,2],backgroundColor:'#0176d3'}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true}}}});
+
+// Oncycle vs Offcycle
+new Chart(document.getElementById('chart-type'),{type:'doughnut',data:{labels:['Oncycle (32)','Offcycle (1)'],datasets:[{data:[32,1],backgroundColor:['#0176d3','#706e6b']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}}}});
+
+// Top 5 Chart
+new Chart(document.getElementById('chart-top5'),{type:'bar',data:{labels:['IRB Holding','Nordstrom','Bunge','Kohl\'s','Ecolab'],datasets:[{label:'At-Risk ($M)',data:[6.40,3.65,2.07,1.61,1.56],backgroundColor:['#ea001e','#ea001e','#fe9339','#706e6b','#fe9339']}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{callback:function(v){return '$'+v+'M'}}}}}});
+});
+</script>
+</body>
+</html>

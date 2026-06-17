@@ -24,12 +24,20 @@ Query Org62 for renewal opportunities matching:
 - `CloseDate` in the target month/quarter
 - `Targeted_Clouds__c INCLUDES (...)` for the target cloud
 - `Forecasted_Attrition__c <= -100000` (attrition >= $100K)
+- `StageName IN ('05 Closed', 'Dead Attrition')` for closed quarters (Q1/Q2); omit StageName filter entirely for open/pipeline quarters (Q3+)
 
 Cloud substitution:
 | Cloud | INCLUDES values |
 |---|---|
+| Core | `'Core'` |
 | Commerce Cloud | `'Commerce Cloud', 'B2B Commerce', 'Order Management'` |
 | Marketing Cloud | `'MC ExactTarget', 'Marketing Cloud', 'Pardot', 'Datorama'` |
+
+Additional filters:
+- `Account.CSG_Region__c = 'AMER PACE'`
+- For large result sets or timeout-prone queries, split into two queries (one per stage, or by month) and combine results
+
+**Scaling:** When running for "all clouds for Q1–Q3", launch 9 agents in parallel (3 clouds × 3 quarters). Each agent runs the full 5-step process independently.
 
 ### Step 2 — Classify via Workflow Diagram
 
@@ -39,7 +47,7 @@ For each record:
 3. **Outcome:**
    - Win = $0 Attrit FINAL
    - Loss → sub-classify:
-     - **Logo Loss** = Prior ACV fully attrited, customer gone
+     - **Logo Loss** = Prior ACV fully attrited, customer gone. Records with `StageName = 'Dead Attrition'` are confirmed losses — classify as Logo Loss unless they clearly retained some ACV.
      - **Partial Save** = Some ACV retained, some attrited
      - **SP Downgrade** = Signature/Premier removed, license retained
 
@@ -66,12 +74,27 @@ Validate each record's `SEM_Notes__c` against PACE guidance:
 ### Step 5 — Generate Leadership Report (HTML)
 
 Produce a self-contained HTML report with:
-- 6 tabs: Summary, Not Actionable, Wins, Losses, #Compliance, Methodology
-- Summary metrics (total attrition, classification counts, compliance rate)
+- **Chart.js CDN** loaded before `<style>`: `<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>`
+- **SLDS styling** (Salesforce Lightning Design System: light theme, brand tokens, cards, badges, tags)
+- **Sticky nav bar** with links to other quarters and clouds for the same period
+- **6 tabs:** Summary, Not Actionable, Wins, Losses, #Compliance, Methodology
+- **Summary panel:**
+  - Hero banner: Total Forecasted Attrition ($ large font) + Record count
+  - 4 Chart.js charts: Classification donut, Attrition Reason donut, Oncycle/Offcycle donut, Top 5 Accounts horizontal bar
+  - Classification Breakdown table (category, count, attrition $, key accounts)
+  - Compliance Overview card (pass/fail/rate)
+  - Insight boxes highlighting key patterns
+  - Collapsible Attrition Events section (`<details>`) with filter dropdowns (Event Month, Full/Partial, Attrition Reason, Type) and table columns: Account Name (Org62 hyperlink), Event Month, Full/Partial, Attrition Reason, Attrition Reason Detail, Attrition Type, Attrition Amount
+- All account names hyperlinked to Org62: `https://org62.lightning.force.com/lightning/r/Opportunity/[ID]/view`
 - Records grouped by classification with Org62 links
 - Red Account validation insight boxes (all 5 fields)
 - CSG Notes compliance table with pass/fail per record
 - AF/D360 decision tree findings where applicable
+- For pipeline/open quarters (Q3+): add a warning insight box noting all records are open and classifications are projected
+
+**Classification logic for Attrition Events table:**
+- **Full/Partial:** `License_Renewal_Status__c = 'Will Attrit'` (exact match) → Full; everything else → Partial
+- **Attrition Type:** Opportunity Name contains "Off Cycle" or "Offcycle" or "Non-Coterminous" → Offcycle; otherwise Oncycle
 
 Output: `Prototypes/[Period] [Cloud] Attrition Analysis.html`
 

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q2 FY27 MC Attrition Analysis | PACE AMER</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root{--slds-blue:#0176d3;--slds-dark:#032d60;--slds-light:#f3f3f3;--slds-white:#fff;--slds-border:#e5e5e5;--slds-success:#2e844a;--slds-warning:#fe9339;--slds-error:#ea001e;--slds-info:#0176d3;--slds-text:#181818;--slds-text-weak:#706e6b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Salesforce Sans',Arial,sans-serif;background:var(--slds-light);color:var(--slds-text);line-height:1.5}
+.header{background:var(--slds-dark);color:var(--slds-white);padding:1.5rem 2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.header h1{font-size:1.25rem;font-weight:700}
+.header .badge{background:var(--slds-blue);padding:.25rem .75rem;border-radius:12px;font-size:.75rem;font-weight:600}
+.header .badge-success{background:var(--slds-success);padding:.25rem .75rem;border-radius:12px;font-size:.75rem;font-weight:600}
+.header .badge-warning{background:var(--slds-warning);padding:.25rem .75rem;border-radius:12px;font-size:.75rem;font-weight:600}
+.tabs{display:flex;background:var(--slds-white);border-bottom:2px solid var(--slds-border);padding:0 2rem;overflow-x:auto}
+.tab{padding:.75rem 1.25rem;cursor:pointer;font-size:.8125rem;font-weight:600;color:var(--slds-text-weak);border-bottom:3px solid transparent;white-space:nowrap;transition:all .2s}
+.tab:hover{color:var(--slds-blue)}
+.tab.active{color:var(--slds-blue);border-bottom-color:var(--slds-blue)}
+.content{padding:1.5rem 2rem;max-width:1400px;margin:0 auto}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1.25rem;margin-bottom:1rem}
+.card h3{font-size:.9375rem;font-weight:700;margin-bottom:.75rem;color:var(--slds-dark)}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem}
+.metric{background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1rem;text-align:center}
+.metric .value{font-size:1.5rem;font-weight:700;color:var(--slds-dark)}
+.metric .label{font-size:.75rem;color:var(--slds-text-weak);margin-top:.25rem}
+table{width:100%;border-collapse:collapse;font-size:.8125rem}
+th{background:var(--slds-light);padding:.625rem .75rem;text-align:left;font-weight:600;color:var(--slds-dark);border-bottom:2px solid var(--slds-border)}
+td{padding:.625rem .75rem;border-bottom:1px solid var(--slds-border);vertical-align:top}
+tr:hover{background:#f0f7ff}
+.tag{display:inline-block;padding:.125rem .5rem;border-radius:10px;font-size:.6875rem;font-weight:600;margin:.125rem}
+.tag-success{background:#ecfbf1;color:var(--slds-success)}
+.tag-warning{background:#fff8e6;color:#946f00}
+.tag-error{background:#fef1f1;color:var(--slds-error)}
+.tag-info{background:#eaf5fe;color:var(--slds-blue)}
+.tag-neutral{background:var(--slds-light);color:var(--slds-text-weak)}
+.insight-box{border-left:4px solid var(--slds-blue);padding:.75rem 1rem;margin-bottom:1rem;background:#f8fbfe;border-radius:0 4px 4px 0}
+.insight-box.warn{border-left-color:var(--slds-warning);background:#fffbf5}
+.insight-box.error{border-left-color:var(--slds-error);background:#fef8f8}
+.insight-box h4{font-size:.8125rem;font-weight:700;margin-bottom:.25rem}
+.insight-box p{font-size:.8125rem;color:var(--slds-text-weak)}
+a{color:var(--slds-blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.notes-cell{max-width:300px;white-space:pre-wrap;word-break:break-word;font-size:.75rem;color:var(--slds-text-weak)}
+.compliance-pass{color:var(--slds-success);font-weight:600}
+.compliance-fail{color:var(--slds-error);font-weight:600}
+</style>
+</head>
+<body>
+
+<nav style="position:sticky;top:0;z-index:999;background:#021b3d;display:flex;align-items:center;gap:12px;padding:8px 24px;font-family:'Salesforce Sans',Arial,sans-serif;font-size:12px;border-bottom:1px solid var(--slds-border);">
+<a href="dashboard.html" style="color:#fff;text-decoration:none;font-weight:700;margin-right:8px;display:flex;align-items:center;gap:4px;" title="Dashboard">&#9664; Home</a>
+<span style="color:rgba(255,255,255,0.3);">|</span>
+<a href="Q1 FY27 MC Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Q1</a>
+<span style="color:rgba(255,255,255,0.5);font-weight:600;">Q2</span>
+<a href="Q3 FY27 MC Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Q3</a>
+<span style="color:rgba(255,255,255,0.3);">|</span>
+<a href="Q2 FY27 Core Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Core</a>
+<a href="Q2 FY27 Commerce Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Commerce</a>
+<span style="background:rgba(1,118,211,0.25);color:#90cdf4;padding:2px 10px;border-radius:10px;font-weight:700;">Marketing</span>
+</nav>
+
+<div class="header">
+<h1>Q2 FY27 Marketing Cloud Attrition Analysis</h1>
+<span class="badge">PACE AMER</span>
+<span class="badge">14 Records</span>
+<span class="badge">May&ndash;Jul 2026</span>
+<span class="badge-success">05 Closed</span>
+<span class="badge-warning">Dead Attrition</span>
+</div>
+
+<div class="tabs">
+<div class="tab active" onclick="showPanel('summary')">Summary</div>
+<div class="tab" onclick="showPanel('not-actionable')">Not Actionable (1)</div>
+<div class="tab" onclick="showPanel('wins')">Wins (2)</div>
+<div class="tab" onclick="showPanel('losses')">Losses (11)</div>
+<div class="tab" onclick="showPanel('compliance')">&#35;Compliance</div>
+<div class="tab" onclick="showPanel('methodology')">Methodology</div>
+</div>
+
+<div class="content">
+
+<!-- SUMMARY PANEL -->
+<div class="panel active" id="summary">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
+<div style="display:flex;align-items:center;gap:2rem;grid-column:1/-1;background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1.25rem 2rem;">
+<div style="text-align:center;"><div style="font-size:2rem;font-weight:700;color:var(--slds-dark);">$9.90M</div><div style="font-size:.75rem;color:var(--slds-text-weak);">Total Forecasted Attrition</div></div>
+<div style="width:1px;height:40px;background:var(--slds-border);"></div>
+<div style="text-align:center;"><div style="font-size:2rem;font-weight:700;color:var(--slds-dark);">14</div><div style="font-size:.75rem;color:var(--slds-text-weak);">Total Records</div></div>
+</div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Classification</h3><div style="position:relative;height:200px;"><canvas id="chart-classification"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition Reason</h3><div style="position:relative;height:200px;"><canvas id="chart-reason"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Oncycle vs Offcycle</h3><div style="position:relative;height:200px;"><canvas id="chart-type"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Top 5 Accounts by Attrition</h3><div style="position:relative;height:200px;"><canvas id="chart-top5"></canvas></div></div>
+</div>
+
+<div class="card">
+<h3>Classification Breakdown</h3>
+<table>
+<tr><th>Category</th><th>Count</th><th>Attrition</th><th>Key Accounts</th></tr>
+<tr><td><span class="tag tag-neutral">Not Actionable</span></td><td>1</td><td>$264K</td><td>Winston Brands ($264K &mdash; out of business)</td></tr>
+<tr><td><span class="tag tag-success">Win</span></td><td>2</td><td>$1.15M (retained)</td><td>84.51 LLC ($944K), Fanatics MC ($209K)</td></tr>
+<tr><td><span class="tag tag-error">Logo Loss</span></td><td>4</td><td>$6.57M</td><td>Shiseido ($4.30M), Chamberlain Group ($1.89M), American Musical ($238K), CSI Compressco ($142K)</td></tr>
+<tr><td><span class="tag tag-warning">Partial Save</span></td><td>6</td><td>$1.81M</td><td>Rich Products ($592K), Turntide ($387K), Fanatics multi ($355K), Hickory Farms ($234K), Abacode ($138K), NHS ($104K)</td></tr>
+<tr><td><span class="tag tag-info">SP Downgrade</span></td><td>1</td><td>$300K</td><td>American Electric Power ($300K)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Compliance Overview</h3>
+<div class="metric-grid">
+<div class="metric"><div class="value" style="color:var(--slds-success)">2</div><div class="label">Fully Compliant</div></div>
+<div class="metric"><div class="value" style="color:var(--slds-error)">12</div><div class="label">Non-Compliant</div></div>
+<div class="metric"><div class="value">14%</div><div class="label">Compliance Rate</div></div>
+</div>
+<p style="font-size:.8125rem;color:var(--slds-text-weak)">2 records (Rich Products, Hickory Farms) fully pass. 3 records have empty CSG Notes (American Musical, CSI Compressco, Shiseido). Invalid hashtags in 8 records. Missing sig tags on 10 of 13 Premier records.</p>
+</div>
+
+<div class="insight-box error">
+<h4>Critical: $6.57M in Logo Losses (4 Complete Platform Exits)</h4>
+<p>Shiseido ($4.30M &mdash; Dead Attrition, data anomaly with &ldquo;Will Renew Growth&rdquo; status but $0 Forecasted ACV), Chamberlain Group ($1.89M &mdash; MC attrition with ARI approved), American Musical Supply ($238K &mdash; price uplift dissatisfaction), and CSI Compressco ($142K &mdash; implementation issues). Three records have completely empty CSG Notes.</p>
+</div>
+
+<div class="insight-box warn">
+<h4>Pattern: 3 Records with Empty CSG Notes ($4.68M Undocumented)</h4>
+<p>Shiseido ($4.30M), American Musical Supply ($238K), and CSI Compressco ($142K) have no CSG documentation whatsoever. These represent 47% of total Q2 attrition with zero CSM context for leadership reporting.</p>
+</div>
+
+<div class="insight-box">
+<h4>Bright Spot: 84.51 LLC &mdash; $944K Risk Fully Retained</h4>
+<p>100% renewal rate with $1.03M Forecasted ACV preserved. CSM noted &ldquo;utilization in 80s%, no risk identified&rdquo; in January. Despite attrition event creation, customer renewed in full. Clean Win classification.</p>
+</div>
+
+<div class="insight-box">
+<h4>NHS U.S. LLC &mdash; Watch Item for Q3</h4>
+<p>Current Q2 event shows 88.41% rate with $795K ACV retained, but CSM notes &ldquo;moving to Klaviyo and this will be a #fullattrit.&rdquo; Expect a Logo Loss in a future quarter. Flag for proactive leadership awareness.</p>
+</div>
+
+<details class="attrition-events" style="margin-top:1.5rem;border:1px solid var(--slds-border);border-radius:8px;background:var(--slds-white);">
+<summary style="padding:1rem 1.25rem;cursor:pointer;font-size:1rem;font-weight:700;color:var(--slds-dark);list-style:none;display:flex;align-items:center;gap:.5rem;">
+<span style="transition:transform .2s;display:inline-block;" class="chevron">&#9654;</span> Attrition Events &mdash; Detailed View (14 Records)
+</summary>
+<div style="padding:0 1.25rem 1.25rem;">
+<div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;align-items:center;">
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>May 2026</option><option>Jun 2026</option><option>Jul 2026</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Attrition Reason <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Adoption</option><option>Business Change &amp; Distress</option><option>Financial &amp; Contractual</option><option>Implementation</option><option>Success Plan &amp; Support</option><option>Unspecified</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="5" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option></select></label>
+</div>
+<div style="overflow-x:auto;">
+<table id="attrition-events-table">
+<thead><tr><th>Account Name</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Attrition Reason Detail</th><th>Attrition Type</th><th style="text-align:right">Attrition Amount</th></tr></thead>
+<tbody>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XMsFAAW/view" target="_blank">Shiseido Company, Limited</a></td><td>May 2026</td><td>Partial</td><td>Unspecified</td><td>No Reason Given</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$4,304,160</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000003vTBdAAM/view" target="_blank">The Chamberlain Group LLC</a></td><td>May 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,890,615</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE8yXAAT/view" target="_blank">84.51 LLC</a></td><td>May 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Transfer of Users to New Org</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$944,398</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EBzGEAA1/view" target="_blank">Rich Products Corporation</a></td><td>May 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Sponsorship</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$591,719</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bJscAAE/view" target="_blank">Turntide Technologies Inc.</a></td><td>Jul 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Pricing Tier/Term Length</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$386,703</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XWJTAA4/view" target="_blank">Fanatics Holdings, Inc. (multi-cloud)</a></td><td>Jun 2026</td><td>Partial</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Quality/Timeline)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$354,521</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE0piAAD/view" target="_blank">American Electric Power</a></td><td>May 2026</td><td>Full</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Quality/Timeline)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$300,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XiQLAA0/view" target="_blank">Winston Brands Incorporated</a></td><td>Jun 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Financial Distress - Out of Business/Bankruptcy</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$263,950</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019YBvuAAG/view" target="_blank">American Musical Supply, Inc</a></td><td>Jun 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Price Uplift</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$237,773</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000D4dheAAB/view" target="_blank">Hickory Farms, Inc.</a></td><td>May 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Financial Distress - Need to Cut Costs</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$234,448</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XX0bAAG/view" target="_blank">Fanatics Holdings, Inc. (MC only)</a></td><td>Jun 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$209,404</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQe0jAAD/view" target="_blank">CSI Compressco LP (sub of Kodiak)</a></td><td>May 2026</td><td>Full</td><td>Implementation</td><td>Customer Led - Customer Issue</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$142,201</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TfwYpAAJ/view" target="_blank">Abacode</a></td><td>May 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Restructuring/Internal License Reduction</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$138,168</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000F2aGTAAZ/view" target="_blank">NHS U.S. LLC</a></td><td>Jun 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$104,327</td></tr>
+</tbody>
+</table>
+</div>
+<div style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--slds-border);display:flex;justify-content:flex-end;font-size:.8125rem;font-weight:700;color:var(--slds-dark);">
+Total Attrition: <span style="color:var(--slds-error);margin-left:.5rem;">$9,902,386</span>
+</div>
+</div>
+</details>
+
+</div>
+
+<!-- NOT ACTIONABLE PANEL -->
+<div class="panel" id="not-actionable">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Not Actionable &mdash; 1 Record | $264K</h2>
+
+<div class="card">
+<table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>Attrition</th><th>Rate</th><th>Status</th><th>CSM Notes</th></tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XiQLAA0/view" target="_blank">Winston Brands Incorporated</a></td>
+<td>MC ExactTarget</td><td>Jana Long</td><td>2026-06-13</td><td>$263,950</td><td>0%</td><td>Will Attrit</td>
+<td class="notes-cell">3/2/2026 CSAL CChau #FullAttrit #LicFullAttrit - company out of business - not actionable</td>
+</tr>
+</table>
+</div>
+
+<div class="insight-box">
+<h4>Why Not Actionable?</h4>
+<p>Winston Brands filed for bankruptcy and is out of business. The CSM explicitly notes &ldquo;not actionable.&rdquo; No retention play, competitive intervention, or engagement strategy could have altered this outcome. Dead Attrition stage confirms closure.</p>
+</div>
+</div>
+
+<!-- WINS PANEL -->
+<div class="panel" id="wins">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Wins &mdash; 2 Records | $1.15M Retained</h2>
+
+<div class="card">
+<table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>At-Risk</th><th>Rate</th><th>New ACV</th><th>CSM Notes</th></tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE8yXAAT/view" target="_blank">84.51 LLC</a></td>
+<td>Core; Pardot; Salesforce Industry</td><td>Rachel Cutrell</td><td>2026-05-28</td><td>$944,398</td><td>100%</td><td>$1,027,771</td>
+<td class="notes-cell">1/8/26 : #NoAttrit, utilization in 80s% no risk identified</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XX0bAAG/view" target="_blank">Fanatics Holdings, Inc. (MC only)</a></td>
+<td>MC ExactTarget</td><td>Eric Askew</td><td>2026-06-07</td><td>$209,404</td><td>100%</td><td>$678,923</td>
+<td class="notes-cell">2/19/26- SAW- Standard on MCE: AE has confirmed they're leaving Core, greatly reducing loyalty #PartialAttrit</td>
+</tr>
+</table>
+</div>
+
+<div class="insight-box">
+<h4>84.51 LLC &mdash; $944K Risk Fully Retained, 100% Renewal Rate</h4>
+<p>Kroger&rsquo;s data analytics subsidiary renewed at $1.03M Forecasted ACV. CSM confirmed &ldquo;utilization in 80s%, no risk identified&rdquo; back in January. The attrition event was precautionary (transfer to new org scenario). Rate=100% confirms full retention. Clean Win.</p>
+</div>
+
+<div class="insight-box">
+<h4>Fanatics Holdings MC &mdash; $209K Risk, Customer Consolidating Not Leaving</h4>
+<p>100% rate with $679K Forecasted ACV preserved on the MC-only renewal. While Fanatics is departing Core and reducing loyalty programs, the MC ExactTarget subscription renews in full. The attrition is structural (Core departure ripple), not an MC product exit.</p>
+</div>
+</div>
+
+<!-- LOSSES PANEL -->
+<div class="panel" id="losses">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Losses &mdash; 11 Records | $8.75M Attrition</h2>
+
+<div class="card">
+<h3>Logo Losses &mdash; 4 Records | $6.57M</h3>
+<table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>Attrition</th><th>Rate</th><th>Stage</th></tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XMsFAAW/view" target="_blank">Shiseido Company, Limited</a></td>
+<td>MC ExactTarget</td><td>Marco Reyes</td><td>2026-05-31</td><td>$4,304,160</td><td>0%</td><td>Dead Attrition</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000003vTBdAAM/view" target="_blank">The Chamberlain Group LLC</a></td>
+<td>MC ExactTarget; Datorama</td><td>Andrew Chabot</td><td>2026-05-22</td><td>$1,890,615</td><td>0%</td><td>05 Closed</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019YBvuAAG/view" target="_blank">American Musical Supply, Inc</a></td>
+<td>MC ExactTarget; Datorama</td><td>Jana Long</td><td>2026-06-30</td><td>$237,773</td><td>0%</td><td>Dead Attrition</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQe0jAAD/view" target="_blank">CSI Compressco LP (sub of Kodiak)</a></td>
+<td>Core; Pardot</td><td>Alexa Votta</td><td>2026-05-14</td><td>$142,201</td><td>0%</td><td>Dead Attrition</td>
+</tr>
+</table>
+<p style="font-size:.75rem;color:var(--slds-text-weak);margin-top:.5rem">* Shiseido: License_Renewal_Status = &ldquo;Will Renew (Growth)&rdquo; but Dead Attrition stage with $0 Forecasted ACV &mdash; data anomaly. Classified as Logo Loss based on stage and $0 forecast.</p>
+</div>
+
+<div class="insight-box error">
+<h4>Shiseido &mdash; $4.30M Largest Single Attrition Event (Data Anomaly)</h4>
+<p>Status field shows &ldquo;Will Renew (Growth)&rdquo; yet the record sits in Dead Attrition with $4.3M attrition and $0 Forecasted ACV. CSG Notes are completely empty. This may be a consolidation or data error, but the Dead Attrition stage confirms the revenue is lost. Requires investigation with the account team.</p>
+</div>
+
+<div class="insight-box error">
+<h4>The Chamberlain Group &mdash; $1.89M MC Platform Exit</h4>
+<p>$1.2M of the attrition is confirmed MC ExactTarget with Datorama also departing. ARI was approved but the customer still exited. CSM notes the ARI &ldquo;should help open new opportunities&rdquo; &mdash; possible future re-engagement but current renewal is a full loss. Rate=0%, ACV=$0.</p>
+</div>
+
+<div class="insight-box error">
+<h4>American Musical Supply &mdash; $238K Price Uplift Rejection</h4>
+<p>Dead Attrition confirmed. Attrition reason: &ldquo;Dissatisfaction with Price Uplift.&rdquo; No CSG Notes available for context. No retention play documented.</p>
+</div>
+
+<div class="insight-box error">
+<h4>CSI Compressco &mdash; $142K Implementation Failure</h4>
+<p>Dead Attrition confirmed. Customer-led implementation issue with no CSG Notes documentation. Pardot/Core departure with zero context for leadership reporting.</p>
+</div>
+
+<div class="card">
+<h3>Partial Saves &mdash; 6 Records | $1.81M</h3>
+<table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>Attrition</th><th>Rate</th><th>CSM Notes (Summary)</th></tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EBzGEAA1/view" target="_blank">Rich Products Corporation</a></td>
+<td>Core; MC ExactTarget</td><td>Lindsey Ells</td><td>2026-05-29</td><td>$591,719</td><td>100%*</td><td>#SigRisk #LicPartialAttrit $396K risk, economic pressure, courtesy extension through Aug 2026</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bJscAAE/view" target="_blank">Turntide Technologies Inc.</a></td>
+<td>Pardot</td><td>Holly Lesperance</td><td>2026-07-29</td><td>$386,703</td><td>28.92%</td><td>#partialattrit confirmed by customer / CIO potential precautionary red</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XWJTAA4/view" target="_blank">Fanatics Holdings, Inc. (multi-cloud)</a></td>
+<td>MC ExactTarget; Commerce Cloud</td><td>Eric Askew</td><td>2026-06-06</td><td>$354,521</td><td>71.25%</td><td>Build first strategy. They did drop Sig in FY26 on FHI.</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000D4dheAAB/view" target="_blank">Hickory Farms, Inc.</a></td>
+<td>MC ExactTarget</td><td>Jana Long</td><td>2026-05-07</td><td>$234,448</td><td>17.12%</td><td>#PartialAttrit #LicPartialAttrit - economic distress, moving 3 of 4 BUs off MC</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TfwYpAAJ/view" target="_blank">Abacode</a></td>
+<td>Pardot; Own</td><td>Courtney Pitts</td><td>2026-05-31</td><td>$138,168</td><td>41.41%</td><td>#PartialAttrit M&amp;A, shelfware. LA 85%, LU 81%, CPQ PSL 50%</td>
+</tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000F2aGTAAZ/view" target="_blank">NHS U.S. LLC</a></td>
+<td>MC ExactTarget</td><td>Robert Peckenpaugh</td><td>2026-06-13</td><td>$104,327</td><td>88.41%</td><td>#LicFullAttrit - moving to Klaviyo, will be #fullattrit</td>
+</tr>
+</table>
+<p style="font-size:.75rem;color:var(--slds-text-weak);margin-top:.5rem">* Rich Products: 100% rate is a field anomaly &mdash; CSM explicitly confirms &ldquo;$396K attrition risk&rdquo; with economic pressure and courtesy license extension.</p>
+</div>
+
+<div class="insight-box">
+<h4>Rich Products &mdash; $592K with Courtesy Extension Through Aug 2026</h4>
+<p>Economic pressure and companywide cost reduction. Customer confirms value in Signature but has no budget allocated. AF/DC licenses extended courtesy through end of August 2026. CSM notes $396K specific attrition risk. Well-documented with #SigRisk #LicPartialAttrit. Partial retention with future risk.</p>
+</div>
+
+<div class="insight-box">
+<h4>Turntide Technologies &mdash; $387K Pricing Dissatisfaction, Only 29% Retained</h4>
+<p>Confirmed by customer and CIO. Significant reduction from $544K to $157K retained. Pricing tier/term length dissatisfaction. Potential precautionary Red Account. Severe contraction but not a full exit.</p>
+</div>
+
+<div class="insight-box warn">
+<h4>Hickory Farms &mdash; $234K, Moving 3 of 4 BUs Off MC</h4>
+<p>Only 17.12% retention ($48K of $283K). Economic distress driving cost cuts by removing three of four business units from Marketing Cloud. Near-total exit with only one BU remaining. Borderline Logo Loss but technically retains some ACV.</p>
+</div>
+
+<div class="insight-box warn">
+<h4>NHS U.S. LLC &mdash; $104K Current, Full Exit Expected Next Cycle</h4>
+<p>88.41% rate currently retains $796K, but CSM explicitly states customer is &ldquo;moving to Klaviyo&rdquo; and this &ldquo;will be a #fullattrit.&rdquo; Current Q2 event is partial, but this is a confirmed future Logo Loss to a competitor (Klaviyo). Watch item for Q3/Q4.</p>
+</div>
+
+<div class="card">
+<h3>SP Downgrades &mdash; 1 Record | $300K</h3>
+<table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>Attrition</th><th>Rate</th><th>Context</th></tr>
+<tr>
+<td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE0piAAD/view" target="_blank">American Electric Power</a></td>
+<td>MC ExactTarget</td><td>Julie Malone</td><td>2026-05-31</td><td>$300,000</td><td>0%</td><td>#NoAttrit #SigRisk. Renewal = Sig only. Delayed engaging. Slim team. Leadership turnover. Cost concern for value.</td>
+</tr>
+</table>
+</div>
+
+<div class="insight-box warn">
+<h4>American Electric Power &mdash; $300K Signature-Only Attrition</h4>
+<p>CSM explicitly notes &ldquo;Renewal = Sig only&rdquo; with #NoAttrit tag &mdash; no license attrition, only Signature/Premier being dropped. Customer has slim team, lots of leadership turnover, and lacks strategic focus. Agreed to partner with Sig but execution was slow. License retained; Success Plan removed due to cost-to-value concerns.</p>
+</div>
+</div>
+
+<!-- COMPLIANCE PANEL -->
+<div class="panel" id="compliance">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">&#35;Compliance &mdash; CSG Notes Validation</h2>
+
+<div class="metric-grid">
+<div class="metric"><div class="value" style="color:var(--slds-success)">2</div><div class="label">Fully Compliant</div></div>
+<div class="metric"><div class="value" style="color:var(--slds-error)">12</div><div class="label">Non-Compliant</div></div>
+<div class="metric"><div class="value">14%</div><div class="label">Compliance Rate</div></div>
+</div>
+
+<div class="card">
+<h3>Record-Level Compliance</h3>
+<table>
+<tr><th>Account</th><th>Status</th><th>License Tag</th><th>Sig Tag</th><th>Date</th><th>Issues</th></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EBzGEAA1/view" target="_blank">Rich Products</a></td><td class="compliance-pass">PASS</td><td><span class="tag tag-success">#LicPartialAttrit</span></td><td><span class="tag tag-success">#SigRisk</span></td><td>&#10003;</td><td>None</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000D4dheAAB/view" target="_blank">Hickory Farms</a></td><td class="compliance-pass">PASS</td><td><span class="tag tag-success">#LicPartialAttrit</span></td><td><span class="tag tag-neutral">N/A (non-Premier)</span></td><td>&#10003;</td><td>None (invalid #PartialAttrit also present but valid tag exists)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000003vTBdAAM/view" target="_blank">The Chamberlain Group</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-success">#LicPartialAttrit</span></td><td><span class="tag tag-error">Missing</span></td><td>&#10003;</td><td>Missing sig tag (Premier); offense #ARI in CSG Notes</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE8yXAAT/view" target="_blank">84.51 LLC</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-error">#NoAttrit (invalid)</span></td><td><span class="tag tag-error">Missing</span></td><td>&#10003;</td><td>Invalid: #NoAttrit &rarr; #LicNoAttrit; missing sig tag (Premier)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bJscAAE/view" target="_blank">Turntide Technologies</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-error">#partialattrit (invalid)</span></td><td><span class="tag tag-error">Missing</span></td><td>&#10003;</td><td>Invalid tag; missing sig tag (Premier)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XWJTAA4/view" target="_blank">Fanatics (multi-cloud)</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-error">Missing</span></td><td><span class="tag tag-error">Missing</span></td><td>&#10003;</td><td>No license tag; no sig tag (Premier)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XX0bAAG/view" target="_blank">Fanatics (MC only)</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-error">#PartialAttrit (invalid)</span></td><td><span class="tag tag-error">Missing</span></td><td>&#10003;</td><td>Invalid tag; missing sig tag (Premier)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TfwYpAAJ/view" target="_blank">Abacode</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-error">#PartialAttrit (invalid)</span></td><td><span class="tag tag-error">Missing</span></td><td>&#10003;</td><td>Invalid tag; missing sig tag (Premier)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000F2aGTAAZ/view" target="_blank">NHS U.S. LLC</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-success">#LicFullAttrit</span></td><td><span class="tag tag-error">Missing</span></td><td>&#10003;</td><td>Missing sig tag (Premier); invalid #fullattrit also present</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE0piAAD/view" target="_blank">American Electric Power</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-error">#NoAttrit (invalid)</span></td><td><span class="tag tag-success">#SigRisk</span></td><td>&#10003;</td><td>Invalid: #NoAttrit &rarr; #LicNoAttrit</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XiQLAA0/view" target="_blank">Winston Brands</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-success">#LicFullAttrit</span></td><td><span class="tag tag-error">Missing</span></td><td>&#10003;</td><td>Invalid #FullAttrit also present; missing sig tag (Premier)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019YBvuAAG/view" target="_blank">American Musical Supply</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-error">Empty</span></td><td><span class="tag tag-error">Empty</span></td><td>&#10007;</td><td>CSG Notes completely empty (Premier)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQe0jAAD/view" target="_blank">CSI Compressco LP</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-error">Empty</span></td><td><span class="tag tag-error">Empty</span></td><td>&#10007;</td><td>CSG Notes completely empty (Premier)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XMsFAAW/view" target="_blank">Shiseido Company</a></td><td class="compliance-fail">FAIL</td><td><span class="tag tag-error">Empty</span></td><td><span class="tag tag-error">Empty</span></td><td>&#10007;</td><td>CSG Notes completely empty (Premier) &mdash; $4.3M undocumented</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Invalid Hashtags Found</h3>
+<table>
+<tr><th>Account</th><th>Invalid Tag</th><th>Correction</th><th>Severity</th></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE8yXAAT/view" target="_blank">84.51 LLC</a></td><td><code>#NoAttrit</code></td><td>#LicNoAttrit</td><td><span class="tag tag-error">CRITICAL</span></td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bJscAAE/view" target="_blank">Turntide Technologies</a></td><td><code>#partialattrit</code></td><td>#LicPartialAttrit</td><td><span class="tag tag-error">CRITICAL</span></td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XX0bAAG/view" target="_blank">Fanatics (MC only)</a></td><td><code>#PartialAttrit</code></td><td>#LicPartialAttrit</td><td><span class="tag tag-error">CRITICAL</span></td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TfwYpAAJ/view" target="_blank">Abacode</a></td><td><code>#PartialAttrit</code></td><td>#LicPartialAttrit</td><td><span class="tag tag-error">CRITICAL</span></td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE0piAAD/view" target="_blank">American Electric Power</a></td><td><code>#NoAttrit</code></td><td>#LicNoAttrit</td><td><span class="tag tag-error">CRITICAL</span></td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XiQLAA0/view" target="_blank">Winston Brands</a></td><td><code>#FullAttrit</code></td><td>#LicFullAttrit</td><td><span class="tag tag-error">CRITICAL</span></td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000F2aGTAAZ/view" target="_blank">NHS U.S. LLC</a></td><td><code>#fullattrit</code></td><td>#LicFullAttrit</td><td><span class="tag tag-warning">WARNING</span></td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000D4dheAAB/view" target="_blank">Hickory Farms</a></td><td><code>#PartialAttrit</code></td><td>#LicPartialAttrit (redundant &mdash; valid tag also present)</td><td><span class="tag tag-warning">WARNING</span></td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Offense Tags in CSG Notes (Belong in Red Account ECOMM Headline)</h3>
+<table>
+<tr><th>Account</th><th>Tag</th><th>Context</th><th>Severity</th></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000003vTBdAAM/view" target="_blank">The Chamberlain Group</a></td><td><code>#ARI</code></td><td>ARI approved, should help open new opportunities</td><td><span class="tag tag-info">INFO</span></td></tr>
+</table>
+</div>
+
+<div class="insight-box error">
+<h4>Primary Issue: #PartialAttrit / #FullAttrit / #NoAttrit Variants (8 Records)</h4>
+<p>The most common failure continues from Q1 &mdash; shortened/incorrect hashtag forms instead of the required #LicPartialAttrit / #LicFullAttrit / #LicNoAttrit. Same systemic pattern. Team-wide coaching reinforcement needed.</p>
+</div>
+
+<div class="insight-box warn">
+<h4>Missing Sig Tags on Premier Renewals (10 of 13 Premier Records)</h4>
+<p>77% of Premier-attached records are missing #SigRisk or #NoSigRisk. This is consistent with the Q1 gap (61%) and actually worsening. CSMs document license risk but consistently omit Signature risk assessment. Only Rich Products and American Electric Power include a sig tag.</p>
+</div>
+
+<div class="insight-box error">
+<h4>Empty CSG Notes on $4.68M of Attrition (3 Records)</h4>
+<p>Shiseido ($4.30M), American Musical Supply ($238K), and CSI Compressco ($142K) have absolutely no CSG documentation. These three records represent 47% of total Q2 attrition with zero context for leadership reporting or process improvement.</p>
+</div>
+</div>
+
+<!-- METHODOLOGY PANEL -->
+<div class="panel" id="methodology">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Methodology</h2>
+
+<div class="card">
+<h3>Data Source</h3>
+<p style="font-size:.8125rem">SOQL query against Org62 Opportunity object. Filters: Targeted_Clouds__c INCLUDES ('MC ExactTarget', 'Marketing Cloud', 'Pardot', 'Datorama'), CloseDate May 1 &ndash; Jul 31 2026, Forecasted_Attrition__c &le; -100000, StageName IN ('05 Closed', 'Dead Attrition'), Account.CSG_Region__c = 'AMER PACE'. Total records returned: 14 (9 from 05 Closed, 5 from Dead Attrition).</p>
+</div>
+
+<div class="card">
+<h3>Stage Composition</h3>
+<p style="font-size:.8125rem">This report includes two stages: <strong>05 Closed</strong> (9 records &mdash; standard closed renewals) and <strong>Dead Attrition</strong> (5 records &mdash; confirmed losses where renewal did not occur). Dead Attrition records are classified as Logo Loss unless CSM notes indicate otherwise (e.g., Winston Brands = Not Actionable due to bankruptcy).</p>
+</div>
+
+<div class="card">
+<h3>Classification Framework</h3>
+<table>
+<tr><th>Step</th><th>Question</th><th>Logic</th></tr>
+<tr><td>1</td><td>Risk?</td><td>Forecasted Attrition &gt; $0 &rarr; Yes (all qualify)</td></tr>
+<tr><td>2</td><td>Actionable?</td><td>Out of business / bankruptcy / non-primary cloud / off-cycle forecasting = Not Actionable</td></tr>
+<tr><td>3</td><td>Outcome</td><td>Win (&ge;90% rate + CSM confirms retention) | Logo Loss (0% rate or confirmed full exit / Dead Attrition) | Partial Save (partial retention) | SP Downgrade (license retained, Sig/Premier removed)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Cross-Cloud Records</h3>
+<p style="font-size:.8125rem">5 records include multiple clouds (84.51: Core/Pardot/Industry; Rich Products: Core/MC; Fanatics multi: MC/Commerce; CSI Compressco: Core/Pardot; Abacode: Pardot/Own). Attrition is the total opportunity amount, not split by cloud. These may also appear in Core or Commerce reports.</p>
+</div>
+
+<div class="card">
+<h3>Report Generated</h3>
+<p style="font-size:.8125rem">Date: June 16, 2026 | Period: Q2 FY27 (May&ndash;Jul 2026) | Cloud: Marketing Cloud | Portfolio: PACE AMER | Stages: 05 Closed + Dead Attrition</p>
+</div>
+</div>
+
+</div>
+
+<script>
+function showPanel(id){
+document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+event.currentTarget.classList.add('active');
+}
+document.querySelectorAll('details.attrition-events').forEach(d=>{
+d.addEventListener('toggle',()=>{
+const ch=d.querySelector('.chevron');
+ch.style.transform=d.open?'rotate(90deg)':'rotate(0)';
+});
+});
+function filterAttritionTable(sel){
+const table=sel.closest('details').querySelector('table');
+const rows=table.querySelectorAll('tbody tr');
+const filters=sel.closest('details').querySelectorAll('select');
+rows.forEach(row=>{
+let show=true;
+filters.forEach(f=>{
+if(f.value){
+const col=parseInt(f.getAttribute('data-col'));
+const cell=row.cells[col]?row.cells[col].textContent.trim():'';
+if(!cell.includes(f.value))show=false;
+}
+});
+row.style.display=show?'':'none';
+});
+}
+const chartColors=['#0176d3','#2e844a','#ea001e','#fe9339','#7e57c2','#00bcd4','#ff7043','#8d6e63'];
+const doughnutOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}}};
+new Chart(document.getElementById('chart-classification'),{type:'doughnut',data:{labels:['Not Actionable','Wins','Logo Losses','Partial Saves','SP Downgrades'],datasets:[{data:[1,2,4,6,1],backgroundColor:['#8d6e63','#2e844a','#ea001e','#fe9339','#7e57c2']}]},options:doughnutOpts});
+new Chart(document.getElementById('chart-reason'),{type:'doughnut',data:{labels:['Financial & Contractual','Business Change & Distress','Success Plan & Support','Adoption','Implementation','Unspecified'],datasets:[{data:[4,4,2,1,1,2],backgroundColor:chartColors}]},options:doughnutOpts});
+new Chart(document.getElementById('chart-type'),{type:'doughnut',data:{labels:['Oncycle'],datasets:[{data:[14],backgroundColor:['#0176d3']}]},options:doughnutOpts});
+new Chart(document.getElementById('chart-top5'),{type:'bar',data:{labels:['Shiseido','Chamberlain Group','84.51 LLC','Rich Products','Turntide'],datasets:[{data:[4304160,1890615,944398,591719,386703],backgroundColor:'#0176d3'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>'$'+(v/1000000).toFixed(1)+'M'}},y:{ticks:{font:{size:11}}}}}});
+</script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Win/Loss Attrition Reports | PACE AMER FY27</title>
+<style>
+:root{--slds-blue:#0176d3;--slds-dark:#032d60;--slds-light:#f3f3f3;--slds-white:#fff;--slds-border:#e5e5e5;--slds-success:#2e844a;--slds-warning:#fe9339;--slds-error:#ea001e;--slds-info:#0176d3;--slds-text:#181818;--slds-text-weak:#706e6b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Salesforce Sans',Arial,sans-serif;background:var(--slds-light);color:var(--slds-text);line-height:1.5;min-height:100vh}
+.header{background:var(--slds-dark);color:var(--slds-white);padding:2rem 2rem 1.5rem;text-align:center}
+.header h1{font-size:1.5rem;font-weight:700;margin-bottom:.5rem}
+.header p{font-size:.875rem;opacity:.8}
+.content{padding:2rem;max-width:1200px;margin:0 auto}
+.legend{display:flex;gap:1.5rem;margin-bottom:2rem;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--slds-text-weak)}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+.legend-dot.complete{background:var(--slds-success)}
+.legend-dot.pipeline{background:var(--slds-warning)}
+.legend-dot.pending{background:var(--slds-border)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-bottom:2.5rem}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1.25rem;transition:all .2s;position:relative;overflow:hidden;text-decoration:none;color:inherit;display:block}
+.card.active{border-color:var(--slds-blue)}
+.card.active:hover{box-shadow:0 4px 12px rgba(1,118,211,.2);transform:translateY(-2px);border-color:var(--slds-blue)}
+.card.pending{opacity:.55;cursor:default}
+.card .cloud-label{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--slds-text-weak);margin-bottom:.375rem}
+.card .title{font-size:1rem;font-weight:700;color:var(--slds-dark);margin-bottom:.5rem}
+.card .meta{font-size:.75rem;color:var(--slds-text-weak);margin-bottom:.75rem}
+.card .stats{display:flex;gap:.5rem;flex-wrap:wrap}
+.stat{font-size:.6875rem;padding:.25rem .5rem;border-radius:4px;font-weight:600}
+.stat-records{background:#eaf5fe;color:var(--slds-blue)}
+.stat-attrition{background:#fef1f1;color:var(--slds-error)}
+.stat-compliance{background:#ecfbf1;color:var(--slds-success)}
+.stat-compliance.zero{background:#fef1f1;color:var(--slds-error)}
+.stat-pending{background:var(--slds-light);color:var(--slds-text-weak)}
+.badge{display:inline-block;padding:.25rem .625rem;border-radius:12px;font-size:.6875rem;font-weight:700;position:absolute;top:.75rem;right:.75rem}
+.badge-complete{background:#ecfbf1;color:var(--slds-success)}
+.badge-pipeline{background:#fff8e6;color:#946f00}
+.badge-pending{background:var(--slds-light);color:var(--slds-text-weak)}
+.quarter-label{font-size:.9375rem;font-weight:700;color:var(--slds-dark);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+.quarter-label .period{font-size:.75rem;font-weight:400;color:var(--slds-text-weak)}
+.summary-bar{display:flex;gap:1.5rem;margin-bottom:2rem;padding:1rem 1.25rem;background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;flex-wrap:wrap}
+.summary-item{text-align:center}
+.summary-item .val{font-size:1.25rem;font-weight:700;color:var(--slds-dark)}
+.summary-item .lbl{font-size:.6875rem;color:var(--slds-text-weak);margin-top:.125rem}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>Win/Loss Attrition Reports</h1>
+<p>PACE AMER | FY27 Q1&ndash;Q4 | Core &bull; Commerce Cloud &bull; Marketing Cloud</p>
+</div>
+
+<div class="content">
+
+<div class="summary-bar">
+<div class="summary-item"><div class="val">9</div><div class="lbl">Reports Generated</div></div>
+<div class="summary-item"><div class="val">3</div><div class="lbl">Pending</div></div>
+<div class="summary-item"><div class="val">$108.63M</div><div class="lbl">Total Attrition Analyzed</div></div>
+<div class="summary-item"><div class="val">13.7%</div><div class="lbl">Avg Compliance</div></div>
+</div>
+
+<div class="legend">
+<div class="legend-item"><div class="legend-dot complete"></div>Closed (Final)</div>
+<div class="legend-item"><div class="legend-dot pipeline"></div>Pipeline (Open)</div>
+<div class="legend-item"><div class="legend-dot pending"></div>Not Yet Generated</div>
+</div>
+
+<!-- Q1 FY27 -->
+<div class="quarter-label">Q1 FY27 <span class="period">Feb&ndash;Apr 2026</span></div>
+<div class="grid">
+
+<a class="card active" href="Q1 FY27 Core Attrition Analysis.html">
+<span class="badge badge-complete">Closed</span>
+<div class="cloud-label">Core</div>
+<div class="title">Q1 FY27 Core</div>
+<div class="meta">33 Records | $15.91M Total Attrition</div>
+<div class="stats">
+<span class="stat stat-records">33 Records</span>
+<span class="stat stat-attrition">$15.91M</span>
+<span class="stat stat-compliance">18%</span>
+</div>
+</a>
+
+<a class="card active" href="Q1 FY27 Commerce Attrition Analysis.html">
+<span class="badge badge-complete">Closed</span>
+<div class="cloud-label">Commerce Cloud</div>
+<div class="title">Q1 FY27 Commerce</div>
+<div class="meta">8 Records | $8.30M Total Attrition</div>
+<div class="stats">
+<span class="stat stat-records">8 Records</span>
+<span class="stat stat-attrition">$8.30M</span>
+<span class="stat stat-compliance">12.5%</span>
+</div>
+</a>
+
+<a class="card active" href="Q1 FY27 MC Attrition Analysis.html">
+<span class="badge badge-complete">Closed</span>
+<div class="cloud-label">Marketing Cloud</div>
+<div class="title">Q1 FY27 Marketing</div>
+<div class="meta">21 Records | $8.97M Total Attrition</div>
+<div class="stats">
+<span class="stat stat-records">21 Records</span>
+<span class="stat stat-attrition">$8.97M</span>
+<span class="stat stat-compliance">14%</span>
+</div>
+</a>
+
+</div>
+
+<!-- Q2 FY27 -->
+<div class="quarter-label">Q2 FY27 <span class="period">May&ndash;Jul 2026</span></div>
+<div class="grid">
+
+<a class="card active" href="Q2 FY27 Core Attrition Analysis.html">
+<span class="badge badge-complete">Complete</span>
+<div class="cloud-label">Core</div>
+<div class="title">Q2 FY27 Core</div>
+<div class="meta">51 Records | $23.2M Total Attrition</div>
+<div class="stats">
+<span class="stat stat-records">51 Records</span>
+<span class="stat stat-attrition">$23.2M</span>
+<span class="stat stat-compliance zero">8%</span>
+</div>
+</a>
+
+<a class="card active" href="Q2 FY27 Commerce Attrition Analysis.html">
+<span class="badge badge-complete">Complete</span>
+<div class="cloud-label">Commerce Cloud</div>
+<div class="title">Q2 FY27 Commerce</div>
+<div class="meta">11 Records | $4.67M Total Attrition</div>
+<div class="stats">
+<span class="stat stat-records">11 Records</span>
+<span class="stat stat-attrition">$4.67M</span>
+<span class="stat stat-compliance">18%</span>
+</div>
+</a>
+
+<a class="card active" href="Q2 FY27 MC Attrition Analysis.html">
+<span class="badge badge-complete">Complete</span>
+<div class="cloud-label">Marketing Cloud</div>
+<div class="title">Q2 FY27 Marketing</div>
+<div class="meta">8 Records | $8.55M Total Attrition</div>
+<div class="stats">
+<span class="stat stat-records">8 Records</span>
+<span class="stat stat-attrition">$8.55M</span>
+<span class="stat stat-compliance">12.5%</span>
+</div>
+</a>
+
+</div>
+
+<!-- Q3 FY27 -->
+<div class="quarter-label">Q3 FY27 <span class="period">Aug&ndash;Oct 2026</span></div>
+<div class="grid">
+
+<a class="card active" href="Q3 FY27 Core Attrition Analysis.html">
+<span class="badge badge-pipeline">Pipeline</span>
+<div class="cloud-label">Core</div>
+<div class="title">Q3 FY27 Core</div>
+<div class="meta">10 Records | $2.96M At-Risk | All Open</div>
+<div class="stats">
+<span class="stat stat-records">10 Records</span>
+<span class="stat stat-attrition">$2.96M</span>
+<span class="stat stat-compliance zero">0%</span>
+</div>
+</a>
+
+<a class="card active" href="Q3 FY27 Commerce Attrition Analysis.html">
+<span class="badge badge-pipeline">Pipeline</span>
+<div class="cloud-label">Commerce Cloud</div>
+<div class="title">Q3 FY27 Commerce</div>
+<div class="meta">12 Records | $8.25M At-Risk | All Open</div>
+<div class="stats">
+<span class="stat stat-records">12 Records</span>
+<span class="stat stat-attrition">$8.25M</span>
+<span class="stat stat-compliance">25%</span>
+</div>
+</a>
+
+<a class="card active" href="Q3 FY27 MC Attrition Analysis.html">
+<span class="badge badge-pipeline">Pipeline</span>
+<div class="cloud-label">Marketing Cloud</div>
+<div class="title">Q3 FY27 Marketing</div>
+<div class="meta">31 Records | $27.82M At-Risk | All Open</div>
+<div class="stats">
+<span class="stat stat-records">31 Records</span>
+<span class="stat stat-attrition">$27.82M</span>
+<span class="stat stat-compliance zero">13%</span>
+</div>
+</a>
+
+</div>
+
+<!-- Q4 FY27 -->
+<div class="quarter-label">Q4 FY27 <span class="period">Nov 2026&ndash;Jan 2027</span></div>
+<div class="grid">
+
+<div class="card pending">
+<span class="badge badge-pending">Pending</span>
+<div class="cloud-label">Core</div>
+<div class="title">Q4 FY27 Core</div>
+<div class="meta">Not yet generated</div>
+<div class="stats">
+<span class="stat stat-pending">Awaiting analysis</span>
+</div>
+</div>
+
+<div class="card pending">
+<span class="badge badge-pending">Pending</span>
+<div class="cloud-label">Commerce Cloud</div>
+<div class="title">Q4 FY27 Commerce</div>
+<div class="meta">Not yet generated</div>
+<div class="stats">
+<span class="stat stat-pending">Awaiting analysis</span>
+</div>
+</div>
+
+<div class="card pending">
+<span class="badge badge-pending">Pending</span>
+<div class="cloud-label">Marketing Cloud</div>
+<div class="title">Q4 FY27 Marketing</div>
+<div class="meta">Not yet generated</div>
+<div class="stats">
+<span class="stat stat-pending">Awaiting analysis</span>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>
