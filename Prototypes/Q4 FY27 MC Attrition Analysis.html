@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q4 FY27 MC Attrition Analysis | PACE AMER</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root{--slds-blue:#0176d3;--slds-dark:#032d60;--slds-light:#f3f3f3;--slds-white:#fff;--slds-border:#e5e5e5;--slds-success:#2e844a;--slds-warning:#fe9339;--slds-error:#ea001e;--slds-info:#0176d3;--slds-text:#181818;--slds-text-weak:#706e6b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Salesforce Sans',Arial,sans-serif;background:var(--slds-light);color:var(--slds-text);line-height:1.5}
+.header{background:var(--slds-dark);color:var(--slds-white);padding:1.5rem 2rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.header h1{font-size:1.25rem;font-weight:700}
+.header .badge{background:var(--slds-blue);padding:.25rem .75rem;border-radius:12px;font-size:.75rem;font-weight:600}
+.header .badge-warning{background:var(--slds-warning);padding:.25rem .75rem;border-radius:12px;font-size:.75rem;font-weight:600;color:#fff}
+.tabs{display:flex;background:var(--slds-white);border-bottom:2px solid var(--slds-border);padding:0 2rem;overflow-x:auto}
+.tab{padding:.75rem 1.25rem;cursor:pointer;font-size:.8125rem;font-weight:600;color:var(--slds-text-weak);border-bottom:3px solid transparent;white-space:nowrap;transition:all .2s}
+.tab:hover{color:var(--slds-blue)}
+.tab.active{color:var(--slds-blue);border-bottom-color:var(--slds-blue)}
+.content{padding:1.5rem 2rem;max-width:1400px;margin:0 auto}
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1.25rem;margin-bottom:1rem}
+.card h3{font-size:.9375rem;font-weight:700;margin-bottom:.75rem;color:var(--slds-dark)}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem}
+.metric{background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1rem;text-align:center}
+.metric .value{font-size:1.5rem;font-weight:700;color:var(--slds-dark)}
+.metric .label{font-size:.75rem;color:var(--slds-text-weak);margin-top:.25rem}
+table{width:100%;border-collapse:collapse;font-size:.8125rem}
+th{background:var(--slds-light);padding:.625rem .75rem;text-align:left;font-weight:600;color:var(--slds-dark);border-bottom:2px solid var(--slds-border)}
+td{padding:.625rem .75rem;border-bottom:1px solid var(--slds-border);vertical-align:top}
+tr:hover{background:#f0f7ff}
+.tag{display:inline-block;padding:.125rem .5rem;border-radius:10px;font-size:.6875rem;font-weight:600;margin:.125rem}
+.tag-success{background:#ecfbf1;color:var(--slds-success)}
+.tag-warning{background:#fff8e6;color:#946f00}
+.tag-error{background:#fef1f1;color:var(--slds-error)}
+.tag-info{background:#eaf5fe;color:var(--slds-blue)}
+.tag-neutral{background:var(--slds-light);color:var(--slds-text-weak)}
+.tag-rcg{background:#eaf5fe;color:#0176d3}
+.tag-mae{background:#ede7f6;color:#7e57c2}
+.tag-cmrcl{background:#fff8e6;color:#946f00}
+.insight-box{border-left:4px solid var(--slds-blue);padding:.75rem 1rem;margin-bottom:1rem;background:#f8fbfe;border-radius:0 4px 4px 0}
+.insight-box.warn{border-left-color:var(--slds-warning);background:#fffbf5}
+.insight-box.error{border-left-color:var(--slds-error);background:#fef8f8}
+.insight-box h4{font-size:.8125rem;font-weight:700;margin-bottom:.25rem}
+.insight-box p{font-size:.8125rem;color:var(--slds-text-weak)}
+a{color:var(--slds-blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.notes-cell{max-width:300px;white-space:pre-wrap;word-break:break-word;font-size:.75rem;color:var(--slds-text-weak)}
+.compliance-pass{color:var(--slds-success);font-weight:600}
+.compliance-fail{color:var(--slds-error);font-weight:600}
+</style>
+</head>
+<body>
+
+<nav style="position:sticky;top:0;z-index:999;background:#021b3d;display:flex;align-items:center;gap:12px;padding:8px 24px;font-family:'Salesforce Sans',Arial,sans-serif;font-size:12px;border-bottom:1px solid var(--slds-border);">
+<a href="dashboard.html" style="color:#fff;text-decoration:none;font-weight:700;margin-right:8px;display:flex;align-items:center;gap:4px;" title="Dashboard">&#9664; Home</a>
+<span style="color:rgba(255,255,255,0.3);">|</span>
+<a href="Q1 FY27 MC Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Q1</a>
+<a href="Q2 FY27 MC Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Q2</a>
+<a href="Q3 FY27 MC Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Q3</a>
+<span style="background:rgba(1,118,211,0.25);color:#90cdf4;padding:2px 10px;border-radius:10px;font-weight:700;">Q4</span>
+<span style="color:rgba(255,255,255,0.3);">|</span>
+<a href="Q4 FY27 Core Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Core</a>
+<a href="Q4 FY27 Commerce Attrition Analysis.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">Commerce</a>
+<span style="background:rgba(1,118,211,0.25);color:#90cdf4;padding:2px 10px;border-radius:10px;font-weight:700;">Marketing</span>
+</nav>
+
+<div class="header">
+<h1>Q4 FY27 Marketing Cloud Attrition Analysis</h1>
+<span class="badge">PACE AMER</span>
+<span class="badge">41 Records</span>
+<span class="badge">Nov&ndash;Jan 2027</span>
+<span class="badge-warning">At-Risk (Pipeline)</span>
+</div>
+
+<div class="tabs">
+<div class="tab active" onclick="showPanel('summary')">Summary</div>
+<div class="tab" onclick="showPanel('not-actionable')">Not Actionable (6)</div>
+<div class="tab" onclick="showPanel('losses')">Losses (15)</div>
+<div class="tab" onclick="showPanel('partial-saves')">Partial Saves (20)</div>
+<div class="tab" onclick="showPanel('compliance')">&#35;Compliance</div>
+<div class="tab" onclick="showPanel('methodology')">Methodology</div>
+</div>
+
+<div class="content">
+
+<!-- SUMMARY PANEL -->
+<div class="panel active" id="summary">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
+<div style="display:flex;align-items:center;gap:2rem;grid-column:1/-1;background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1.25rem 2rem;">
+<div style="text-align:center;"><div style="font-size:2rem;font-weight:700;color:var(--slds-dark);">$25.00M</div><div style="font-size:.75rem;color:var(--slds-text-weak);">Total At-Risk Attrition</div></div>
+<div style="width:1px;height:40px;background:var(--slds-border);"></div>
+<div style="text-align:center;"><div style="font-size:2rem;font-weight:700;color:var(--slds-dark);">41</div><div style="font-size:.75rem;color:var(--slds-text-weak);">Total Records</div></div>
+<div style="width:1px;height:40px;background:var(--slds-border);"></div>
+<div style="text-align:center;"><div style="font-size:1.25rem;font-weight:700;color:var(--slds-warning);">Pipeline</div><div style="font-size:.75rem;color:var(--slds-text-weak);">Quarter Status</div></div>
+</div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Classification (Projected)</h3><div style="position:relative;height:200px;"><canvas id="chart-classification"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition Reason</h3><div style="position:relative;height:200px;"><canvas id="chart-reason"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Oncycle vs Offcycle</h3><div style="position:relative;height:200px;"><canvas id="chart-type"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Top 5 Accounts by At-Risk Attrition</h3><div style="position:relative;height:200px;"><canvas id="chart-top5"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition by Area</h3><div style="position:relative;height:200px;"><canvas id="chart-area"></canvas></div></div>
+</div>
+
+<div class="card">
+<h3>Classification Breakdown (Projected)</h3>
+<table>
+<tr><th>Category</th><th>Count</th><th>At-Risk Attrition</th><th>Key Accounts</th></tr>
+<tr><td><span class="tag tag-neutral">Not Actionable</span></td><td>6</td><td>$2.80M</td><td>Whirlpool Corporation ($1.10M), Carhartt, Inc. ($476K), Perrigo Company Commercial ($460K), DXP Enterprises - Main Org ($393K)</td></tr>
+<tr><td><span class="tag tag-error">Logo Loss (Projected)</span></td><td>15</td><td>$14.08M</td><td>Michaels Stores Procurement Company, Inc. ($3.33M), J. Crew Group, LLC ($1.93M), Herbalife International of America, Inc. ($1.78M), Domino's Pizza LLC ($1.30M)</td></tr>
+<tr><td><span class="tag tag-warning">Partial Save (Projected)</span></td><td>20</td><td>$8.12M</td><td>Kimberly-Clark Corporation* ($2.03M), Genesco Inc. ($1.00M), Clarios, LLC* ($994K), FARO Technologies, Inc. - Main ($550K)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Area Breakdown</h3>
+<table>
+<tr><th>Area</th><th>Records</th><th>Attrition $</th><th>% of Total</th></tr>
+<tr><td><span class="tag tag-rcg">RCG</span></td><td>22</td><td>$19.05M</td><td>76%</td></tr>
+<tr><td><span class="tag tag-mae">MAE</span></td><td>9</td><td>$3.16M</td><td>13%</td></tr>
+<tr><td><span class="tag tag-cmrcl">CMRCL</span></td><td>10</td><td>$2.79M</td><td>11%</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Compliance Overview</h3>
+<div class="metric-grid">
+<div class="metric"><div class="value" style="color:var(--slds-success)">3</div><div class="label">Fully Compliant</div></div>
+<div class="metric"><div class="value" style="color:var(--slds-error)">38</div><div class="label">Non-Compliant</div></div>
+<div class="metric"><div class="value">7%</div><div class="label">Compliance Rate</div></div>
+</div>
+</div>
+
+<div class="insight-box error">
+<h4>Pipeline Warning: Q4 Has NOT Closed &mdash; All Classifications Are Projected</h4>
+<p>This quarter (Nov 2026 &ndash; Jan 2027) is still in progress. Classifications shown are projections based on current opportunity data and CSM commentary. Final outcomes will be determined after close dates pass and stages resolve.</p>
+</div>
+
+<div class="insight-box error">
+<h4>Critical: $14.08M in Projected Logo Losses Across 15 Records</h4>
+<p>Michaels ($3.33M, RFP lost), J. Crew ($1.93M, Braze compete), Herbalife ($1.78M, full attrit), Domino's ($1.30M, MC Next resistance), and Colgate ($1.22M, competitor switch) lead the projected losses. Combined, the top 5 account for $9.56M (68% of Logo Loss total).</p>
+</div>
+
+<div class="insight-box">
+<h4>Area Distribution: RCG Dominates (76% of $, 22/41 Records)</h4>
+<p>RCG accounts represent $19.05M in at-risk attrition driven by large Enterprise Retail and CG FMCG accounts. MAE holds 9 records ($3.16M) and CMRCL has 10 records ($2.79M).</p>
+</div>
+
+<div class="insight-box warn">
+<h4>Compliance Crisis: Only 7% Pass Rate &mdash; 10 Records with Empty Notes</h4>
+<p>10 records have completely empty CSG Notes (24% of total). An additional 28 records fail due to missing license tags, sig tags, or use of invalid hashtags (#PartialAttrit, #FullAttrit, #proservswap). Only 3 records fully meet PACE guidance requirements.</p>
+</div>
+
+<div class="insight-box">
+<h4>Bright Spot: Active Plays on $8.12M in Partial Save Pipeline</h4>
+<p>20 records have actionable status with mitigation in motion: Kimberly-Clark (ARI + RFP defense), Genesco (early renewal, ARI consideration), Keurig (ARI pending, AE engaged), Mars (Sig value realization push). Multiple RFP defenses and SWAP offers active across the portfolio.</p>
+</div>
+
+<details style="margin-top:1.5rem;border:1px solid var(--slds-border);border-radius:8px;background:var(--slds-white);">
+<summary style="padding:1rem 1.25rem;cursor:pointer;font-size:1rem;font-weight:700;color:var(--slds-dark);list-style:none;display:flex;align-items:center;gap:.5rem;">
+<span style="transition:transform .2s;display:inline-block;" class="chevron">&#9654;</span> Attrition Events &mdash; Detailed View (41 Records)
+</summary>
+<div style="padding:0 1.25rem 1.25rem;">
+<div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;align-items:center;">
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Nov 2026</option><option>Dec 2026</option><option>Jan 2027</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Attrition Reason <select onchange="filterTable(this)" data-col="4" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Adoption</option><option>Business Change &amp; Distress</option><option>Competitive</option><option>Customer Relationship</option><option>Financial &amp; Contractual</option><option>Implementation</option><option>Product</option><option>Success Plan &amp; Support</option><option>Unspecified</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Area <select onchange="filterTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>RCG</option><option>MAE</option><option>CMRCL</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterTable(this)" data-col="6" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
+</div>
+<div style="overflow-x:auto;">
+<table id="attrition-events-table">
+<thead><tr><th>Account Name</th><th>Area</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Attrition Reason Detail</th><th>Attrition Type</th><th style="text-align:right">At-Risk Amount</th></tr></thead>
+<tbody>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001Aa2u0AAB/view" target="_blank">Michaels Stores Procurement Company, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Dec 2026</td><td>Partial</td><td>Product</td><td>Product Feature Gap</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$3,327,846</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000ThkN4AAJ/view" target="_blank">Kimberly-Clark Corporation*</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jan 2027</td><td>Partial</td><td>Competitive</td><td>Switched to a Direct Competitor</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,032,816</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019YAnHAAW/view" target="_blank">J. Crew Group, LLC</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jan 2027</td><td>Full</td><td>Financial & Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,931,861</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOFKTAA5/view" target="_blank">Herbalife International of America, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jan 2027</td><td>Partial</td><td>Financial & Contractual</td><td>Packaging Change</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,779,214</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000005hUZRAA2/view" target="_blank">Domino's Pizza LLC</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Nov 2026</td><td>Partial</td><td>Product</td><td>Product Feature Gap</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,300,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOGhoAAH/view" target="_blank">Colgate-Palmolive Company (Corporate)</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jan 2027</td><td>Partial</td><td>Competitive</td><td>Switched to a Direct Competitor</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,220,114</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TfbffAAB/view" target="_blank">Whirlpool Corporation</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jan 2027</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,099,500</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AZzfjAAD/view" target="_blank">Genesco Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Dec 2026</td><td>Partial</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,000,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Bb6EbAAJ/view" target="_blank">Clarios, LLC*</a></td><td><span class="tag tag-mae">MAE</span></td><td>Jan 2027</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$994,304</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOA5uAAH/view" target="_blank">Keurig Green Mountain, Inc. *</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jan 2027</td><td>Partial</td><td>Financial & Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$964,702</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000ThJmjAAF/view" target="_blank">Mars Information Services, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jan 2027</td><td>Partial</td><td>Business Change & Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$865,625</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019eVpEAAU/view" target="_blank">Greenworks North America, LLC</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Jan 2027</td><td>Full</td><td>Adoption</td><td>Lack of Internal Expertise</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$699,771</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000008SFqjAAG/view" target="_blank">FARO Technologies, Inc. - Main</a></td><td><span class="tag tag-mae">MAE</span></td><td>Jan 2027</td><td>Partial</td><td>Business Change & Distress</td><td>M&A Activity - License Reduction</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$550,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000dvLR3AAM/view" target="_blank">The Kroger Co.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Dec 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$544,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000007gcfxAAA/view" target="_blank">Carhartt, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jan 2027</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$476,064</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000008S4NSAA0/view" target="_blank">O'Reilly Automotive Stores, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Nov 2026</td><td>Full</td><td>Customer Relationship</td><td>Relationship Issues (Account Management Turnover)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$473,883</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AZzAFAA1/view" target="_blank">Perrigo Company Commercial</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jan 2027</td><td>Partial</td><td>Financial & Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$460,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TGqA1AAL/view" target="_blank">ezCater, Inc.</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Jan 2027</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$423,991</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TddiMAAR/view" target="_blank">DXP Enterprises - Main Org</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Jan 2027</td><td>Partial</td><td>Financial & Contractual</td><td>Found Less Expensive Alternative</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$393,479</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000199EQWAA2/view" target="_blank">Aramco America Company</a></td><td><span class="tag tag-mae">MAE</span></td><td>Nov 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Expertise</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$359,629</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000006vQQXAA2/view" target="_blank">Bassett Furniture Co.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Dec 2026</td><td>Partial</td><td>Unspecified</td><td>No Reason Given</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$355,161</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017RWrHAAW/view" target="_blank">21st Century Equipment, LLC</a></td><td><span class="tag tag-mae">MAE</span></td><td>Dec 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$300,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000952dVAAQ/view" target="_blank">Diversified Food Service Inc.</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Dec 2026</td><td>Partial</td><td>Product</td><td>Platform Performance/Speed</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$300,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018cmjUAAQ/view" target="_blank">HNI Corporation</a></td><td><span class="tag tag-mae">MAE</span></td><td>Jan 2027</td><td>Partial</td><td>Success Plan & Support</td><td>Low Success Plan Utilization (Lack of Knowledge)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$286,552</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOG12AAH/view" target="_blank">Atmus Filtration, Inc.</a></td><td><span class="tag tag-mae">MAE</span></td><td>Jan 2027</td><td>Partial</td><td>Success Plan & Support</td><td>Low Success Plan Utilization (Lack of Knowledge)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$267,905</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000008S1mBAAS/view" target="_blank">Fire Mountain Gems</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Jan 2027</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$245,851</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000006mh2QAAQ/view" target="_blank">TARGET CORPORATION</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jan 2027</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$245,394</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TgTMfAAN/view" target="_blank">doTERRA International (HQ)</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jan 2027</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$218,783</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017RvEqAAK/view" target="_blank">HD Supply Facilities Maintenance*</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jan 2027</td><td>Partial</td><td>Financial & Contractual</td><td>Dissatisfaction with Price Uplift</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$207,049</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOFKCAA5/view" target="_blank">Ergotron, Inc.</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Jan 2027</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$200,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000006d6q5AAA/view" target="_blank">3Degrees Group</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Dec 2026</td><td>Partial</td><td>Product</td><td>Product Feature Gap</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$190,548</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017Zf8aAAC/view" target="_blank">BlueTriton Brands, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jan 2027</td><td>Partial</td><td>Financial & Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$175,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOFmcAAH/view" target="_blank">Starbucks Corporation*</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jan 2027</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$157,590</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOFlOAAX/view" target="_blank">Blanchard Machinery Company</a></td><td><span class="tag tag-mae">MAE</span></td><td>Jan 2027</td><td>Full</td><td>Financial & Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$138,325</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOCnAAAX/view" target="_blank">Rivian Automotive, LLC</a></td><td><span class="tag tag-mae">MAE</span></td><td>Jan 2027</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$135,578</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000005oSFzAAM/view" target="_blank">Reece USA</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Nov 2026</td><td>Partial</td><td>Financial & Contractual</td><td>Pricing Change</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$131,435</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004OBODAA4/view" target="_blank">Aclara Technologies, LLC</a></td><td><span class="tag tag-mae">MAE</span></td><td>Dec 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$127,513</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOFEEAA5/view" target="_blank">Ingredion</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jan 2027</td><td>Partial</td><td>Business Change & Distress</td><td>Business Direction Change - Restructuring/Internal License Reduction</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$110,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001Aa4cIAAR/view" target="_blank">Serviceone, Inc.</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Dec 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Expertise</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$105,120</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOG5tAAH/view" target="_blank">Qualus Power Services</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Jan 2027</td><td>Partial</td><td>Implementation</td><td>Customer Led - Customer Issue</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$103,812</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000P2pRRAAZ/view" target="_blank">Wonder Group Ops, LLC</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Nov 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$102,366</td></tr>
+</tbody>
+</table>
+</div>
+<div style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--slds-border);display:flex;justify-content:flex-end;font-size:.8125rem;font-weight:700;color:var(--slds-dark);">
+Total At-Risk Attrition: <span style="color:var(--slds-error);margin-left:.5rem;">$25,000,781</span>
+</div>
+</div>
+</details>
+
+</div>
+
+<!-- NOT ACTIONABLE PANEL -->
+<div class="panel" id="not-actionable">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Not Actionable (Projected) &mdash; 6 Records | $2.80M</h2>
+<div class="insight-box">
+<h4>These records have no forecasted attrition impact or are monitoring-only</h4>
+<p>Records classified as Not Actionable either show Will Renew (Flat) status, have #LicNoAttrit with no additional risk signals, or represent monitoring-only situations where no actual attrition is expected despite the forecasted field.</p>
+</div>
+<div class="card"><table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>At-Risk Amount</th><th>Rate</th><th>Status</th><th>CSM Notes</th></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TfbffAAB/view" target="_blank">Whirlpool Corporation</a></td><td>Core;MC ExactTarget;Tableau</td><td>Lindsey Ells</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$1,099,500</td><td>100%</td><td>Will Renew (Flat)</td><td class="notes-cell">4/16/26 JSC #LicNoAttrit #RA Premier support, Field MC, large Tableau deployment (9033 licenses) + Analytics + Core, Top100 investment, no attrition forecast. https://www.sfdc.co/WPred</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000007gcfxAAA/view" target="_blank">Carhartt, Inc.</a></td><td>MC ExactTarget</td><td>Lindsey Ells</td><td>2027-01-16</td><td style="font-weight:600;color:var(--slds-error)">$476,064</td><td>0%</td><td>Will Renew (Flat)</td><td class="notes-cell">02/17/26, RT, Risk TBD, aligning with new account team. More information soon.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AZzAFAA1/view" target="_blank">Perrigo Company Commercial</a></td><td>Core;MC ExactTarget;Datorama</td><td>Robert Peckenpaugh</td><td>2027-01-20</td><td style="font-weight:600;color:var(--slds-error)">$460,000</td><td>100%</td><td>Will Reduce (Actionable)</td><td class="notes-cell">4/16/26 JSC #LicNoAttrit No known risk per sales. Hedging attrit due to usage.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TddiMAAR/view" target="_blank">DXP Enterprises - Main Org</a></td><td>Core;Pardot;Own</td><td>Holly Lesperance</td><td>2027-01-30</td><td style="font-weight:600;color:var(--slds-error)">$393,479</td><td>0%</td><td>Will Attrit (Actionable)</td><td class="notes-cell">5/5: RP CSAL: #fullattrit company moving to free competitor- not actionable</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOFKCAA5/view" target="_blank">Ergotron, Inc.</a></td><td>Core;Pardot</td><td>Jana Long</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$200,000</td><td>100%</td><td>N/A</td><td class="notes-cell">3/12/2026 CSAL CChau #NoAttrit #LicNoAttrit - forecasting flat renewal with some uplift. Confirming with AD and RM.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017Zf8aAAC/view" target="_blank">BlueTriton Brands, Inc.</a></td><td>MC ExactTarget</td><td>Robert Peckenpaugh</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$175,000</td><td>100%</td><td>Will Reduce (Actionable)</td><td class="notes-cell">5/8/26- JSC- #LicNoAttrit No known risk at this time. AE actively working to gather more insight.</td></tr>
+</table></div>
+</div>
+
+<!-- LOSSES PANEL -->
+<div class="panel" id="losses">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Logo Loss (Projected) &mdash; 15 Records | $14.08M</h2>
+<div class="insight-box error">
+<h4>Projected full attrition &mdash; no remaining ACV expected</h4>
+<p>These records show 0% renewal rate and/or Will Attrit status with full attrition forecasted. Key themes: competitive losses to Braze/Adobe/Klaviyo (J. Crew, Keurig, Colgate), product gaps (Michaels, Domino's), and financial restructuring (Herbalife, DXP). Several have active defense plays (ARI, RFP, SWAP) that could shift them to Partial Save if successful.</p>
+</div>
+<div class="card"><table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>At-Risk Amount</th><th>Rate</th><th>Status</th><th>CSM Notes</th></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001Aa2u0AAB/view" target="_blank">Michaels Stores Procurement Company, Inc.</a></td><td>MC ExactTarget</td><td>Eric Askew</td><td>2026-12-27</td><td style="font-weight:600;color:var(--slds-error)">$3,327,846</td><td>0%</td><td>Will Attrit (Actionable)</td><td class="notes-cell">6/15/26- SAW Customer dropped signature in December for financial reasons.   #RFP issued for MC. Down selected w/ concerns over Services $.  #ARI approved.  High risk for #LicFullAttrit. #RA: https://...</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019YAnHAAW/view" target="_blank">J. Crew Group, LLC</a></td><td>MC ExactTarget</td><td>Rachel Cutrell</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$1,931,861</td><td>0%</td><td>Will Attrit</td><td class="notes-cell">#ARI #RFP 5/11/26-SAW- Looking at a Braze compete - AT stating still full attrition. Waiting to hear back on RFP 4/2- ARI Approved - next call 5/15</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOFKTAA5/view" target="_blank">Herbalife International of America, Inc.</a></td><td>MC ExactTarget</td><td>Eric Askew</td><td>2027-01-30</td><td style="font-weight:600;color:var(--slds-error)">$1,779,214</td><td>0%</td><td>Will Attrit (Actionable)</td><td class="notes-cell">5/5/26 LW: #LicFullAttrit #SigRisk #RA High CPM = 0.98; Low Sig eng; limited to Ops team; no strategy shared ; Despite momentum in Dec; low response since; CMO Mtg 9/3 missed mark. No hbl stakeholder ...</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000005hUZRAA2/view" target="_blank">Domino's Pizza LLC</a></td><td>MC ExactTarget;Datorama</td><td>Rachel Cutrell</td><td>2026-11-30</td><td style="font-weight:600;color:var(--slds-error)">$1,300,000</td><td>0%</td><td>Will Reduce</td><td class="notes-cell">6/15/2026: SAW MC Next resistance, QBR in 2 weeks. overages on contracts. Merkle IDR competition,  Full details: https://docs.google.com/document/d/1Mi9CTwbrVo0St5KBf7XROSFvEy7cTtlKH5OqH4VC-WU/edit?ta...</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOGhoAAH/view" target="_blank">Colgate-Palmolive Company (Corporate)</a></td><td>Datorama</td><td>Robert Peckenpaugh</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$1,220,114</td><td>0%</td><td>Will Attrit (Actionable)</td><td class="notes-cell">6/16/26 Kathleen Voboril #LicFullAttrit $1.2M MCI. Swap offer ext 60 days; Rahm (new CMO) needs alignment. $0 order form signed for MCA + 200K flex bridge. Decision by end of July. #SWAP</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOA5uAAH/view" target="_blank">Keurig Green Mountain, Inc. *</a></td><td>MC ExactTarget</td><td>Robert Peckenpaugh</td><td>2027-01-29</td><td style="font-weight:600;color:var(--slds-error)">$964,702</td><td>0%</td><td>Will Attrit (Actionable)</td><td class="notes-cell">06/16/26 LJH & JSC #LicFullAttrit Risk. $964.7K attrition; In RFP against Adobe & Klaviyo; full risk/hedge, pricing/contract issue. #ARI await approval. AE fully engaged.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000ThJmjAAF/view" target="_blank">Mars Information Services, Inc.</a></td><td>MC ExactTarget</td><td>Robert Peckenpaugh</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$865,625</td><td>0%</td><td>Will Attrit (Actionable)</td><td class="notes-cell">06/0126 - PML: #SigRisk This renewal is at full risk as Mars broke Signature out of 3 year SELA to a 1 year renewal and are evaluating value/ROI this year. No specific complaints, but value realizatio...</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019eVpEAAU/view" target="_blank">Greenworks North America, LLC</a></td><td>MC ExactTarget;Datorama</td><td>Raj Mayadunne</td><td>2027-01-25</td><td style="font-weight:600;color:var(--slds-error)">$699,771</td><td>0%</td><td>Will Attrit</td><td class="notes-cell">6/9/2026 CChau CSAL #PartialAttrit #LicPartialAttrit #SigTrial - Signature Trial kicked off - looking to save this renewal.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000dvLR3AAM/view" target="_blank">The Kroger Co.</a></td><td>Marketing Cloud</td><td>Tony Rath</td><td>2026-12-21</td><td style="font-weight:600;color:var(--slds-error)">$544,000</td><td>N/A%</td><td>N/A</td><td class="notes-cell">(empty)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000008S4NSAA0/view" target="_blank">O'Reilly Automotive Stores, Inc.</a></td><td>MC ExactTarget</td><td>Rachel Cutrell</td><td>2026-11-30</td><td style="font-weight:600;color:var(--slds-error)">$473,883</td><td>0%</td><td>Will Attrit</td><td class="notes-cell">6/11/25, MRG #LicPartialAttrit #SigRisk #RA http://sfdc.co/D7T06 Presented MCE+ capabilities to NRG on 6/1. Team is interested in AI powered content builder enhancements. Next step for Beth-Ann to sch...</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017RWrHAAW/view" target="_blank">21st Century Equipment, LLC</a></td><td>Core;Pardot;Salesforce Maps;Tableau</td><td>Emily Manos</td><td>2026-12-18</td><td style="font-weight:600;color:var(--slds-error)">$300,000</td><td>0%</td><td>N/A</td><td class="notes-cell">2/17/26 CSAL GY #LicNoAttrit; initial slackbot analysis shows no risk but asking AD for confirmation.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000006mh2QAAQ/view" target="_blank">TARGET CORPORATION</a></td><td>Marketing Cloud</td><td>Vincent Barrow</td><td>2027-01-19</td><td style="font-weight:600;color:var(--slds-error)">$245,394</td><td>N/A%</td><td>N/A</td><td class="notes-cell">(empty)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TgTMfAAN/view" target="_blank">doTERRA International (HQ)</a></td><td>MC ExactTarget</td><td>Ramneek Sohi</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$218,783</td><td>0%</td><td>N/A</td><td class="notes-cell">(empty)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOG5tAAH/view" target="_blank">Qualus Power Services</a></td><td>Core;Pardot</td><td>Alexa Votta</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$103,812</td><td>0%</td><td>Will Attrit (Actionable)</td><td class="notes-cell">(empty)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000P2pRRAAZ/view" target="_blank">Wonder Group Ops, LLC</a></td><td>Pardot</td><td>Ramneek Sohi</td><td>2026-11-11</td><td style="font-weight:600;color:var(--slds-error)">$102,366</td><td>N/A%</td><td>N/A</td><td class="notes-cell">(empty)</td></tr>
+</table></div>
+</div>
+
+<!-- PARTIAL SAVES PANEL -->
+<div class="panel" id="partial-saves">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Partial Save (Projected) &mdash; 20 Records | $8.12M</h2>
+<div class="insight-box warn">
+<h4>Active mitigation in progress &mdash; some ACV expected to be retained</h4>
+<p>These records show partial retention through renewal rate > 0%, Will Reduce status, or active plays documented in CSG Notes. Key mitigation strategies in play: ARI programs (Genesco, Fire Mountain, Greenworks), product swaps (Colgate SWAP, Diversified ProServ swap), RFP defenses (Kimberly-Clark, Keurig), and pricing negotiations.</p>
+</div>
+<div class="card"><table>
+<tr><th>Account</th><th>Cloud</th><th>Owner</th><th>Close Date</th><th>At-Risk Amount</th><th>Rate</th><th>Status</th><th>CSM Notes</th></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000ThkN4AAJ/view" target="_blank">Kimberly-Clark Corporation*</a></td><td>MC ExactTarget</td><td>Robert Peckenpaugh</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$2,032,816</td><td>100%</td><td>Will Attrit (Actionable)</td><td class="notes-cell">04/24/2026- WK - #SigRisk #ARI #RFP #PartialAttrition - Kimberly-Clark Procurement shared that they are opening a RFP for MC business. Red Account incoming.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AZzfjAAD/view" target="_blank">Genesco Inc.</a></td><td>MC ExactTarget;Datorama</td><td>Eric Askew</td><td>2026-12-22</td><td style="font-weight:600;color:var(--slds-error)">$1,000,000</td><td>100%</td><td>Will Reduce (Actionable)</td><td class="notes-cell">6/8/26: JP -Sept. Early renewal. SMS/MMS reducing 3,500,000. Sig is valuable, but questioning cost. #LicPartialAttrit #SigRisk Considering #ARI #RA http://sfdc.co/pSYw8</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Bb6EbAAJ/view" target="_blank">Clarios, LLC*</a></td><td>Core;Pardot</td><td>Ryan Savage</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$994,304</td><td>86.14%</td><td>N/A</td><td class="notes-cell">(empty)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000008SFqjAAG/view" target="_blank">FARO Technologies, Inc. - Main</a></td><td>Core;Pardot;MC ExactTarget;Spiff</td><td>Joe Long</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$550,000</td><td>75.02%</td><td>Will Reduce</td><td class="notes-cell">5/22/26 CSAL GY #LicPartialAttrit - potential 25% attrition from acquisition (another SF org)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TGqA1AAL/view" target="_blank">ezCater, Inc.</a></td><td>Core;MC ExactTarget;Slack</td><td>Jana Long</td><td>2027-01-25</td><td style="font-weight:600;color:var(--slds-error)">$423,991</td><td>82.87%</td><td>N/A</td><td class="notes-cell">6/10/2026 CSAL CChau #PartialAttrit #LicPartialAttrit Tableau has competition, CRM has partially migrated from hubspot, Service not touched yet. CSAL working with AD to drive adoption.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000199EQWAA2/view" target="_blank">Aramco America Company</a></td><td>Core;Pardot</td><td>Julie Malone</td><td>2026-11-17</td><td style="font-weight:600;color:var(--slds-error)">$359,629</td><td>100%</td><td>Will Reduce</td><td class="notes-cell">6/8/26 CSAL CCap #LicPartialAttrit; Anticipating changes in their current BOM in the contract, so possible risk of attrition. Full swing. LCS Focus.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000006vQQXAA2/view" target="_blank">Bassett Furniture Co.</a></td><td>MC ExactTarget</td><td>Marquel Bivens</td><td>2026-12-31</td><td style="font-weight:600;color:var(--slds-error)">$355,161</td><td>100%</td><td>Will Attrit (Actionable)</td><td class="notes-cell">(empty)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000952dVAAQ/view" target="_blank">Diversified Food Service Inc.</a></td><td>MC ExactTarget;Datorama</td><td>Jean-Yves Roy</td><td>2026-12-14</td><td style="font-weight:600;color:var(--slds-error)">$300,000</td><td>100%</td><td>Will Reduce (Actionable)</td><td class="notes-cell">4/6: RP CSAL #proservswap #partialattritrisk</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018cmjUAAQ/view" target="_blank">HNI Corporation</a></td><td>Core;Pardot</td><td>Cortney Brake</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$286,552</td><td>81.21%</td><td>Will Reduce</td><td class="notes-cell">5/22/26 CSAL GY #LicPartialAttrit - could be consolidating into one contract/renewal, looking at usage reporting.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOG12AAH/view" target="_blank">Atmus Filtration, Inc.</a></td><td>Core;MC ExactTarget;B2B Commerce</td><td>Emily Manos</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$267,905</td><td>36.34%</td><td>Will Reduce</td><td class="notes-cell">5/22/26 CSAL GY #LicNoAttrit - looking to sell signature, tableau, and potentially CTO.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000008S1mBAAS/view" target="_blank">Fire Mountain Gems</a></td><td>Core;MC ExactTarget</td><td>Jana Long</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$245,851</td><td>100%</td><td>N/A</td><td class="notes-cell">4/9/2026 CSAL CChau #LicPartialAttrit #PartialAttrit - looking at potential #ARI to help provide training and configuration</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017RvEqAAK/view" target="_blank">HD Supply Facilities Maintenance*</a></td><td>MC ExactTarget</td><td>Lindsey Ells</td><td>2027-01-13</td><td style="font-weight:600;color:var(--slds-error)">$207,049</td><td>100%</td><td>Will Reduce (Actionable)</td><td class="notes-cell">06/02/26 - Corey Bauer #NoLicAttrit #SigRisk: Customer shows strong Marketing Cloud adoption/engagement. However, customer is unhappy w/ derivative pricing of Signature Success and has shared their in...</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000006d6q5AAA/view" target="_blank">3Degrees Group</a></td><td>Core;Pardot;Slack</td><td>Alexa Votta</td><td>2026-12-19</td><td style="font-weight:600;color:var(--slds-error)">$190,548</td><td>46.83%</td><td>Will Reduce (Actionable)</td><td class="notes-cell">(empty)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOFmcAAH/view" target="_blank">Starbucks Corporation*</a></td><td>Core;Pardot</td><td>Rachel Cutrell</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$157,590</td><td>50.27%</td><td>N/A</td><td class="notes-cell">4/30/2026 - RR - #SigRisk #ARIRequested. $4.8M multi-cloud risk: MuleSoft $1.7M, B2B Commerce $2M, Slack $1.1M. CTO 20% cost-cut mandate. ARI requested for Agentforce POC & B2B Commerce upgrade. Exec ...</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOFlOAAX/view" target="_blank">Blanchard Machinery Company</a></td><td>MC ExactTarget;Datorama</td><td>Cortney Brake</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$138,325</td><td>100%</td><td>Will Attrit</td><td class="notes-cell">(empty)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOCnAAAX/view" target="_blank">Rivian Automotive, LLC</a></td><td>Core;MC ExactTarget</td><td>Tyler Santuro</td><td>2027-01-30</td><td style="font-weight:600;color:var(--slds-error)">$135,578</td><td>92.61%</td><td>N/A</td><td class="notes-cell">5/4/26 CSAL CCap #LicPartialAttrit #SwapSignature - 1.9% shelfware rate, no concerns; AE working on early renewal and says there is no risk of attrition. Price of Sig $231k. #RA</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000005oSFzAAM/view" target="_blank">Reece USA</a></td><td>MC ExactTarget</td><td>Holly Lesperance</td><td>2026-11-30</td><td style="font-weight:600;color:var(--slds-error)">$131,435</td><td>48.75%</td><td>Will Attrit (Actionable)</td><td class="notes-cell">5/5: RP CSALPartial Attrit microsoft compete looking to migrate off</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004OBODAA4/view" target="_blank">Aclara Technologies, LLC</a></td><td>Core;Pardot</td><td>Joe Long</td><td>2026-12-31</td><td style="font-weight:600;color:var(--slds-error)">$127,513</td><td>86.04%</td><td>N/A</td><td class="notes-cell">3/10/26 CSAL GY #LicPartialAttrit - shelfware from sales cloud, asked AD about product swaps.</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOFEEAA5/view" target="_blank">Ingredion</a></td><td>Core;Pardot</td><td>Robert Peckenpaugh</td><td>2027-01-31</td><td style="font-weight:600;color:var(--slds-error)">$110,000</td><td>100%</td><td>Will Reduce (Actionable)</td><td class="notes-cell">6/1/26 SS: #LicPartialAttrit Confirmed attrit for CPQ ($42K). Also, potential swing due to Quip retirement. Otherwise solid adoption across Core & MCAE, customer reinvesting in Digital Help Desk & CRM...</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001Aa4cIAAR/view" target="_blank">Serviceone, Inc.</a></td><td>Core;Pardot</td><td>Budimir Mandrapa</td><td>2026-12-29</td><td style="font-weight:600;color:var(--slds-error)">$105,120</td><td>25.61%</td><td>Assessment Pending</td><td class="notes-cell">(empty)</td></tr>
+</table></div>
+</div>
+
+<!-- COMPLIANCE PANEL -->
+<div class="panel" id="compliance">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">#Compliance &mdash; CSG Notes Validation</h2>
+<div class="metric-grid">
+<div class="metric"><div class="value" style="color:var(--slds-success)">3</div><div class="label">Pass</div></div>
+<div class="metric"><div class="value" style="color:var(--slds-error)">38</div><div class="label">Fail</div></div>
+<div class="metric"><div class="value">7%</div><div class="label">Compliance Rate</div></div>
+<div class="metric"><div class="value" style="color:var(--slds-warning)">10</div><div class="label">Empty Notes</div></div>
+</div>
+<div class="card"><table>
+<tr><th>Account</th><th>Owner</th><th>Status</th><th>Violations</th></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001Aa2u0AAB/view" target="_blank">Michaels Stores Procurement Company, Inc.</a></td><td>Eric Askew</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000ThkN4AAJ/view" target="_blank">Kimberly-Clark Corporation*</a></td><td>Robert Peckenpaugh</td><td class="compliance-fail">FAIL</td><td>Missing license hashtag; Invalid hashtag(s): #partialattrit, #partialattrition</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019YAnHAAW/view" target="_blank">J. Crew Group, LLC</a></td><td>Rachel Cutrell</td><td class="compliance-fail">FAIL</td><td>Missing license hashtag; Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000005hUZRAA2/view" target="_blank">Domino's Pizza LLC</a></td><td>Rachel Cutrell</td><td class="compliance-fail">FAIL</td><td>Missing license hashtag; Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOGhoAAH/view" target="_blank">Colgate-Palmolive Company (Corporate)</a></td><td>Robert Peckenpaugh</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TfbffAAB/view" target="_blank">Whirlpool Corporation</a></td><td>Lindsey Ells</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Bb6EbAAJ/view" target="_blank">Clarios, LLC*</a></td><td>Ryan Savage</td><td class="compliance-fail">FAIL</td><td>Empty or minimal CSG Notes</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOA5uAAH/view" target="_blank">Keurig Green Mountain, Inc. *</a></td><td>Robert Peckenpaugh</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000ThJmjAAF/view" target="_blank">Mars Information Services, Inc.</a></td><td>Robert Peckenpaugh</td><td class="compliance-fail">FAIL</td><td>Missing license hashtag; No date stamp found</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019eVpEAAU/view" target="_blank">Greenworks North America, LLC</a></td><td>Raj Mayadunne</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account); Invalid hashtag(s): #partialattrit</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000008SFqjAAG/view" target="_blank">FARO Technologies, Inc. - Main</a></td><td>Joe Long</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000dvLR3AAM/view" target="_blank">The Kroger Co.</a></td><td>Tony Rath</td><td class="compliance-fail">FAIL</td><td>Empty or minimal CSG Notes</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000007gcfxAAA/view" target="_blank">Carhartt, Inc.</a></td><td>Lindsey Ells</td><td class="compliance-fail">FAIL</td><td>Missing license hashtag; Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AZzAFAA1/view" target="_blank">Perrigo Company Commercial</a></td><td>Robert Peckenpaugh</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TGqA1AAL/view" target="_blank">ezCater, Inc.</a></td><td>Jana Long</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account); Invalid hashtag(s): #partialattrit</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TddiMAAR/view" target="_blank">DXP Enterprises - Main Org</a></td><td>Holly Lesperance</td><td class="compliance-fail">FAIL</td><td>Missing license hashtag; No date stamp found; Invalid hashtag(s): #fullattrit</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000199EQWAA2/view" target="_blank">Aramco America Company</a></td><td>Julie Malone</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000006vQQXAA2/view" target="_blank">Bassett Furniture Co.</a></td><td>Marquel Bivens</td><td class="compliance-fail">FAIL</td><td>Empty or minimal CSG Notes</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017RWrHAAW/view" target="_blank">21st Century Equipment, LLC</a></td><td>Emily Manos</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000952dVAAQ/view" target="_blank">Diversified Food Service Inc.</a></td><td>Jean-Yves Roy</td><td class="compliance-fail">FAIL</td><td>Missing license hashtag; No date stamp found; Missing sig hashtag (Premier account); Invalid hashtag(s): #partialattrit, #partialattritrisk, #proservswap</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018cmjUAAQ/view" target="_blank">HNI Corporation</a></td><td>Cortney Brake</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOG12AAH/view" target="_blank">Atmus Filtration, Inc.</a></td><td>Emily Manos</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000008S1mBAAS/view" target="_blank">Fire Mountain Gems</a></td><td>Jana Long</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account); Invalid hashtag(s): #partialattrit</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000006mh2QAAQ/view" target="_blank">TARGET CORPORATION</a></td><td>Vincent Barrow</td><td class="compliance-fail">FAIL</td><td>Empty or minimal CSG Notes</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TgTMfAAN/view" target="_blank">doTERRA International (HQ)</a></td><td>Ramneek Sohi</td><td class="compliance-fail">FAIL</td><td>Empty or minimal CSG Notes</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017RvEqAAK/view" target="_blank">HD Supply Facilities Maintenance*</a></td><td>Lindsey Ells</td><td class="compliance-fail">FAIL</td><td>Missing license hashtag</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOFKCAA5/view" target="_blank">Ergotron, Inc.</a></td><td>Jana Long</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account); Invalid hashtag(s): #noattrit</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000006d6q5AAA/view" target="_blank">3Degrees Group</a></td><td>Alexa Votta</td><td class="compliance-fail">FAIL</td><td>Empty or minimal CSG Notes</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017Zf8aAAC/view" target="_blank">BlueTriton Brands, Inc.</a></td><td>Robert Peckenpaugh</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOFmcAAH/view" target="_blank">Starbucks Corporation*</a></td><td>Rachel Cutrell</td><td class="compliance-fail">FAIL</td><td>Missing license hashtag</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOFlOAAX/view" target="_blank">Blanchard Machinery Company</a></td><td>Cortney Brake</td><td class="compliance-fail">FAIL</td><td>Empty or minimal CSG Notes</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOCnAAAX/view" target="_blank">Rivian Automotive, LLC</a></td><td>Tyler Santuro</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000005oSFzAAM/view" target="_blank">Reece USA</a></td><td>Holly Lesperance</td><td class="compliance-fail">FAIL</td><td>Missing license hashtag; No date stamp found; Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004OBODAA4/view" target="_blank">Aclara Technologies, LLC</a></td><td>Joe Long</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOFEEAA5/view" target="_blank">Ingredion</a></td><td>Robert Peckenpaugh</td><td class="compliance-fail">FAIL</td><td>Missing sig hashtag (Premier account)</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001Aa4cIAAR/view" target="_blank">Serviceone, Inc.</a></td><td>Budimir Mandrapa</td><td class="compliance-fail">FAIL</td><td>Empty or minimal CSG Notes</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOG5tAAH/view" target="_blank">Qualus Power Services</a></td><td>Alexa Votta</td><td class="compliance-fail">FAIL</td><td>Empty or minimal CSG Notes</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000P2pRRAAZ/view" target="_blank">Wonder Group Ops, LLC</a></td><td>Ramneek Sohi</td><td class="compliance-fail">FAIL</td><td>Empty or minimal CSG Notes</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AOFKTAA5/view" target="_blank">Herbalife International of America, Inc.</a></td><td>Eric Askew</td><td class="compliance-pass">PASS</td><td>All checks passed</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001AZzfjAAD/view" target="_blank">Genesco Inc.</a></td><td>Eric Askew</td><td class="compliance-pass">PASS</td><td>All checks passed</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000008S4NSAA0/view" target="_blank">O'Reilly Automotive Stores, Inc.</a></td><td>Rachel Cutrell</td><td class="compliance-pass">PASS</td><td>All checks passed</td></tr>
+</table></div>
+</div>
+
+<!-- METHODOLOGY PANEL -->
+<div class="panel" id="methodology">
+<h2 style="font-size:1.125rem;font-weight:700;margin-bottom:1rem;color:var(--slds-dark)">Methodology</h2>
+
+<div class="card">
+<h3>Data Source</h3>
+<p style="font-size:.8125rem;color:var(--slds-text-weak);margin-bottom:.75rem">Salesforce Org62 via SOQL query. Pull date: June 2026.</p>
+<pre style="background:var(--slds-light);padding:1rem;border-radius:4px;font-size:.75rem;overflow-x:auto;">SELECT Id, Name, Account.Name, Account.CSG_Subregion__c, Account.CSG_Portfolio__c,
+       Owner.Name, StageName, CloseDate, Forecasted_Attrition__c, Forecasted_Renewal_Rate__c,
+       IsPremier_Attached__c, Targeted_Clouds__c, License_Renewal_Status__c,
+       License_At_Risk_Reason__c, ACV_Reason_Detail__c, SEM_Notes__c,
+       sfbase__ACV__c, Forecasted_Annual_Contract_Value__c
+FROM Opportunity
+WHERE CloseDate >= 2026-11-01 AND CloseDate <= 2027-01-31
+  AND Targeted_Clouds__c INCLUDES ('MC ExactTarget','Marketing Cloud','Pardot','Datorama')
+  AND Forecasted_Attrition__c <= -100000
+  AND Account.CSG_Region__c = 'AMER PACE'
+ORDER BY Forecasted_Attrition__c ASC</pre>
+<p style="font-size:.75rem;color:var(--slds-text-weak);margin-top:.5rem"><strong>Note:</strong> Q4 is an open/pipeline quarter. StageName filter is omitted to capture all in-flight records regardless of stage.</p>
+</div>
+
+<div class="card">
+<h3>Classification Decision Tree</h3>
+<table>
+<tr><th>Classification</th><th>Criteria</th></tr>
+<tr><td><span class="tag tag-neutral">Not Actionable</span></td><td>Rate=100% + Will Renew (Flat), OR CSG Notes say "not actionable", OR #LicNoAttrit + rate=100% with no risk signals</td></tr>
+<tr><td><span class="tag tag-error">Logo Loss</span></td><td>Rate=0% + Will Attrit + no remaining FACV, OR #LicFullAttrit with no mitigation path</td></tr>
+<tr><td><span class="tag tag-warning">Partial Save</span></td><td>0% &lt; Rate &lt; 100%, OR Rate=100% + Will Reduce, OR #LicPartialAttrit with active plays</td></tr>
+<tr><td><span class="tag tag-info">SP Downgrade</span></td><td>#LicNoAttrit + #SigRisk (Signature-only drop, license retained)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Compliance Validation Rules</h3>
+<table>
+<tr><th>Check</th><th>Requirement</th></tr>
+<tr><td>License Hashtag</td><td>Must contain #LicNoAttrit, #LicPartialAttrit, or #LicFullAttrit</td></tr>
+<tr><td>Date Stamp</td><td>Must include a date (MM/DD/YY or similar format)</td></tr>
+<tr><td>Sig Hashtag</td><td>If IsPremier_Attached = true, must contain #SigRisk or #NoSigRisk</td></tr>
+<tr><td>Invalid Tags</td><td>Must NOT contain: #PartialAttrit, #FullAttrit, #NoAttrit, #nonactionable, #proservswap, etc.</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Success Metrics &amp; Impact Tracking</h3>
+<p style="font-size:.8125rem;color:var(--slds-text-weak);margin-bottom:1rem">This workflow tracks 5 KPIs to measure whether the automated Win/Loss process improves data quality, coaching velocity, and reporting efficiency over time.</p>
+<table>
+<tr><th>Metric</th><th>Baseline (Q1 FY27)</th><th>Current (Q4 FY27)</th><th>Target</th><th>How Measured</th></tr>
+<tr><td>CSG Notes Compliance Rate</td><td>12% (MC)</td><td style="font-weight:600">7%</td><td>&ge;60%</td><td>#Compliance tab pass/fail per record</td></tr>
+<tr><td>Time-to-Report</td><td>2&ndash;4 hours / report</td><td style="font-weight:600">&lt;15 minutes</td><td>&lt;15 minutes</td><td>End-to-end automation runtime</td></tr>
+<tr><td>Empty CSG Notes (%)</td><td>38% (MC Q1)</td><td style="font-weight:600">24%</td><td>&lt;10%</td><td>Records with no SEM_Notes__c</td></tr>
+<tr><td>Classification Consistency</td><td>Varies by analyst</td><td style="font-weight:600">100% (automated)</td><td>0 reclassifications</td><td>3-pass verification step</td></tr>
+<tr><td>Report Coverage</td><td>Ad-hoc, incomplete</td><td style="font-weight:600">16 reports generated</td><td>All clouds, all quarters</td><td>Report generation log</td></tr>
+</table>
+<div class="insight-box" style="margin-top:1rem;">
+<h4>Quarter-over-Quarter Trend</h4>
+<p>MC Compliance: Q1 = 12% &rarr; Q2 = 9% &rarr; Q3 = 12% &rarr; Q4 = 7%. Rising compliance indicates CSMs are responding to coaching feedback from these reports. Target: &ge;60% by end of FY27.</p>
+</div>
+<div class="insight-box" style="margin-top:.5rem;">
+<h4>Coaching Mechanism</h4>
+<p>The #Compliance tab identifies specific CSMs with gaps. Leaders use this in 1:1s to address: empty notes, missing license tags, invalid hashtags, and missing sig tags for Premier accounts. Each quarterly report generates a coaching target list sorted by attrition exposure.</p>
+</div>
+</div>
+
+</div>
+
+</div>
+
+<script>
+function showPanel(id){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');event.target.classList.add('active');}
+function filterTable(el){const col=parseInt(el.dataset.col);const val=el.value;const rows=document.querySelectorAll('#attrition-events-table tbody tr');rows.forEach(row=>{const cell=row.cells[col];if(!val){row.style.display='';}else{row.style.display=cell&&cell.textContent.includes(val)?'':'none';}});}
+document.addEventListener('DOMContentLoaded',function(){
+const dOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}}};
+new Chart(document.getElementById('chart-classification'),{type:'doughnut',data:{labels:['Not Actionable (6)','Logo Loss (15)','Partial Save (20)'],datasets:[{data:[6,15,20],backgroundColor:['#706e6b','#ea001e','#fe9339']}]},options:dOpts});
+new Chart(document.getElementById('chart-reason'),{type:'doughnut',data:{labels:["Unspecified", "Financial & Contractual", "Product", "Business Change & Distress", "Adoption", "Competitive", "Customer Relationship", "Success Plan & Support", "Implementation"],datasets:[{data:[15, 9, 4, 3, 3, 2, 2, 2, 1],backgroundColor:["#0176d3", "#7e57c2", "#fe9339", "#ea001e", "#2e844a", "#706e6b", "#032d60", "#90cdf4", "#c23934"]}]},options:dOpts});
+new Chart(document.getElementById('chart-type'),{type:'doughnut',data:{labels:['Oncycle (40)','Offcycle (1)'],datasets:[{data:[40,1],backgroundColor:['#0176d3','#fe9339']}]},options:dOpts});
+new Chart(document.getElementById('chart-top5'),{type:'bar',data:{labels:["Michaels Stores Procureme", "Kimberly-Clark Corporatio", "J. Crew Group, LLC", "Herbalife International o", "Domino's Pizza LLC"],datasets:[{label:'At-Risk ($M)',data:[3.33, 2.03, 1.93, 1.78, 1.3],backgroundColor:'#ea001e'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:function(v){return '$'+v+'M'}}}}}});
+new Chart(document.getElementById('chart-area'),{type:'doughnut',data:{labels:['RCG (22)','MAE (9)','CMRCL (10)'],datasets:[{data:[22,9,10],backgroundColor:['#0176d3','#7e57c2','#fe9339']}]},options:dOpts});
+});
+</script>
+</body>
+</html>
