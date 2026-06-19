@@ -36,9 +36,6 @@ tr:hover{background:#f0f7ff}
 .tag-error{background:#fef1f1;color:var(--slds-error)}
 .tag-info{background:#eaf5fe;color:var(--slds-blue)}
 .tag-neutral{background:var(--slds-light);color:var(--slds-text-weak)}
-.tag-sig{background:#ede7f6;color:#7e57c2}
-.tag-prem{background:#eaf5fe;color:#0176d3}
-.tag-basic{background:var(--slds-light);color:#706e6b}
 .insight-box{border-left:4px solid var(--slds-blue);padding:.75rem 1rem;margin-bottom:1rem;background:#f8fbfe;border-radius:0 4px 4px 0}
 .insight-box.warn{border-left-color:var(--slds-warning);background:#fffbf5}
 .insight-box.error{border-left-color:var(--slds-error);background:#fef8f8}
@@ -100,24 +97,6 @@ a:hover{text-decoration:underline}
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Top 5 Accounts by At-Risk Amount</h3><div style="position:relative;height:200px;"><canvas id="chart-top5"></canvas></div></div>
 </div>
 
-<div class="card"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Support Tier Distribution</h3><div style="position:relative;height:200px;"><canvas id="chart-tier"></canvas></div></div>
-
-<div class="card">
-<h3>Support Tier Breakdown</h3>
-<table>
-<tr><th>Tier</th><th>Records</th><th>At-Risk $</th><th>Avg $/Record</th></tr>
-<tr><td><span class="tag tag-sig">Signature</span></td><td>2</td><td>$2.36M</td><td>$1,179,500</td></tr>
-<tr><td><span class="tag tag-prem">Premier</span></td><td>6</td><td>$2.82M</td><td>$469,274</td></tr>
-<tr><td><span class="tag tag-basic">Basic</span></td><td>5</td><td>$3.40M</td><td>$680,356</td></tr>
-<tr style="font-weight:700;border-top:2px solid var(--slds-border)"><td>Total</td><td>13</td><td>$8.58M</td><td>$659,725</td></tr>
-</table>
-</div>
-
-<div class="insight-box" style="border-left-color:#7e57c2">
-<h4>Signature Accounts: Highest Per-Record At-Risk Exposure</h4>
-<p>2 Signature accounts (e.l.f. Beauty $2.07M, Ecolab Connect $285K) average $1.18M per record — nearly 2x the portfolio average ($660K). Basic-tier accounts lead in total volume ($3.40M across 5 records) driven by Duluth Trading's $2.43M. Premier accounts (6 records, $2.82M) have the lowest per-record average at $469K.</p>
-</div>
-
 <div class="card">
 <h3>Classification Breakdown (Projected)</h3>
 <table>
@@ -165,28 +144,28 @@ a:hover{text-decoration:underline}
 </summary>
 <div style="padding:0 1.25rem 1.25rem;">
 <div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;align-items:center;">
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Aug 2026</option><option>Sep 2026</option><option>Oct 2026</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">At-Risk Reason <select onchange="filterAttritionTable(this)" data-col="4" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Adoption</option><option>Business Change &amp; Distress</option><option>Competitive</option><option>Customer Relationship</option><option>Financial &amp; Contractual</option><option>Product</option><option>Unspecified</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="6" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Aug 2026</option><option>Sep 2026</option><option>Oct 2026</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">At-Risk Reason <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Adoption</option><option>Business Change &amp; Distress</option><option>Competitive</option><option>Customer Relationship</option><option>Financial &amp; Contractual</option><option>Product</option><option>Unspecified</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="5" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
 </div>
 <div style="overflow-x:auto;">
 <table id="attrition-events-table">
-<thead><tr><th>Account Name</th><th>Tier</th><th>Event Month</th><th>Full/Partial</th><th>At-Risk Reason</th><th>At-Risk Reason Detail</th><th>Attrition Type</th><th style="text-align:right">At-Risk Amount</th></tr></thead>
+<thead><tr><th>Account Name</th><th>Event Month</th><th>Full/Partial</th><th>At-Risk Reason</th><th>At-Risk Reason Detail</th><th>Attrition Type</th><th style="text-align:right">At-Risk Amount</th></tr></thead>
 <tbody>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017eEf2AAE/view" target="_blank">Duluth Trading Company</a></td><td><span class="tag tag-basic">Basic</span></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,430,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198FdUAAU/view" target="_blank">e.l.f. Beauty, Inc.</a></td><td><span class="tag tag-sig">Signature</span></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,074,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wHTxAAM/view" target="_blank">Instacart (Maplebear Inc.)</a></td><td><span class="tag tag-prem">Premier</span></td><td>Aug 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Expertise</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,234,062</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000drsVFAAY/view" target="_blank">Fanatics Holdings, Inc.</a></td><td><span class="tag tag-prem">Premier</span></td><td>Sep 2026</td><td>Full</td><td>Competitive</td><td>Replaced with an In-House Solution</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$567,494</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004NbUSAA0/view" target="_blank">Alice + Olivia, LLC</a></td><td><span class="tag tag-prem">Premier</span></td><td>Oct 2026</td><td>Full</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$448,144</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198M6XAAU/view" target="_blank">Fullbeauty Brands, Inc.</a></td><td><span class="tag tag-basic">Basic</span></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$417,263</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bLRzAAM/view" target="_blank">Nexeo Plastics, LLC</a></td><td><span class="tag tag-prem">Premier</span></td><td>Aug 2026</td><td>Full</td><td>Product</td><td>Product Retirement - Replacement Lacks Parity</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$328,320</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wGKzAAM/view" target="_blank">Ecolab Connect</a></td><td><span class="tag tag-sig">Signature</span></td><td>Aug 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$285,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000JypzCAAR/view" target="_blank">1916 (MS &amp; CC)</a></td><td><span class="tag tag-basic">Basic</span></td><td>Aug 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$238,015</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000MEIDLAA5/view" target="_blank">Christy Sports</a></td><td><span class="tag tag-basic">Basic</span></td><td>Oct 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$165,500</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000OQeOzAAL/view" target="_blank">PetMed Express, Inc.</a></td><td><span class="tag tag-basic">Basic</span></td><td>Oct 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$151,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Nu1PDAAZ/view" target="_blank">Fruit of the Loom, Inc.</a></td><td><span class="tag tag-prem">Premier</span></td><td>Oct 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Price Uplift</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$137,622</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198WgVAAU/view" target="_blank">Spartannash Company</a></td><td><span class="tag tag-prem">Premier</span></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$100,002</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017eEf2AAE/view" target="_blank">Duluth Trading Company</a></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,430,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198FdUAAU/view" target="_blank">e.l.f. Beauty, Inc.</a></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,074,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wHTxAAM/view" target="_blank">Instacart (Maplebear Inc.)</a></td><td>Aug 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Expertise</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,234,062</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000drsVFAAY/view" target="_blank">Fanatics Holdings, Inc.</a></td><td>Sep 2026</td><td>Full</td><td>Competitive</td><td>Replaced with an In-House Solution</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$567,494</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004NbUSAA0/view" target="_blank">Alice + Olivia, LLC</a></td><td>Oct 2026</td><td>Full</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$448,144</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198M6XAAU/view" target="_blank">Fullbeauty Brands, Inc.</a></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$417,263</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bLRzAAM/view" target="_blank">Nexeo Plastics, LLC</a></td><td>Aug 2026</td><td>Full</td><td>Product</td><td>Product Retirement - Replacement Lacks Parity</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$328,320</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wGKzAAM/view" target="_blank">Ecolab Connect</a></td><td>Aug 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$285,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000JypzCAAR/view" target="_blank">1916 (MS &amp; CC)</a></td><td>Aug 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$238,015</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000MEIDLAA5/view" target="_blank">Christy Sports</a></td><td>Oct 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$165,500</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000OQeOzAAL/view" target="_blank">PetMed Express, Inc.</a></td><td>Oct 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$151,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Nu1PDAAZ/view" target="_blank">Fruit of the Loom, Inc.</a></td><td>Oct 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Price Uplift</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$137,622</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198WgVAAU/view" target="_blank">Spartannash Company</a></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$100,002</td></tr>
 </tbody>
 </table>
 </div>
@@ -597,9 +576,6 @@ type:'bar',
 data:{labels:['Duluth Trading','e.l.f. Beauty','Instacart','Fanatics','Alice+Olivia'],datasets:[{label:'At-Risk ($)',data:[2430000,2074000,1234062,567494,448144],backgroundColor:['#ea001e','#ea001e','#fe9339','#ea001e','#ea001e']}]},
 options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return'$'+(v/1000000).toFixed(1)+'M'}}}}}
 });
-
-// Tier chart
-new Chart(document.getElementById('chart-tier'),{type:'doughnut',data:{labels:['Signature (2)','Premier (6)','Basic (5)'],datasets:[{data:[2,6,5],backgroundColor:['#7e57c2','#0176d3','#706e6b']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}}}});
 });
 
 // Chevron toggle for details
