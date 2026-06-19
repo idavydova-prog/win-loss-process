@@ -64,6 +64,9 @@
   .insight-label { font-size: 10px; font-weight: 700; color: #dd6b20; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
   .insight-box.critical .insight-label { color: #e53e3e; }
   .insight-box.info .insight-label { color: #3182ce; }
+  .tag-sig{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:#ede7f6;color:#7e57c2}
+  .tag-prem{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:#eaf5fe;color:#0176d3}
+  .tag-basic{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:#f7fafc;color:#706e6b}
   .insight-text { font-size: 13px; color: #4a5568; line-height: 1.6; }
 
   .compliance-table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -152,13 +155,33 @@
     </div>
   </div>
 
+  <!-- SECTION: SUPPORT TIER -->
+  <div class="section">
+    <div class="section-header">Support Tier Analysis <span class="section-badge badge-purple">Sig: 1 | Prem: 8 | Basic: 8</span></div>
+
+    <div style="background:white;border-radius:10px;padding:18px 20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <tr style="border-bottom:2px solid #e2e8f0;"><th style="text-align:left;padding:8px 12px;font-size:11px;color:#718096;text-transform:uppercase;">Tier</th><th style="text-align:left;padding:8px 12px;font-size:11px;color:#718096;text-transform:uppercase;">Records</th><th style="text-align:left;padding:8px 12px;font-size:11px;color:#718096;text-transform:uppercase;">Attrition $</th><th style="text-align:left;padding:8px 12px;font-size:11px;color:#718096;text-transform:uppercase;">Avg $/Record</th></tr>
+        <tr style="border-bottom:1px solid #f7fafc;"><td style="padding:10px 12px;"><span class="tag-sig">Signature</span></td><td style="padding:10px 12px;">1</td><td style="padding:10px 12px;">$2.29M</td><td style="padding:10px 12px;">$2,290,058</td></tr>
+        <tr style="border-bottom:1px solid #f7fafc;"><td style="padding:10px 12px;"><span class="tag-prem">Premier</span></td><td style="padding:10px 12px;">8</td><td style="padding:10px 12px;">$5.54M</td><td style="padding:10px 12px;">$692,864</td></tr>
+        <tr style="border-bottom:1px solid #f7fafc;"><td style="padding:10px 12px;"><span class="tag-basic">Basic</span></td><td style="padding:10px 12px;">8</td><td style="padding:10px 12px;">$5.53M</td><td style="padding:10px 12px;">$690,745</td></tr>
+        <tr style="font-weight:700;border-top:2px solid #e2e8f0;"><td style="padding:10px 12px;">Total</td><td style="padding:10px 12px;">17</td><td style="padding:10px 12px;">$13.36M</td><td style="padding:10px 12px;">$785,824</td></tr>
+      </table>
+    </div>
+
+    <div class="insight-box" style="border-left:4px solid #7e57c2;background:#faf5ff;border-color:#d6bcfa;">
+      <div class="insight-label" style="color:#7e57c2;">Signature Tier: Disproportionate Per-Record Attrition</div>
+      <div class="insight-text">The single Signature account (Under Armour, $2.29M) carries 2.9x the portfolio average ($786K per record). Premier and Basic are evenly split: 8 records each with nearly identical total attrition ($5.54M vs $5.53M). Basic-tier losses are dominated by Otto Environmental ($1.77M bad debt) and Cole Haan ($1.65M Shopify exit).</div>
+    </div>
+  </div>
+
   <!-- SECTION: LOGO LOSSES -->
   <div class="section">
     <div class="section-header">Logo Losses <span class="section-badge badge-red">3 records &bull; $3.4M</span></div>
 
     <div class="record-card logo-loss">
       <div class="record-header">
-        <span class="record-title">Cole Haan LLC</span>
+        <span class="record-title">Cole Haan LLC <span class="tag-basic">Basic</span></span>
         <span class="record-amount">-$1,650,074</span>
       </div>
       <div class="record-meta">Owner: Ramneek Sohi &bull; Close: Mar 31, 2026 &bull; Stage: Dead Attrition &bull; Prior ACV: $1,650,074</div>
@@ -177,7 +200,7 @@
 
     <div class="record-card logo-loss">
       <div class="record-header">
-        <span class="record-title">YETI Coolers, LLC</span>
+        <span class="record-title">YETI Coolers, LLC <span class="tag-prem">Premier</span></span>
         <span class="record-amount">-$2,007,929</span>
       </div>
       <div class="record-meta">Owner: Patti Graham &bull; Close: Feb 28, 2026 &bull; Stage: 05 Closed &bull; Prior ACV: $5,890,654 &bull; New ACV: $0</div>
@@ -197,7 +220,7 @@
 
     <div class="record-card logo-loss">
       <div class="record-header">
-        <span class="record-title">Land O'Lakes - Purina Animal Feed</span>
+        <span class="record-title">Land O'Lakes - Purina Animal Feed <span class="tag-prem">Premier</span></span>
         <span class="record-amount">-$143,360</span>
       </div>
       <div class="record-meta">Owner: Robert Peckenpaugh &bull; Close: Apr 30, 2026 &bull; Stage: Dead Attrition &bull; Prior ACV: $143,360</div>
@@ -220,7 +243,7 @@
 
     <div class="record-card partial-save">
       <div class="record-header">
-        <span class="record-title">Under Armour, Inc.</span>
+        <span class="record-title">Under Armour, Inc. <span class="tag-sig">Signature</span></span>
         <span class="record-amount">-$2,290,058</span>
       </div>
       <div class="record-meta">Owner: Seth Wilson &bull; Close: Feb 3, 2026 &bull; Stage: 05 Closed &bull; Type: Off-Cycle Restructure/Cancellation</div>
@@ -239,7 +262,7 @@
 
     <div class="record-card partial-save">
       <div class="record-header">
-        <span class="record-title">Tapestry, Inc.</span>
+        <span class="record-title">Tapestry, Inc. <span class="tag-prem">Premier</span></span>
         <span class="record-amount">-$2,000,000</span>
       </div>
       <div class="record-meta">Owner: Cara Holm &bull; Close: Feb 2, 2026 &bull; Stage: 05 Closed &bull; Type: Off-Cycle Non Coterminous Order</div>
@@ -257,7 +280,7 @@
 
     <div class="record-card partial-save">
       <div class="record-header">
-        <span class="record-title">Vista Outdoor Operations LLC (Revelyst)</span>
+        <span class="record-title">Vista Outdoor Operations LLC (Revelyst) <span class="tag-basic">Basic</span></span>
         <span class="record-amount">-$953,841</span>
       </div>
       <div class="record-meta">Owner: Patti Graham &bull; Close: Mar 12, 2026 &bull; Stage: 05 Closed &bull; Prior ACV: $1,555,461 &bull; New ACV: $240,900 (15% retained)</div>
@@ -276,7 +299,7 @@
 
     <div class="record-card partial-save">
       <div class="record-header">
-        <span class="record-title">PartyCity.com, LLC</span>
+        <span class="record-title">PartyCity.com, LLC <span class="tag-basic">Basic</span></span>
         <span class="record-amount">-$471,702</span>
       </div>
       <div class="record-meta">Owner: Jana Long &bull; Close: Mar 27, 2026 &bull; Stage: 05 Closed &bull; Prior ACV: $479,502 &bull; New ACV: $7,800 (2% retained)</div>
@@ -295,7 +318,7 @@
 
     <div class="record-card partial-save">
       <div class="record-header">
-        <span class="record-title">Kendra Scott LLC</span>
+        <span class="record-title">Kendra Scott LLC <span class="tag-basic">Basic</span></span>
         <span class="record-amount">-$116,228</span>
       </div>
       <div class="record-meta">Owner: Jean-Yves Roy &bull; Close: Feb 28, 2026 &bull; Stage: 05 Closed &bull; Prior ACV: $1,910,228 &bull; New ACV: $1,794,000 (94% retained)</div>
@@ -319,7 +342,7 @@
 
     <div class="record-card sp-downgrade">
       <div class="record-header">
-        <span class="record-title">Nebraska Furniture Mart, Inc.</span>
+        <span class="record-title">Nebraska Furniture Mart, Inc. <span class="tag-prem">Premier</span></span>
         <span class="record-amount">-$654,969</span>
       </div>
       <div class="record-meta">Owner: Cara Holm &bull; Close: Feb 14, 2026 &bull; Stage: Dead Attrition &bull; Type: Off-Cycle Ramp Down</div>
@@ -338,7 +361,7 @@
 
     <div class="record-card sp-downgrade">
       <div class="record-header">
-        <span class="record-title">SLT Lending SPV, Inc</span>
+        <span class="record-title">SLT Lending SPV, Inc <span class="tag-basic">Basic</span></span>
         <span class="record-amount">-$156,411</span>
       </div>
       <div class="record-meta">Owner: Jana Long &bull; Close: Mar 31, 2026 &bull; Stage: 05 Closed &bull; Prior ACV: $1,475,269 &bull; New ACV: $1,318,858 (89% retained)</div>
@@ -362,7 +385,7 @@
 
     <div class="record-card not-actionable">
       <div class="record-header">
-        <span class="record-title">Otto Environmental Systems</span>
+        <span class="record-title">Otto Environmental Systems <span class="tag-basic">Basic</span></span>
         <span class="record-amount">-$1,771,625</span>
       </div>
       <div class="record-meta">Owner: Bad Debt Hold &bull; Close: Apr 27, 2026 &bull; Stage: Dead Attrition &bull; Type: Off-Cycle Bad Debt</div>
@@ -379,7 +402,7 @@
 
     <div class="record-card not-actionable">
       <div class="record-header">
-        <span class="record-title">Lands' End, Inc.</span>
+        <span class="record-title">Lands' End, Inc. <span class="tag-prem">Premier</span></span>
         <span class="record-amount">-$300,125</span>
       </div>
       <div class="record-meta">Owner: Rachel Cutrell &bull; Close: Apr 30, 2026 &bull; Stage: 05 Closed &bull; Prior ACV: $1,601,250 &bull; New ACV: $1,301,125</div>
@@ -396,7 +419,7 @@
 
     <div class="record-card not-actionable">
       <div class="record-header">
-        <span class="record-title">Claire's Stores, Inc.</span>
+        <span class="record-title">Claire's Stores, Inc. <span class="tag-basic">Basic</span></span>
         <span class="record-amount">-$218,080</span>
       </div>
       <div class="record-meta">Owner: Jean-Yves Roy &bull; Close: Feb 26, 2026 &bull; Stage: Dead Attrition &bull; Prior ACV: $218,080</div>
@@ -413,7 +436,7 @@
 
     <div class="record-card not-actionable">
       <div class="record-header">
-        <span class="record-title">Gap Inc.</span>
+        <span class="record-title">Gap Inc. <span class="tag-basic">Basic</span></span>
         <span class="record-amount">-$188,000</span>
       </div>
       <div class="record-meta">Owner: Rachel Cutrell &bull; Close: Mar 31, 2026 &bull; Stage: Dead Attrition &bull; Prior ACV: $188,000</div>
@@ -429,7 +452,7 @@
 
     <div class="record-card not-actionable">
       <div class="record-header">
-        <span class="record-title">Riboli Family Wines</span>
+        <span class="record-title">Riboli Family Wines <span class="tag-prem">Premier</span></span>
         <span class="record-amount">-$183,334</span>
       </div>
       <div class="record-meta">Owner: Jean-Yves Roy &bull; Close: Feb 14, 2026 &bull; Stage: Dead Attrition &bull; Prior ACV: $183,334</div>
@@ -445,7 +468,7 @@
 
     <div class="record-card not-actionable">
       <div class="record-header">
-        <span class="record-title">Dunham's Athleisure Corporation</span>
+        <span class="record-title">Dunham's Athleisure Corporation <span class="tag-prem">Premier</span></span>
         <span class="record-amount">-$153,198</span>
       </div>
       <div class="record-meta">Owner: Jean-Yves Roy &bull; Close: Feb 14, 2026 &bull; Stage: Dead Attrition &bull; Prior ACV: $153,198</div>
@@ -461,7 +484,7 @@
 
     <div class="record-card not-actionable">
       <div class="record-header">
-        <span class="record-title">Hallmark Cards, Incorporated</span>
+        <span class="record-title">Hallmark Cards, Incorporated <span class="tag-prem">Premier</span></span>
         <span class="record-amount">-$100,000</span>
       </div>
       <div class="record-meta">Owner: Jean-Yves Roy &bull; Close: Feb 14, 2026 &bull; Stage: Dead Attrition &bull; Prior ACV: $100,000</div>
