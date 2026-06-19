@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Tier Integration — Mockup</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root{--slds-blue:#0176d3;--slds-dark:#032d60;--slds-light:#f3f3f3;--slds-white:#fff;--slds-border:#e5e5e5;--slds-success:#2e844a;--slds-warning:#fe9339;--slds-error:#ea001e;--slds-text:#181818;--slds-text-weak:#706e6b;--sig-purple:#7e57c2;--prem-blue:#0176d3;--basic-gray:#706e6b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Salesforce Sans',Arial,sans-serif;background:var(--slds-light);color:var(--slds-text);line-height:1.5}
+.header{background:var(--slds-dark);color:var(--slds-white);padding:1.5rem 2rem}
+.header h1{font-size:1.25rem;font-weight:700}
+.header p{font-size:.8125rem;color:#90cdf4;margin-top:.25rem}
+.content{padding:1.5rem 2rem;max-width:1200px;margin:0 auto}
+.card{background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1.25rem;margin-bottom:1.25rem}
+.card h3{font-size:.9375rem;font-weight:700;margin-bottom:.75rem;color:var(--slds-dark)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+.metric{text-align:center;padding:1rem;background:var(--slds-light);border-radius:8px}
+.metric .value{font-size:1.75rem;font-weight:700}
+.metric .label{font-size:.6875rem;color:var(--slds-text-weak);text-transform:uppercase;letter-spacing:.5px;margin-top:.25rem}
+.insight-box{border-left:4px solid var(--slds-blue);padding:.75rem 1rem;margin-bottom:1rem;background:#f8fbfe;border-radius:0 4px 4px 0}
+.insight-box.error{border-left-color:var(--slds-error);background:#fef8f8}
+.insight-box.warn{border-left-color:var(--slds-warning);background:#fffbf5}
+.insight-box.purple{border-left-color:var(--sig-purple);background:#f8f5fe}
+.insight-box h4{font-size:.8125rem;font-weight:700;margin-bottom:.25rem}
+.insight-box p{font-size:.8125rem;color:var(--slds-text-weak)}
+table{width:100%;border-collapse:collapse;font-size:.8125rem}
+th{background:var(--slds-light);padding:.625rem .75rem;text-align:left;font-weight:600;color:var(--slds-dark);border-bottom:2px solid var(--slds-border)}
+td{padding:.625rem .75rem;border-bottom:1px solid var(--slds-border);vertical-align:top}
+tr:hover{background:#f0f7ff}
+.tag{display:inline-block;padding:.125rem .5rem;border-radius:10px;font-size:.6875rem;font-weight:600}
+.tag-sig{background:#ede7f6;color:var(--sig-purple)}
+.tag-prem{background:#eaf5fe;color:var(--prem-blue)}
+.tag-basic{background:var(--slds-light);color:var(--basic-gray)}
+.tag-error{background:#fef1f1;color:var(--slds-error)}
+.tag-success{background:#ecfbf1;color:var(--slds-success)}
+.tag-warning{background:#fff8e6;color:#946f00}
+.section-label{font-size:.6875rem;text-transform:uppercase;letter-spacing:1px;color:var(--slds-text-weak);font-weight:700;margin-bottom:.75rem;margin-top:1.5rem}
+.new-badge{background:var(--slds-success);color:white;font-size:.5625rem;padding:.125rem .375rem;border-radius:4px;text-transform:uppercase;font-weight:700;vertical-align:middle;margin-left:.5rem}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h1>Support Tier Integration — Dashboard Mockup</h1>
+<p>How the Signature / Premier / Basic breakdown would appear in the Q1 FY27 MC Report</p>
+</div>
+
+<div class="content">
+
+<p class="section-label">New: Summary Tab — Additional Chart</p>
+
+<div class="grid-2">
+<div class="card">
+<h3>Attrition by Support Tier <span class="new-badge">New</span></h3>
+<div style="position:relative;height:220px;"><canvas id="chart-tier-donut"></canvas></div>
+</div>
+<div class="card">
+<h3>Attrition $ by Tier <span class="new-badge">New</span></h3>
+<div style="position:relative;height:220px;"><canvas id="chart-tier-bar"></canvas></div>
+</div>
+</div>
+
+<p class="section-label">New: Insight Boxes</p>
+
+<div class="insight-box purple">
+<h4>Signature Customers: 8 Records | $5.51M Attrition — Highest Revenue-per-Record</h4>
+<p>Signature accounts represent 24% of records but 31% of total attrition ($5.51M). Key losses: SharkNinja ($1.07M implementation failure), JM Family ($916K), PetSmart ($533K WON RFP — partial save). These are our most-invested customers — losses here signal a failure of the Signature value proposition.</p>
+</div>
+
+<div class="insight-box error">
+<h4>Data Integrity Flag: 7 Accounts Show Premier_Attached=True but Support Level=Basic</h4>
+<p>Landry's, Arbonne, Fanatics, BI-LO, Bethlehem, MBI Inc., and Hot Topic have <code>IsPremier_Attached__c = true</code> on the renewal but <code>SupportLevel__c = Basic</code> on the Account. Possible causes: plan lapsed before renewal closed, data lag, or field sync issue. Recommend validating with CSMs.</p>
+</div>
+
+<div class="insight-box">
+<h4>Basic-Tier Accounts: 11 Records | $5.44M — No Success Investment, Predictable Churn</h4>
+<p>Basic accounts have no Premier/Signature plan attached. These losses are harder to prevent without proactive engagement. Consider: Should high-ACV Basic accounts (e.g., Hot Topic $1.65M combined) be flagged for Premier attach before renewal?</p>
+</div>
+
+<p class="section-label">New: Tier Breakdown Table (Summary Tab)</p>
+
+<div class="card">
+<h3>Classification by Support Tier <span class="new-badge">New</span></h3>
+<table>
+<thead>
+<tr><th>Tier</th><th>Records</th><th>Attrition</th><th>Avg $/Record</th><th>Logo Loss</th><th>Partial Save</th><th>Win</th><th>Not Actionable</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="tag tag-sig">Signature</span></td>
+<td>8</td>
+<td style="font-weight:600;color:var(--slds-error)">$5.51M</td>
+<td>$689K</td>
+<td>5</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><span class="tag tag-prem">Premier</span></td>
+<td>15</td>
+<td style="font-weight:600;color:var(--slds-error)">$6.84M</td>
+<td>$456K</td>
+<td>5</td>
+<td>7</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td><span class="tag tag-basic">Basic</span></td>
+<td>11</td>
+<td style="font-weight:600;color:var(--slds-error)">$5.44M</td>
+<td>$495K</td>
+<td>5</td>
+<td>2</td>
+<td>0</td>
+<td>3</td>
+</tr>
+</tbody>
+<tfoot>
+<tr style="background:var(--slds-light);font-weight:700">
+<td>Total</td><td>34</td><td style="color:var(--slds-error)">$17.79M</td><td>$523K</td><td>15</td><td>12</td><td>2</td><td>4</td>
+</tr>
+</tfoot>
+</table>
+</div>
+
+<p class="section-label">Updated: Attrition Events Table — New Column</p>
+
+<div class="card">
+<h3>Attrition Events with Support Tier <span class="new-badge">New Column</span></h3>
+<div style="overflow-x:auto;">
+<table>
+<thead>
+<tr><th>Account</th><th>Support Tier</th><th>Classification</th><th>Attrition</th><th>Rate</th><th>Reason</th></tr>
+</thead>
+<tbody>
+<tr><td>Fossil Group, Inc.</td><td><span class="tag tag-prem">Premier</span></td><td><span class="tag tag-error">Logo Loss</span></td><td style="font-weight:600">$3,737,594</td><td>0%</td><td>Financial & Contractual</td></tr>
+<tr><td>Bath & Body Works, Inc.</td><td><span class="tag tag-prem">Premier</span></td><td><span class="tag tag-error">Logo Loss</span></td><td style="font-weight:600">$1,662,247</td><td>0%</td><td>Financial & Contractual</td></tr>
+<tr><td>Hot Topic, Inc.</td><td><span class="tag tag-basic">Basic</span></td><td><span class="tag tag-error">Logo Loss</span></td><td style="font-weight:600">$1,205,304</td><td>0%</td><td>Unspecified</td></tr>
+<tr><td>SharkNinja Operating LLC</td><td><span class="tag tag-sig">Signature</span></td><td><span class="tag tag-error">Logo Loss</span></td><td style="font-weight:600">$1,074,900</td><td>100%</td><td>Implementation</td></tr>
+<tr><td>Landry's Restaurants, Inc.*</td><td><span class="tag tag-basic">Basic</span></td><td><span class="tag tag-error">Logo Loss</span></td><td style="font-weight:600">$953,985</td><td>0%</td><td>Business Change</td></tr>
+<tr><td>JM Family Automotive LLC</td><td><span class="tag tag-sig">Signature</span></td><td><span class="tag tag-warning">Partial Save</span></td><td style="font-weight:600">$916,263</td><td>0%</td><td>Implementation</td></tr>
+<tr><td>Janie and Jack LLC</td><td><span class="tag tag-sig">Signature</span></td><td><span class="tag tag-error">Logo Loss</span></td><td style="font-weight:600">$599,929</td><td>0%</td><td>Product</td></tr>
+<tr><td>At Home Stores LLC</td><td><span class="tag tag-prem">Premier</span></td><td><span class="tag tag-warning">Partial Save</span></td><td style="font-weight:600">$587,541</td><td>80.41%</td><td>Customer Relationship</td></tr>
+<tr><td>PetSmart LLC</td><td><span class="tag tag-sig">Signature</span></td><td><span class="tag tag-warning">Partial Save</span></td><td style="font-weight:600">$532,796</td><td>81.11%</td><td>Financial & Contractual</td></tr>
+<tr><td>Phoenix BNBS Fashion, LLC</td><td><span class="tag tag-prem">Premier</span></td><td><span class="tag tag-error">Logo Loss</span></td><td style="font-weight:600">$512,544</td><td>0%</td><td>Financial & Contractual</td></tr>
+</tbody>
+</table>
+<p style="font-size:.75rem;color:var(--slds-text-weak);margin-top:.75rem;font-style:italic">Showing top 10 of 34 records. Full table includes filter dropdown for Support Tier.</p>
+</div>
+</div>
+
+<p class="section-label">New: Compliance Cross-Reference</p>
+
+<div class="card">
+<h3>Compliance Rate by Support Tier <span class="new-badge">New</span></h3>
+<div class="grid-3">
+<div class="metric"><div class="value" style="color:var(--sig-purple)">13%</div><div class="label">Signature (1/8)</div></div>
+<div class="metric"><div class="value" style="color:var(--prem-blue)">13%</div><div class="label">Premier (2/15)</div></div>
+<div class="metric"><div class="value" style="color:var(--basic-gray)">9%</div><div class="label">Basic (1/11)</div></div>
+</div>
+<p style="font-size:.8125rem;color:var(--slds-text-weak)">Compliance is uniformly low across all tiers — this is not a tier-specific problem. The coaching opportunity applies equally to CSMs managing Signature and Premier accounts. However, <strong>Signature accounts with compliance gaps represent the highest risk</strong> since they carry the largest ACV and leadership visibility.</p>
+</div>
+
+<p class="section-label">Summary of New Elements</p>
+
+<div class="card" style="background:#f8fbfe;border-left:4px solid var(--slds-blue)">
+<h3 style="margin-bottom:1rem">What Changes in the Report</h3>
+<table>
+<thead><tr><th>Location</th><th>Addition</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Summary Tab — Charts</td><td>Attrition by Support Tier donut + bar</td><td>Instant visibility: where are Signature losses?</td></tr>
+<tr><td>Summary Tab — Breakdown</td><td>Classification × Tier cross-table</td><td>Are we saving Signature accounts at a higher rate?</td></tr>
+<tr><td>Summary Tab — Insights</td><td>Tier-specific insight boxes</td><td>Narrative for leadership: "our most-invested customers are churning because..."</td></tr>
+<tr><td>Events Table</td><td>Support Tier column + filter</td><td>Filter to just Signature losses for exec review</td></tr>
+<tr><td>Compliance Tab</td><td>Compliance rate by tier</td><td>Prioritize coaching: Signature gaps first</td></tr>
+<tr><td>Data Pull (SOQL)</td><td><code>Account.SupportLevel__c</code></td><td>One additional field — no performance impact</td></tr>
+</tbody>
+</table>
+</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+const doughnutOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}}};
+
+new Chart(document.getElementById('chart-tier-donut'),{
+type:'doughnut',
+data:{
+labels:['Signature (8)','Premier (15)','Basic (11)'],
+datasets:[{data:[8,15,11],backgroundColor:['#7e57c2','#0176d3','#706e6b']}]
+},
+options:doughnutOpts
+});
+
+new Chart(document.getElementById('chart-tier-bar'),{
+type:'bar',
+data:{
+labels:['Signature','Premier','Basic'],
+datasets:[
+{label:'Logo Loss',data:[3.56,6.59,3.05],backgroundColor:'#ea001e'},
+{label:'Partial Save',data:[1.70,2.19,0],backgroundColor:'#fe9339'},
+{label:'Win',data:[0,0.39,0],backgroundColor:'#2e844a'},
+{label:'Not Actionable',data:[0.44,0,1.16],backgroundColor:'#706e6b'}
+]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:10}}}},
+scales:{
+x:{stacked:true},
+y:{stacked:true,ticks:{callback:function(v){return '$'+v+'M'}}}
+}
+}
+});
+});
+</script>
+
+</body>
+</html>
