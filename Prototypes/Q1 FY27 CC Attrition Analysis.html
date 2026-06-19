@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Q1 FY27 Commerce Cloud — Attrition Analysis</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f6f9; color: #1a1a2e; min-height: 100vh; line-height: 1.5; }
@@ -75,6 +76,33 @@
   .status-dot.fail { background: #e53e3e; }
 
   .footer { text-align: center; font-size: 11px; color: #a0aec0; margin-top: 40px; padding-top: 20px; border-top: 1px solid #edf2f7; }
+
+  /* Area Tags */
+  .tag-rcg { background: #eaf5fe; color: #0176d3; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+  .tag-mae { background: #ede7f6; color: #7e57c2; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+  .tag-cmrcl { background: #fff8e6; color: #946f00; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+
+  /* Chart grid */
+  .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .chart-card { background: white; border-radius: 10px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); text-align: center; }
+  .chart-card h3 { font-size: 12px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+
+  /* Area breakdown table */
+  .area-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .area-table th { text-align: left; font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; border-bottom: 2px solid #e2e8f0; }
+  .area-table td { padding: 10px 12px; border-bottom: 1px solid #f7fafc; vertical-align: top; }
+  .area-table tr:hover { background: #f7fafc; }
+
+  /* Filter bar */
+  .filter-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+  .filter-bar label { font-size: 11px; font-weight: 600; color: #718096; text-transform: uppercase; letter-spacing: 0.3px; }
+  .filter-bar select { font-size: 12px; padding: 5px 10px; border: 1px solid #e2e8f0; border-radius: 6px; background: white; color: #1a202c; cursor: pointer; }
+
+  /* Attrition events table */
+  .events-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .events-table th { text-align: left; font-size: 11px; color: #718096; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; border-bottom: 2px solid #e2e8f0; }
+  .events-table td { padding: 10px 12px; border-bottom: 1px solid #f7fafc; vertical-align: top; }
+  .events-table tr:hover { background: #f7fafc; }
 </style>
 </head>
 <body>
@@ -131,6 +159,46 @@
     </div>
   </div>
 
+  <!-- Area Donut Chart -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>Attrition by Area</h3>
+      <canvas id="areaDonutChart" width="220" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- Area Breakdown Table -->
+  <div class="section">
+    <div class="section-header">Area Breakdown <span class="section-badge badge-blue">3 Areas</span></div>
+    <div style="background:white; border-radius:10px; padding:18px 20px; box-shadow:0 1px 3px rgba(0,0,0,0.06); overflow-x:auto;">
+      <table class="area-table">
+        <thead>
+          <tr><th>Area</th><th>Records</th><th>Attrition $</th><th>Key Portfolios</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag-rcg">RCG</span></td>
+            <td>13</td>
+            <td>$10,775,862</td>
+            <td>RCG ENTR CG HMDU (5), RCG ENTR RETAIL (3), RCG CMRCL GB (3), RCG ENTR CG FMCG (1), RCG ENTR RETAIL (1)</td>
+          </tr>
+          <tr>
+            <td><span class="tag-cmrcl">CMRCL</span></td>
+            <td>4</td>
+            <td>$2,583,072</td>
+            <td>RCG CMRCL MM (3), MAE CMRCL MFG E (1)</td>
+          </tr>
+          <tr>
+            <td><span class="tag-mae">MAE</span></td>
+            <td>0</td>
+            <td>$0</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- Key Insights -->
   <div class="section">
     <div class="section-header">Key Insights</div>
@@ -149,6 +217,10 @@
     <div class="insight-box info">
       <div class="insight-label">Story Threshold</div>
       <div class="insight-text">Only 7 of 17 records meet the diagram's story process threshold (&gt;$500K Premier / &gt;$250K Signature). These 7 represent $12.1M (91%) of total attrition and should be prioritized for formal Win/Loss stories.</div>
+    </div>
+    <div class="insight-box info">
+      <div class="insight-label">Area Distribution</div>
+      <div class="insight-text"><strong>RCG dominates</strong> with 13 of 17 records (76%) and $10.8M (80%) of total attrition. CMRCL accounts for 4 records ($2.6M, 19%). MAE has zero Commerce Cloud attrition events this quarter. All 3 logo losses are RCG accounts; the single largest non-actionable event (Otto Environmental, $1.8M) sits in CMRCL.</div>
     </div>
   </div>
 
@@ -477,6 +549,56 @@
     </div>
   </div>
 
+  <!-- SECTION: ATTRITION EVENTS TABLE -->
+  <div class="section">
+    <div class="section-header">Attrition Events <span class="section-badge badge-blue">17 records</span></div>
+
+    <div class="filter-bar">
+      <label>Area:</label>
+      <select id="areaFilter" onchange="filterEventsTable()">
+        <option value="all">All Areas</option>
+        <option value="RCG">RCG</option>
+        <option value="CMRCL">CMRCL</option>
+        <option value="MAE">MAE</option>
+      </select>
+      <label style="margin-left:12px">Classification:</label>
+      <select id="classFilter" onchange="filterEventsTable()">
+        <option value="all">All</option>
+        <option value="Logo Loss">Logo Loss</option>
+        <option value="Partial Save">Partial Save</option>
+        <option value="SP Downgrade">SP Downgrade</option>
+        <option value="Not Actionable">Not Actionable</option>
+      </select>
+    </div>
+
+    <div style="background:white; border-radius:10px; padding:18px 20px; box-shadow:0 1px 3px rgba(0,0,0,0.06); overflow-x:auto;">
+      <table class="events-table" id="eventsTable">
+        <thead>
+          <tr><th>Account Name</th><th>Area</th><th>Classification</th><th>Attrition $</th><th>Close Date</th><th>Record</th></tr>
+        </thead>
+        <tbody>
+          <tr data-area="RCG" data-class="Partial Save"><td>Under Armour, Inc.</td><td><span class="tag-rcg">RCG</span></td><td>Partial Save</td><td>-$2,290,058</td><td>Feb 3, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FlbGPAAZ/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="RCG" data-class="Logo Loss"><td>YETI Coolers, LLC</td><td><span class="tag-rcg">RCG</span></td><td>Logo Loss</td><td>-$2,007,929</td><td>Feb 28, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017UtgbAAC/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="RCG" data-class="Partial Save"><td>Tapestry, Inc.</td><td><span class="tag-rcg">RCG</span></td><td>Partial Save</td><td>-$2,000,000</td><td>Feb 2, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Cyqb7AAB/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="CMRCL" data-class="Not Actionable"><td>Otto Environmental Systems</td><td><span class="tag-cmrcl">CMRCL</span></td><td>Not Actionable</td><td>-$1,771,625</td><td>Apr 27, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000W7vbpAAB/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="RCG" data-class="Logo Loss"><td>Cole Haan LLC</td><td><span class="tag-rcg">RCG</span></td><td>Logo Loss</td><td>-$1,650,074</td><td>Mar 31, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000008QdkHAAS/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="RCG" data-class="Partial Save"><td>Vista Outdoor Operations LLC</td><td><span class="tag-rcg">RCG</span></td><td>Partial Save</td><td>-$953,841</td><td>Mar 12, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000VgQlrAAF/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="RCG" data-class="SP Downgrade"><td>Nebraska Furniture Mart, Inc.</td><td><span class="tag-rcg">RCG</span></td><td>SP Downgrade</td><td>-$654,969</td><td>Feb 14, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000007qNkTAAU/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="CMRCL" data-class="Partial Save"><td>PartyCity.com, LLC</td><td><span class="tag-cmrcl">CMRCL</span></td><td>Partial Save</td><td>-$471,702</td><td>Mar 27, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000B5KvpAAF/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="RCG" data-class="Not Actionable"><td>Lands' End, Inc.</td><td><span class="tag-rcg">RCG</span></td><td>Not Actionable</td><td>-$300,125</td><td>Apr 30, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017eulVAAQ/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="RCG" data-class="Not Actionable"><td>Claire's Stores, Inc.</td><td><span class="tag-rcg">RCG</span></td><td>Not Actionable</td><td>-$218,080</td><td>Feb 26, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000009hX8PAAU/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="RCG" data-class="Not Actionable"><td>Gap Inc.</td><td><span class="tag-rcg">RCG</span></td><td>Not Actionable</td><td>-$188,000</td><td>Mar 31, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000BGrLNAA1/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="CMRCL" data-class="Not Actionable"><td>Riboli Family Wines</td><td><span class="tag-cmrcl">CMRCL</span></td><td>Not Actionable</td><td>-$183,334</td><td>Feb 14, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000095DdnAAE/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="CMRCL" data-class="SP Downgrade"><td>SLT Lending SPV, Inc</td><td><span class="tag-cmrcl">CMRCL</span></td><td>SP Downgrade</td><td>-$156,411</td><td>Mar 31, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000A2zWHAAZ/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="RCG" data-class="Not Actionable"><td>Dunham's Athleisure Corporation</td><td><span class="tag-rcg">RCG</span></td><td>Not Actionable</td><td>-$153,198</td><td>Feb 14, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000000q0wnAAA/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="RCG" data-class="Logo Loss"><td>Land O'Lakes - Purina Animal Feed</td><td><span class="tag-rcg">RCG</span></td><td>Logo Loss</td><td>-$143,360</td><td>Apr 30, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019WqZXAA0/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="RCG" data-class="Partial Save"><td>Kendra Scott LLC</td><td><span class="tag-rcg">RCG</span></td><td>Partial Save</td><td>-$116,228</td><td>Feb 28, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019W10RAAS/view" class="org62-link" target="_blank">View</a></td></tr>
+          <tr data-area="RCG" data-class="Not Actionable"><td>Hallmark Cards, Incorporated</td><td><span class="tag-rcg">RCG</span></td><td>Not Actionable</td><td>-$100,000</td><td>Feb 14, 2026</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000095IjuAAE/view" class="org62-link" target="_blank">View</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- SECTION: COMPLIANCE -->
   <div class="section">
     <div class="section-header">Compliance Scorecard <span class="section-badge badge-red">2/17 Compliant (12%)</span></div>
@@ -644,5 +766,75 @@
   </div>
 
 </div>
+
+<script>
+  // Area-Portfolio mapping from CC_Q1 data
+  const areaPortfolioData = {
+    "Under Armour, Inc.": { area: "RCG", portfolio: "RCG ENTR CG HMDU" },
+    "YETI Coolers, LLC": { area: "RCG", portfolio: "RCG ENTR CG HMDU" },
+    "Tapestry, Inc.": { area: "RCG", portfolio: "RCG ENTR CG HMDU" },
+    "Otto Environmental Systems North America Inc.": { area: "CMRCL", portfolio: "MAE CMRCL MFG E" },
+    "Cole Haan LLC": { area: "RCG", portfolio: "RCG CMRCL GB" },
+    "Vista Outdoor Operations LLC": { area: "RCG", portfolio: "RCG ENTR CG HMDU" },
+    "Nebraska Furniture Mart, Inc.": { area: "RCG", portfolio: "RCG ENTR CG HMDU" },
+    "PartyCity.com, LLC (a wholly owned subsidiary of Ad Populum, LLC)": { area: "CMRCL", portfolio: "RCG CMRCL MM" },
+    "Claire's Stores, Inc.": { area: "RCG", portfolio: "RCG ENTR RETAIL" },
+    "Lands' End, Inc.": { area: "RCG", portfolio: "RCG ENTR RETAIL" },
+    "Gap Inc.": { area: "RCG", portfolio: "RCG ENTR RETAIL" },
+    "Riboli Family Wines": { area: "CMRCL", portfolio: "RCG CMRCL MM" },
+    "SLT Lending SPV, Inc": { area: "CMRCL", portfolio: "RCG CMRCL MM" },
+    "Dunham's Athleisure Corporation": { area: "RCG", portfolio: "RCG CMRCL GB" },
+    "Land O'Lakes - Purina Animal Feed": { area: "RCG", portfolio: "RCG ENTR CG FMCG" },
+    "Kendra Scott LLC": { area: "RCG", portfolio: "RCG CMRCL GB" },
+    "Hallmark Cards, Incorporated.": { area: "RCG", portfolio: "RCG CMRCL GB" }
+  };
+
+  // Area Donut Chart
+  const areaCtx = document.getElementById('areaDonutChart').getContext('2d');
+  new Chart(areaCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['RCG (13)', 'CMRCL (4)', 'MAE (0)'],
+      datasets: [{
+        data: [13, 4, 0],
+        backgroundColor: ['#0176d3', '#fe9339', '#7e57c2'],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { size: 11 }, padding: 12 }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              const attrition = ['$10.8M', '$2.6M', '$0'];
+              return ctx.label + ' — ' + attrition[ctx.dataIndex] + ' attrition';
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Filter events table
+  function filterEventsTable() {
+    const areaVal = document.getElementById('areaFilter').value;
+    const classVal = document.getElementById('classFilter').value;
+    const rows = document.querySelectorAll('#eventsTable tbody tr');
+    rows.forEach(function(row) {
+      const rowArea = row.getAttribute('data-area');
+      const rowClass = row.getAttribute('data-class');
+      const areaMatch = (areaVal === 'all' || rowArea === areaVal);
+      const classMatch = (classVal === 'all' || rowClass === classVal);
+      row.style.display = (areaMatch && classMatch) ? '' : 'none';
+    });
+  }
+</script>
 </body>
 </html>

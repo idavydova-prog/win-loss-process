@@ -46,6 +46,9 @@ a:hover{text-decoration:underline}
 .notes-cell{max-width:300px;white-space:pre-wrap;word-break:break-word;font-size:.75rem;color:var(--slds-text-weak)}
 .compliance-pass{color:var(--slds-success);font-weight:600}
 .compliance-fail{color:var(--slds-error);font-weight:600}
+.tag-rcg{background:#eaf5fe;color:#0176d3}
+.tag-mae{background:#ede7f6;color:#7e57c2}
+.tag-cmrcl{background:#fff8e6;color:#946f00}
 </style>
 </head>
 <body>
@@ -96,6 +99,7 @@ a:hover{text-decoration:underline}
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition Reason</h3><div style="position:relative;height:200px;"><canvas id="chart-reason"></canvas></div></div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Oncycle vs Offcycle</h3><div style="position:relative;height:200px;"><canvas id="chart-type"></canvas></div></div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Top 5 Accounts by At-Risk Attrition</h3><div style="position:relative;height:200px;"><canvas id="chart-top5"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition by Area</h3><div style="position:relative;height:200px;"><canvas id="chart-area"></canvas></div></div>
 </div>
 
 <div class="card">
@@ -106,6 +110,13 @@ a:hover{text-decoration:underline}
 <tr><td><span class="tag tag-success">Win (Projected)</span></td><td>4</td><td>$2.43M (retained)</td><td>Walmart ($1.94M), BELRON 2nd ($186K), United Natural Foods ($190K), Mattress Firm ($108K)</td></tr>
 <tr><td><span class="tag tag-error">Logo Loss (Projected)</span></td><td>12</td><td>$3.70M</td><td>Phoenix BNBS ($851K), Alliance Consumer ($467K), Smurfit Kappa ($433K), Cracker Barrel ($422K)</td></tr>
 <tr><td><span class="tag tag-warning">Partial Save (Projected)</span></td><td>16</td><td>$14.24M</td><td>BELRON INTL ($3.90M), Corteva ($3.00M), Instacart ($1.23M), Estee Lauder ($1.00M), Clean Earth ($981K)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Area Breakdown</h3>
+<table id="area-breakdown-table">
+<tr><th>Area</th><th>Records</th><th>Attrition $</th><th>Key Portfolios</th></tr>
 </table>
 </div>
 
@@ -144,20 +155,26 @@ a:hover{text-decoration:underline}
 <p>Walmart retained at 100% rate with $1.44M product swap. Well-documented with #LicNoAttrit #NoSigRisk. No Signature risk. Example of successful defense play keeping large account on platform.</p>
 </div>
 
+<div class="insight-box" id="area-insight-box">
+<h4>Area Distribution: MAE Leads in Attrition Dollar Concentration</h4>
+<p>MAE accounts drive the largest share of at-risk attrition dollars due to high-value manufacturing and energy renewals (Corteva $3.0M, Ball $778K, nVent $650K, TK Elevator $605K). RCG leads by record count with retail and consumer goods accounts. CMRCL contributes fewer records but includes several auto/energy commercial accounts (America's Car-Mart $641K, Del Grande $361K).</p>
+</div>
+
 <details style="margin-top:1.5rem;border:1px solid var(--slds-border);border-radius:8px;background:var(--slds-white);">
 <summary style="padding:1rem 1.25rem;cursor:pointer;font-size:1rem;font-weight:700;color:var(--slds-dark);list-style:none;display:flex;align-items:center;gap:.5rem;">
 <span style="transition:transform .2s;display:inline-block;" class="chevron">&#9654;</span> Attrition Events &mdash; Detailed View (40 Records)
 </summary>
 <div style="padding:0 1.25rem 1.25rem;">
 <div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;align-items:center;">
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Aug 2026</option><option>Sep 2026</option><option>Oct 2026</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Attrition Reason <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Adoption</option><option>Business Change &amp; Distress</option><option>Customer Relationship</option><option>Financial &amp; Contractual</option><option>Implementation</option><option>Product</option><option>Unspecified</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="5" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Aug 2026</option><option>Sep 2026</option><option>Oct 2026</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Attrition Reason <select onchange="filterAttritionTable(this)" data-col="4" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Adoption</option><option>Business Change &amp; Distress</option><option>Customer Relationship</option><option>Financial &amp; Contractual</option><option>Implementation</option><option>Product</option><option>Unspecified</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="6" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Area <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>RCG</option><option>MAE</option><option>CMRCL</option></select></label>
 </div>
 <div style="overflow-x:auto;">
 <table id="attrition-events-table">
-<thead><tr><th>Account Name</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Attrition Reason Detail</th><th>Attrition Type</th><th style="text-align:right">At-Risk Amount</th></tr></thead>
+<thead><tr><th>Account Name</th><th>Area</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Attrition Reason Detail</th><th>Attrition Type</th><th style="text-align:right">At-Risk Amount</th></tr></thead>
 <tbody>
 <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000ZWZuXAAX/view" target="_blank">BELRON INTL LTD</a></td><td>Aug 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$3,900,000</td></tr>
 <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000NuXbyAAF/view" target="_blank">Corteva Agriscience LLC</a></td><td>Sep 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>M&amp;A Activity - Divestiture</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$3,000,000</td></tr>
@@ -474,6 +491,130 @@ Total At-Risk Attrition: <span style="color:var(--slds-error);margin-left:.5rem;
 </div>
 
 <script>
+// Area/Portfolio mapping from Core_Q3
+const AREA_DATA = {
+"Safelite Group, Inc.":{"area":"MAE","portfolio":"MAE ENTR AUTOMFG"},
+"Corteva Agriscience LLC":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"Bunge Management Services":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Walmart Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Ecolab Data Cloud":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Instacart (Maplebear Inc.) (2nd Org)":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"Ecolab Inc.":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Estee Lauder Inc.":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Clean Earth Environmental Solutions, Inc.":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Phoenix BNBS Fashion, LLC":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Top Golf USA, Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Ball Corporation":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"New MVP Org: One Clean Earth":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Fanatics Holdings, Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"West Marine Products Inc.":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"nVent Management Company*":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"America's Car-Mart":{"area":"CMRCL","portfolio":"MAE CMRCL AUE"},
+"Estee Lauder Inc.*":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"TK Elevator Corporation":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"BlueTriton Brands, Inc.":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"e.l.f. Cosmetics, Inc.":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Halliburton Energy Services, Inc.":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Alliance Consumer Group":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Alice + Olivia, LLC":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Kao USA Inc.":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Clorox Services Company":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Smurfit Kappa North America LLC":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"Tronox Investment Holdings Limited":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Cracker Barrel (Employee Org)":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Love's Travel Stops & Country Stores":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Del Grande Dealer Group":{"area":"CMRCL","portfolio":"MAE CMRCL AUE"},
+"Nexeo Plastics, LLC":{"area":"CMRCL","portfolio":"MAE CMRCL MFG W"},
+"Core-Mark International, Inc.":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Lindsay (2nd Org)":{"area":"CMRCL","portfolio":"MAE CMRCL MFG W"},
+"Ecolab Connect":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Primo Water (Glacier)":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Ahold Delhaize USA Services, LLC":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Ashland Inc.":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"Atmos Energy Corporation - Stakeholder":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Ameren Services Company":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Sally Holdings LLC  (New Service Org)":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Terex Corp.":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Spartannash Company  **":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Lippert Components, Inc. (Main)":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"Bruckner Truck Sales":{"area":"CMRCL","portfolio":"MAE CMRCL AUE"},
+"United Natural Foods Inc (mybiz)":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Estee Lauder Inc.**":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Christy Sports":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"LG Energy Solution Vertech, Inc.":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Inpro Corporation":{"area":"CMRCL","portfolio":"MAE CMRCL MFG C"},
+"XYLEM":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Hyundai L&C USA":{"area":"MAE","portfolio":"MAE ENTR AUTOMFG"},
+"Hormel Foods Corporation*":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Fruit of the Loom, Inc.":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Gibson Brands, Inc.":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"Powerhouse Dynamics":{"area":"CMRCL","portfolio":"MAE CMRCL MFG C"},
+"TruckPro, LLC":{"area":"CMRCL","portfolio":"MAE CMRCL MFG W"},
+"Harmons Grocery":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"Mattress Firm, Inc.":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"RealTruck":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"Johnson Controls, Inc.":{"area":"MAE","portfolio":"MAE ENTR MFG E"}
+};
+
+// Map report account names to Core_Q3 keys
+const ACCOUNT_AREA_MAP = {
+"BELRON INTL LTD": null,
+"Corteva Agriscience LLC": "Corteva Agriscience LLC",
+"Walmart Inc.": "Walmart Inc.",
+"Instacart (Maplebear Inc.)": "Instacart (Maplebear Inc.) (2nd Org)",
+"Estee Lauder Inc.": "Estee Lauder Inc.",
+"Clean Earth Environmental Solutions": "Clean Earth Environmental Solutions, Inc.",
+"Phoenix BNBS Fashion Retail Group": "Phoenix BNBS Fashion, LLC",
+"Ball Corporation": "Ball Corporation",
+"West Marine Products, Inc.": "West Marine Products Inc.",
+"nVent Management Company": "nVent Management Company*",
+"America’s Car-Mart, Inc.": "America's Car-Mart",
+"Estee Lauder Inc.*": "Estee Lauder Inc.*",
+"TK Elevator Corporation": "TK Elevator Corporation",
+"BlueTriton Brands, Inc.": "BlueTriton Brands, Inc.",
+"Halliburton Energy Services": "Halliburton Energy Services, Inc.",
+"Alliance Consumer Group": "Alliance Consumer Group",
+"Kao USA Inc.": "Kao USA Inc.",
+"Smurfit Kappa Group": "Smurfit Kappa North America LLC",
+"Tronox Investment Pty Ltd": "Tronox Investment Holdings Limited",
+"Cracker Barrel Old Country Store": "Cracker Barrel (Employee Org)",
+"Del Grande Dealer Group": "Del Grande Dealer Group",
+"Core-Mark International, Inc.": "Core-Mark International, Inc.",
+"Lindsay Corporation": "Lindsay (2nd Org)",
+"Primo Water Corporation": "Primo Water (Glacier)",
+"Ahold Delhaize USA Services": "Ahold Delhaize USA Services, LLC",
+"Ameren Services Company": "Ameren Services Company",
+"Terex Corporation": "Terex Corp.",
+"Lippert Components, Inc.": "Lippert Components, Inc. (Main)",
+"Bruckner Truck Sales, Inc.": "Bruckner Truck Sales",
+"United Natural Foods, Inc.": "United Natural Foods Inc (mybiz)",
+"BELRON INTL LTD (2nd)": null,
+"Estee Lauder Inc.**": "Estee Lauder Inc.**",
+"LG Energy Solution Michigan": "LG Energy Solution Vertech, Inc.",
+"Inpro Corporation": "Inpro Corporation",
+"Hyundai L&C USA LLC": "Hyundai L&C USA",
+"Gibson Brands, Inc.": "Gibson Brands, Inc.",
+"Tooling Acquisition Corp": null,
+"Powerhouse Dynamics, Inc.": "Powerhouse Dynamics",
+"Mattress Firm, Inc.": "Mattress Firm, Inc.",
+"Johnson Controls, Inc.": "Johnson Controls, Inc."
+};
+
+function getArea(accountText) {
+for (const [reportName, dataKey] of Object.entries(ACCOUNT_AREA_MAP)) {
+if (accountText.includes(reportName) || (reportName && accountText.includes(reportName.substring(0, 12)))) {
+if (dataKey && AREA_DATA[dataKey]) return AREA_DATA[dataKey].area;
+}
+}
+return null;
+}
+
+function getAreaTag(area) {
+if (!area) return '<span class="tag tag-neutral">N/A</span>';
+const cls = area === 'RCG' ? 'tag-rcg' : area === 'MAE' ? 'tag-mae' : 'tag-cmrcl';
+return '<span class="tag ' + cls + '">' + area + '</span>';
+}
+
 function showPanel(id){
 document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -484,16 +625,18 @@ if(map[id]!==undefined)tabs[map[id]].classList.add('active');
 }
 
 function filterAttritionTable(sel){
-const col=parseInt(sel.dataset.col);
-const val=sel.value;
 const rows=document.querySelectorAll('#attrition-events-table tbody tr');
+const container=sel.closest('div');
+const selects=container.querySelectorAll('select');
+const filters={};
+selects.forEach(s=>{if(s.value)filters[parseInt(s.dataset.col)]=s.value;});
 rows.forEach(row=>{
-const cell=row.cells[col];
-if(!val||cell.textContent.trim()===val){
-row.style.display='';
-}else{
-row.style.display='none';
+let show=true;
+for(const[c,v] of Object.entries(filters)){
+const cell=row.cells[parseInt(c)];
+if(cell&&cell.textContent.trim()!==v){show=false;break;}
 }
+row.style.display=show?'':'none';
 });
 }
 
@@ -504,8 +647,55 @@ if(chev)chev.style.transform=d.open?'rotate(90deg)':'rotate(0deg)';
 });
 });
 
-// Charts
+// Charts and Area population
 document.addEventListener('DOMContentLoaded',function(){
+
+// Insert Area cells into attrition events table
+const rows = document.querySelectorAll('#attrition-events-table tbody tr');
+const areaCounts = {RCG:0, MAE:0, CMRCL:0};
+const areaAmounts = {RCG:0, MAE:0, CMRCL:0};
+const areaPortfolios = {RCG:{}, MAE:{}, CMRCL:{}};
+
+rows.forEach(row => {
+const accountCell = row.cells[0];
+const accountText = accountCell.textContent.trim();
+const amountText = row.cells[row.cells.length - 1].textContent.trim();
+const amount = parseFloat(amountText.replace(/[$,]/g,'')) || 0;
+let area = null;
+for (const [reportName, dataKey] of Object.entries(ACCOUNT_AREA_MAP)) {
+if (accountText.includes(reportName)) {
+if (dataKey && AREA_DATA[dataKey]) {
+area = AREA_DATA[dataKey].area;
+const portfolio = AREA_DATA[dataKey].portfolio;
+if (area && areaPortfolios[area]) {
+areaPortfolios[area][portfolio] = (areaPortfolios[area][portfolio] || 0) + 1;
+}
+}
+break;
+}
+}
+if (area) {
+areaCounts[area]++;
+areaAmounts[area] += amount;
+}
+const newCell = row.insertCell(1);
+newCell.innerHTML = getAreaTag(area);
+});
+
+// Area donut chart
+new Chart(document.getElementById('chart-area'),{type:'doughnut',data:{labels:['RCG ('+areaCounts.RCG+')','MAE ('+areaCounts.MAE+')','CMRCL ('+areaCounts.CMRCL+')'],datasets:[{data:[areaCounts.RCG,areaCounts.MAE,areaCounts.CMRCL],backgroundColor:['#0176d3','#7e57c2','#fe9339']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}}}});
+
+// Populate Area Breakdown table
+const areaTable = document.getElementById('area-breakdown-table');
+const areas = ['RCG','MAE','CMRCL'];
+const areaColors = {RCG:'#0176d3',MAE:'#7e57c2',CMRCL:'#fe9339'};
+areas.forEach(a => {
+const topPortfolios = Object.entries(areaPortfolios[a]).sort((x,y)=>y[1]-x[1]).slice(0,3).map(e=>e[0]);
+const tr = document.createElement('tr');
+tr.innerHTML = '<td><span class="tag tag-' + a.toLowerCase() + '">' + a + '</span></td><td>' + areaCounts[a] + '</td><td style="font-weight:600;color:var(--slds-error)">$' + (areaAmounts[a]/1000000).toFixed(2) + 'M</td><td style="font-size:.75rem;color:var(--slds-text-weak)">' + (topPortfolios.length ? topPortfolios.join(', ') : 'N/A') + '</td>';
+areaTable.appendChild(tr);
+});
+
 // Classification Chart
 new Chart(document.getElementById('chart-classification'),{type:'doughnut',data:{labels:['Not Actionable (8)','Win (4)','Logo Loss (12)','Partial Save (16)'],datasets:[{data:[3.75,2.43,3.70,14.24],backgroundColor:['#706e6b','#2e844a','#ea001e','#fe9339']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}}}});
 

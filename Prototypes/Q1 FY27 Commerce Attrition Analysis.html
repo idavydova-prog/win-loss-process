@@ -46,6 +46,9 @@ a:hover{text-decoration:underline}
 .notes-cell{max-width:300px;white-space:pre-wrap;word-break:break-word;font-size:.75rem;color:var(--slds-text-weak)}
 .compliance-pass{color:var(--slds-success);font-weight:600}
 .compliance-fail{color:var(--slds-error);font-weight:600}
+.tag-rcg{background:#eaf5fe;color:#0176d3}
+.tag-mae{background:#ede7f6;color:#7e57c2}
+.tag-cmrcl{background:#fff8e6;color:#946f00}
 </style>
 </head>
 <body>
@@ -93,6 +96,7 @@ a:hover{text-decoration:underline}
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition Reason</h3><div style="position:relative;height:200px;"><canvas id="chart-reason"></canvas></div></div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Oncycle vs Offcycle</h3><div style="position:relative;height:200px;"><canvas id="chart-type"></canvas></div></div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Top 5 Accounts by Attrition</h3><div style="position:relative;height:200px;"><canvas id="chart-top5"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition by Area</h3><div style="position:relative;height:200px;"><canvas id="chart-area"></canvas></div></div>
 </div>
 
 <div class="card">
@@ -104,6 +108,16 @@ a:hover{text-decoration:underline}
 <tr><td><span class="tag tag-error">Logo Loss</span></td><td>8</td><td>$3.11M</td><td>Cole Haan ($1.65M), PartyCity ($472K), Claire&rsquo;s B2B ($218K), Gap Inc ($188K), Riboli Family ($183K)</td></tr>
 <tr><td><span class="tag tag-warning">Partial Save</span></td><td>3</td><td>$1.41M</td><td>Revelyst/Vista Outdoor ($954K), Lands&rsquo; End ($300K), SLT Lending ($156K)</td></tr>
 </table>
+</div>
+
+<div class="card">
+<h3>Area Breakdown</h3>
+<table>
+<tr><th>Area</th><th>Records</th><th>Attrition $</th><th>Key Portfolios</th></tr>
+<tr><td><span class="tag tag-rcg">RCG</span></td><td>14</td><td>$11.23M</td><td>RCG ENTR CG HMDU (5), RCG ENTR RETAIL (4), RCG CMRCL GB (4), RCG ENTR CG FMCG (1)</td></tr>
+<tr><td><span class="tag tag-cmrcl">CMRCL</span></td><td>4</td><td>$2.58M</td><td>MAE CMRCL MFG E (1), RCG CMRCL MM (3)</td></tr>
+</table>
+<p style="font-size:.75rem;color:var(--slds-text-weak);margin-top:.5rem">All 18 records mapped via CC_Q1 area-portfolio data. No MAE-area accounts in this Commerce Cloud quarter.</p>
 </div>
 
 <div class="card">
@@ -131,39 +145,45 @@ a:hover{text-decoration:underline}
 <p>YETI pre-signed a 3-year renewal including Commerce Cloud Signature. Despite the $2M forecasted attrition in the system, this represents a full retention and expansion. Red Account was active and successfully managed to full commitment.</p>
 </div>
 
+<div class="insight-box">
+<h4>Area Distribution: RCG Dominates Commerce Cloud Attrition (78% of Records, 81% of $)</h4>
+<p>14 of 18 records (78%) belong to RCG, totaling $11.23M (81% of total attrition). CMRCL accounts for the remaining 4 records ($2.58M, 19%). No MAE-area accounts appear in Commerce Cloud Q1. Within RCG, the heaviest portfolios are ENTR CG HMDU (Under Armour, YETI, Tapestry, Vista Outdoor) and ENTR RETAIL (Claire&rsquo;s, Gap, Dunham&rsquo;s). CMRCL losses center on RCG CMRCL MM (PartyCity, Riboli, SLT Lending) and MAE CMRCL MFG E (Otto Environmental).</p>
+</div>
+
 <details class="attrition-events" style="margin-top:1.5rem;border:1px solid var(--slds-border);border-radius:8px;background:var(--slds-white);">
 <summary style="padding:1rem 1.25rem;cursor:pointer;font-size:1rem;font-weight:700;color:var(--slds-dark);list-style:none;display:flex;align-items:center;gap:.5rem;">
 <span style="transition:transform .2s;display:inline-block;" class="chevron">&#9654;</span> Attrition Events &mdash; Detailed View (18 Records)
 </summary>
 <div style="padding:0 1.25rem 1.25rem;">
 <div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;align-items:center;">
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Feb 2026</option><option>Mar 2026</option><option>Apr 2026</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Attrition Reason <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Business Change &amp; Distress</option><option>Competitive</option><option>Customer Relationship</option><option>Financial &amp; Contractual</option><option>Policy &amp; Compliance</option><option>Product</option><option>Success Plan &amp; Support</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="5" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Area <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>RCG</option><option>CMRCL</option><option>MAE</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Feb 2026</option><option>Mar 2026</option><option>Apr 2026</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Attrition Reason <select onchange="filterAttritionTable(this)" data-col="4" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Business Change &amp; Distress</option><option>Competitive</option><option>Customer Relationship</option><option>Financial &amp; Contractual</option><option>Policy &amp; Compliance</option><option>Product</option><option>Success Plan &amp; Support</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="6" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
 </div>
 <div style="overflow-x:auto;">
 <table id="attrition-events-table">
-<thead><tr><th>Account Name</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Attrition Reason Detail</th><th>Attrition Type</th><th style="text-align:right">Attrition Amount</th></tr></thead>
+<thead><tr><th>Account Name</th><th>Area</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Attrition Reason Detail</th><th>Attrition Type</th><th style="text-align:right">Attrition Amount</th></tr></thead>
 <tbody>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FlbGPAAZ/view" target="_blank">Under Armour, Inc.</a></td><td>Feb 2026</td><td>Partial</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,290,058</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017UtgbAAC/view" target="_blank">YETI Coolers, LLC</a></td><td>Feb 2026</td><td>Partial</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,007,929</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Cyqb7AAB/view" target="_blank">Tapestry, Inc.</a></td><td>Feb 2026</td><td>Partial</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,000,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000W7vbpAAB/view" target="_blank">Otto Environmental Systems</a></td><td>Apr 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Financial Distress - Need to Cut Costs</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,771,625</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000008QdkHAAS/view" target="_blank">Cole Haan LLC</a></td><td>Mar 2026</td><td>Full</td><td>Competitive</td><td>Switched to a Direct Competitor</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,650,074</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000VgQlrAAF/view" target="_blank">Revelyst / Vista Outdoor</a></td><td>Mar 2026</td><td>Partial</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$953,841</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000007qNkTAAU/view" target="_blank">Nebraska Furniture Mart</a></td><td>Feb 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Packaging Change</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$654,969</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000B5KvpAAF/view" target="_blank">PartyCity.com, LLC</a></td><td>Mar 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Financial Distress - Need to Cut Costs</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$471,702</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000IRLE5AAP/view" target="_blank">Claire&rsquo;s Stores (Off-Cycle)</a></td><td>Feb 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Financial Distress - Out of Business/Bankruptcy</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$455,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017eulVAAQ/view" target="_blank">Lands&rsquo; End, Inc.</a></td><td>Apr 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Found Less Expensive Alternative</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$300,125</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000009hX8PAAU/view" target="_blank">Claire&rsquo;s Stores (B2B/OMS)</a></td><td>Feb 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Financial Distress - Out of Business/Bankruptcy</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$218,080</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000BGrLNAA1/view" target="_blank">Gap Inc.</a></td><td>Mar 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$188,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000095DdnAAE/view" target="_blank">Riboli Family Wines</a></td><td>Feb 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Financial Distress - Downsizing/Reduced Workforce</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$183,334</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000A2zWHAAZ/view" target="_blank">SLT Lending SPV, Inc</a></td><td>Mar 2026</td><td>Partial</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Lack of Knowledge)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$156,411</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000000q0wnAAA/view" target="_blank">Dunham&rsquo;s Athleisure Corp</a></td><td>Feb 2026</td><td>Full</td><td>Policy &amp; Compliance</td><td>New Security Policies/Requirements</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$153,198</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019WqZXAA0/view" target="_blank">Land O&rsquo;Lakes - Purina</a></td><td>Apr 2026</td><td>Full</td><td>Product</td><td>Product Feature Gap</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$143,360</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019W10RAAS/view" target="_blank">Kendra Scott LLC</a></td><td>Feb 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Pricing Tier/Term Length</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$116,228</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000095IjuAAE/view" target="_blank">Hallmark Cards, Inc.</a></td><td>Feb 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$100,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FlbGPAAZ/view" target="_blank">Under Armour, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Feb 2026</td><td>Partial</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,290,058</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017UtgbAAC/view" target="_blank">YETI Coolers, LLC</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Feb 2026</td><td>Partial</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,007,929</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Cyqb7AAB/view" target="_blank">Tapestry, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Feb 2026</td><td>Partial</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,000,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000W7vbpAAB/view" target="_blank">Otto Environmental Systems</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Apr 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Financial Distress - Need to Cut Costs</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,771,625</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000008QdkHAAS/view" target="_blank">Cole Haan LLC</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Mar 2026</td><td>Full</td><td>Competitive</td><td>Switched to a Direct Competitor</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,650,074</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000VgQlrAAF/view" target="_blank">Revelyst / Vista Outdoor</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Mar 2026</td><td>Partial</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$953,841</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000007qNkTAAU/view" target="_blank">Nebraska Furniture Mart</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Feb 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Packaging Change</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$654,969</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000B5KvpAAF/view" target="_blank">PartyCity.com, LLC</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Mar 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Financial Distress - Need to Cut Costs</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$471,702</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000IRLE5AAP/view" target="_blank">Claire&rsquo;s Stores (Off-Cycle)</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Feb 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Financial Distress - Out of Business/Bankruptcy</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$455,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017eulVAAQ/view" target="_blank">Lands&rsquo; End, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Apr 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Found Less Expensive Alternative</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$300,125</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000009hX8PAAU/view" target="_blank">Claire&rsquo;s Stores (B2B/OMS)</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Feb 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Financial Distress - Out of Business/Bankruptcy</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$218,080</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000BGrLNAA1/view" target="_blank">Gap Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Mar 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$188,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000095DdnAAE/view" target="_blank">Riboli Family Wines</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Feb 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Financial Distress - Downsizing/Reduced Workforce</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$183,334</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000A2zWHAAZ/view" target="_blank">SLT Lending SPV, Inc</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Mar 2026</td><td>Partial</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Lack of Knowledge)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$156,411</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000000q0wnAAA/view" target="_blank">Dunham&rsquo;s Athleisure Corp</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Feb 2026</td><td>Full</td><td>Policy &amp; Compliance</td><td>New Security Policies/Requirements</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$153,198</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019WqZXAA0/view" target="_blank">Land O&rsquo;Lakes - Purina</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Apr 2026</td><td>Full</td><td>Product</td><td>Product Feature Gap</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$143,360</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019W10RAAS/view" target="_blank">Kendra Scott LLC</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Feb 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Pricing Tier/Term Length</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$116,228</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000095IjuAAE/view" target="_blank">Hallmark Cards, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Feb 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$100,000</td></tr>
 </tbody>
 </table>
 </div>
@@ -492,6 +512,28 @@ new Chart(document.getElementById('chart-classification'),{type:'doughnut',data:
 new Chart(document.getElementById('chart-reason'),{type:'doughnut',data:{labels:['Business Change & Distress','Customer Relationship','Financial & Contractual','Competitive','Product','Policy & Compliance','Success Plan & Support'],datasets:[{data:[7,4,3,1,1,1,1],backgroundColor:chartColors}]},options:doughnutOpts});
 new Chart(document.getElementById('chart-type'),{type:'doughnut',data:{labels:['Oncycle','Offcycle'],datasets:[{data:[13,5],backgroundColor:['#0176d3','#fe9339']}]},options:doughnutOpts});
 new Chart(document.getElementById('chart-top5'),{type:'bar',data:{labels:['Under Armour','YETI Coolers','Tapestry','Otto Environmental','Cole Haan'],datasets:[{data:[2290058,2007929,2000000,1771625,1650074],backgroundColor:'#0176d3'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>'$'+(v/1000000).toFixed(1)+'M'}},y:{ticks:{font:{size:11}}}}}});
+new Chart(document.getElementById('chart-area'),{type:'doughnut',data:{labels:['RCG (14)','CMRCL (4)'],datasets:[{data:[14,4],backgroundColor:['#0176d3','#fe9339']}]},options:doughnutOpts});
+
+// CC_Q1 Area-Portfolio mapping (embedded from area-portfolio-data.json)
+const CC_Q1_AREA_DATA = {
+"Under Armour, Inc.":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"YETI Coolers, LLC":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Tapestry, Inc.":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Otto Environmental Systems North America Inc.":{"area":"CMRCL","portfolio":"MAE CMRCL MFG E"},
+"Cole Haan LLC":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"Vista Outdoor Operations LLC":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Nebraska Furniture Mart, Inc.":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"PartyCity.com, LLC (a wholly owned subsidiary of Ad Populum, LLC)":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Claire's Stores, Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Lands' End, Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Gap Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Riboli Family Wines":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"SLT Lending SPV, Inc":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Dunham's Athleisure Corporation":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"Land O'Lakes - Purina Animal Feed":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Kendra Scott LLC":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"Hallmark Cards, Incorporated.":{"area":"RCG","portfolio":"RCG CMRCL GB"}
+};
 </script>
 </body>
 </html>

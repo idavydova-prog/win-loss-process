@@ -46,6 +46,9 @@ a:hover{text-decoration:underline}
 .notes-cell{max-width:300px;white-space:pre-wrap;word-break:break-word;font-size:.75rem;color:var(--slds-text-weak)}
 .compliance-pass{color:var(--slds-success);font-weight:600}
 .compliance-fail{color:var(--slds-error);font-weight:600}
+.tag-rcg{background:#eaf5fe;color:#0176d3}
+.tag-mae{background:#ede7f6;color:#7e57c2}
+.tag-cmrcl{background:#fff8e6;color:#946f00}
 </style>
 </head>
 <body>
@@ -93,6 +96,7 @@ a:hover{text-decoration:underline}
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition Reason</h3><div style="position:relative;height:200px;"><canvas id="chart-reason"></canvas></div></div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Oncycle vs Offcycle</h3><div style="position:relative;height:200px;"><canvas id="chart-type"></canvas></div></div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Top 5 Accounts by Attrition</h3><div style="position:relative;height:200px;"><canvas id="chart-top5"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition by Area</h3><div style="position:relative;height:200px;"><canvas id="chart-area"></canvas></div></div>
 </div>
 
 <div class="card">
@@ -104,6 +108,16 @@ a:hover{text-decoration:underline}
 <tr><td><span class="tag tag-error">Logo Loss</span></td><td>5</td><td>$3.35M</td><td>Otter Products ($1.29M), Dooney &amp; Bourke ($1.14M), The Honest Company ($461K), New Balance ($300K), The Reformation ($159K)</td></tr>
 <tr><td><span class="tag tag-warning">Partial Save</span></td><td>2</td><td>$468K</td><td>Fanatics Holdings ($355K), Absolute Beauty ($114K)</td></tr>
 <tr><td><span class="tag tag-info">SP Downgrade</span></td><td>0</td><td>$0</td><td>&mdash;</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Area Breakdown</h3>
+<table>
+<tr><th>Area</th><th>Records</th><th>Attrition $</th><th>Key Portfolios</th></tr>
+<tr><td><span class="tag tag-cmrcl">CMRCL</span></td><td>6</td><td>$3.34M</td><td>RCG CMRCL MM</td></tr>
+<tr><td><span class="tag tag-rcg">RCG</span></td><td>3</td><td>$987K</td><td>RCG ENTR RETAIL, RCG ENTR CG HMDU</td></tr>
+<tr><td><span class="tag tag-mae">MAE</span></td><td>0</td><td>$0</td><td>&mdash;</td></tr>
 </table>
 </div>
 
@@ -132,30 +146,36 @@ a:hover{text-decoration:underline}
 <p>Fanatics Holdings retained $566K of a $921K renewal (71.25% rate). CSM executing a &ldquo;Build First Strategy&rdquo; focused on demonstrating value before renewal. Despite dropping Signature in FY26, the core Commerce license relationship is preserved.</p>
 </div>
 
+<div class="insight-box">
+<h4>Area Concentration: CMRCL Drives 77% of Attrition ($3.34M across 6 Records)</h4>
+<p>The CMRCL area accounts for 6 of 9 records and $3.34M of $4.32M total attrition. All 6 CMRCL accounts sit in the RCG CMRCL MM portfolio, indicating concentrated risk in mid-market Commerce customers. RCG contributes 3 records ($987K) across RCG ENTR RETAIL and RCG ENTR CG HMDU. No MAE-area Commerce attrition this quarter.</p>
+</div>
+
 <details class="attrition-events" style="margin-top:1.5rem;border:1px solid var(--slds-border);border-radius:8px;background:var(--slds-white);">
 <summary style="padding:1rem 1.25rem;cursor:pointer;font-size:1rem;font-weight:700;color:var(--slds-dark);list-style:none;display:flex;align-items:center;gap:.5rem;">
 <span style="transition:transform .2s;display:inline-block;" class="chevron">&#9654;</span> Attrition Events &mdash; Detailed View (9 Records)
 </summary>
 <div style="padding:0 1.25rem 1.25rem;">
 <div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;align-items:center;">
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>May 2026</option><option>Jun 2026</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Attrition Reason <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Business Change &amp; Distress</option><option>Competitive</option><option>Implementation</option><option>Product</option><option>Success Plan &amp; Support</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="5" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Area <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>RCG</option><option>MAE</option><option>CMRCL</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>May 2026</option><option>Jun 2026</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Attrition Reason <select onchange="filterAttritionTable(this)" data-col="4" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Business Change &amp; Distress</option><option>Competitive</option><option>Implementation</option><option>Product</option><option>Success Plan &amp; Support</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="6" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
 </div>
 <div style="overflow-x:auto;">
 <table id="attrition-events-table">
-<thead><tr><th>Account Name</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Attrition Reason Detail</th><th>Attrition Type</th><th style="text-align:right">Attrition Amount</th></tr></thead>
+<thead><tr><th>Account Name</th><th>Area</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Attrition Reason Detail</th><th>Attrition Type</th><th style="text-align:right">Attrition Amount</th></tr></thead>
 <tbody>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000G5fFpAAJ/view" target="_blank">Otter Products, LLC</a></td><td>Jun 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Financial Distress - Downsizing/Reduced Workforce</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,286,540</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017ltqnAAA/view" target="_blank">Dooney &amp; Bourke, Inc.</a></td><td>Jun 2026</td><td>Full</td><td>Product</td><td>Product Feature Gap</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,143,750</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EIT9xAAH/view" target="_blank">The Honest Company Inc</a></td><td>Jun 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$460,750</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XWJTAA4/view" target="_blank">Fanatics Holdings, Inc.</a></td><td>Jun 2026</td><td>Partial</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Quality/Timeline)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$354,521</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019Ix7SAAS/view" target="_blank">BJ&rsquo;s Wholesale Club, Inc</a></td><td>May 2026</td><td>Partial</td><td>Implementation</td><td>Partner Led - Partner Issue</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$332,893</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQc0YAAT/view" target="_blank">New Balance Athletics, Inc.</a></td><td>May 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$299,925</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000L3KcQAAV/view" target="_blank">Trends International (Main)</a></td><td>May 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$173,333</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FFBH4AAP/view" target="_blank">The Reformation</a></td><td>May 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$159,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018WexFAAS/view" target="_blank">Absolute Beauty LLC</a></td><td>Jun 2026</td><td>Partial</td><td>Competitive</td><td>Switched to a Direct Competitor</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$113,891</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000G5fFpAAJ/view" target="_blank">Otter Products, LLC</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Jun 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Financial Distress - Downsizing/Reduced Workforce</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,286,540</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017ltqnAAA/view" target="_blank">Dooney &amp; Bourke, Inc.</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Jun 2026</td><td>Full</td><td>Product</td><td>Product Feature Gap</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,143,750</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EIT9xAAH/view" target="_blank">The Honest Company Inc</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Jun 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$460,750</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XWJTAA4/view" target="_blank">Fanatics Holdings, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jun 2026</td><td>Partial</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Quality/Timeline)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$354,521</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019Ix7SAAS/view" target="_blank">BJ&rsquo;s Wholesale Club, Inc</a></td><td><span class="tag tag-rcg">RCG</span></td><td>May 2026</td><td>Partial</td><td>Implementation</td><td>Partner Led - Partner Issue</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$332,893</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQc0YAAT/view" target="_blank">New Balance Athletics, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>May 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$299,925</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000L3KcQAAV/view" target="_blank">Trends International (Main)</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>May 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$173,333</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FFBH4AAP/view" target="_blank">The Reformation</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>May 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$159,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018WexFAAS/view" target="_blank">Absolute Beauty LLC</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Jun 2026</td><td>Partial</td><td>Competitive</td><td>Switched to a Direct Competitor</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$113,891</td></tr>
 </tbody>
 </table>
 </div>
@@ -449,6 +469,20 @@ new Chart(document.getElementById('chart-classification'),{type:'doughnut',data:
 new Chart(document.getElementById('chart-reason'),{type:'doughnut',data:{labels:['Business Change & Distress','Product','Implementation','Success Plan & Support','Competitive'],datasets:[{data:[5,1,1,1,1],backgroundColor:chartColors}]},options:doughnutOpts});
 new Chart(document.getElementById('chart-type'),{type:'doughnut',data:{labels:['Oncycle','Offcycle'],datasets:[{data:[7,2],backgroundColor:['#0176d3','#fe9339']}]},options:doughnutOpts});
 new Chart(document.getElementById('chart-top5'),{type:'bar',data:{labels:['Otter Products','Dooney & Bourke','The Honest Co.','Fanatics','BJ\'s Wholesale'],datasets:[{data:[1286540,1143750,460750,354521,332893],backgroundColor:'#0176d3'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>'$'+(v/1000000).toFixed(1)+'M'}},y:{ticks:{font:{size:11}}}}}});
+new Chart(document.getElementById('chart-area'),{type:'doughnut',data:{labels:['CMRCL (6)','RCG (3)','MAE (0)'],datasets:[{data:[6,3,0],backgroundColor:['#fe9339','#0176d3','#7e57c2']}]},options:doughnutOpts});
+
+// Area/Portfolio mapping from CC_Q2
+const areaPortfolioData = {
+  "Otter Products, LLC": {"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+  "Dooney & Bourke, Inc.": {"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+  "The Honest Company Inc": {"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+  "Fanatics Holdings, Inc.": {"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+  "BJ's Wholesale Club,Inc": {"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+  "New Balance Athletics, Inc. - Corporate": {"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+  "Trends International (Main)": {"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+  "The Reformation": {"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+  "Absolute Beauty LLC": {"area":"CMRCL","portfolio":"RCG CMRCL MM"}
+};
 </script>
 </body>
 </html>

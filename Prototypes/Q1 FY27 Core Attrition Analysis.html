@@ -36,6 +36,9 @@ tr:hover{background:#f0f7ff}
 .tag-error{background:#fef1f1;color:var(--slds-error)}
 .tag-info{background:#eaf5fe;color:var(--slds-blue)}
 .tag-neutral{background:var(--slds-light);color:var(--slds-text-weak)}
+.tag-rcg{background:#eaf5fe;color:#0176d3}
+.tag-mae{background:#ede7f6;color:#7e57c2}
+.tag-cmrcl{background:#fff8e6;color:#946f00}
 .insight-box{border-left:4px solid var(--slds-blue);padding:.75rem 1rem;margin-bottom:1rem;background:#f8fbfe;border-radius:0 4px 4px 0}
 .insight-box.warn{border-left-color:var(--slds-warning);background:#fffbf5}
 .insight-box.error{border-left-color:var(--slds-error);background:#fef8f8}
@@ -97,6 +100,7 @@ a:hover{text-decoration:underline}
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition Reason</h3><div style="position:relative;height:200px;"><canvas id="chart-reason"></canvas></div></div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Oncycle vs Offcycle</h3><div style="position:relative;height:200px;"><canvas id="chart-type"></canvas></div></div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Top 5 Accounts by Attrition</h3><div style="position:relative;height:200px;"><canvas id="chart-top5"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition by Area</h3><div style="position:relative;height:200px;"><canvas id="chart-area"></canvas></div></div>
 </div>
 
 <div class="card">
@@ -107,6 +111,16 @@ a:hover{text-decoration:underline}
 <tr><td><span class="tag tag-success">Win</span></td><td>4</td><td>$6.53M (retained)</td><td>General Mills ($5.85M), Regal Rexnord ($233K), GrubHub/Wonder ($231K), Oncourse ($213K)</td></tr>
 <tr><td><span class="tag tag-error">Logo Loss</span></td><td>34</td><td>$12.37M</td><td>Hunter Douglas ($1.98M), The Gap ($1.08M), Hostess Brands ($979K), EQT Corp ($691K), Dana Limited ($675K)</td></tr>
 <tr><td><span class="tag tag-warning">Partial Save</span></td><td>18</td><td>$3.89M</td><td>J.R. Simplot ($1.01M), Equilon/Shell ($809K), ClubCorp ($676K), RH US ($671K), Starbucks ($558K)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Area Breakdown</h3>
+<table>
+<tr><th>Area</th><th>Records</th><th>Attrition $</th><th>Key Portfolios</th></tr>
+<tr><td><span class="tag tag-rcg">RCG</span></td><td id="area-rcg-count">--</td><td id="area-rcg-attrit">--</td><td id="area-rcg-portfolios">--</td></tr>
+<tr><td><span class="tag tag-mae">MAE</span></td><td id="area-mae-count">--</td><td id="area-mae-attrit">--</td><td id="area-mae-portfolios">--</td></tr>
+<tr><td><span class="tag tag-cmrcl">CMRCL</span></td><td id="area-cmrcl-count">--</td><td id="area-cmrcl-attrit">--</td><td id="area-cmrcl-portfolios">--</td></tr>
 </table>
 </div>
 
@@ -135,19 +149,25 @@ a:hover{text-decoration:underline}
 <p>General Mills renewed at 99.31% rate with FACV of $9.12M (growth over prior ACV of $8.57M). The team executed a comprehensive plan including DC Workshops, Sig Value Presentations, and Sales expansion. A clear Win despite the large initial attrition forecast.</p>
 </div>
 
+<div class="insight-box">
+<h4>Area Distribution: RCG, MAE, and CMRCL Segmentation</h4>
+<p id="area-insight-text">Loading area distribution...</p>
+</div>
+
 <details style="margin-top:1.5rem;border:1px solid var(--slds-border);border-radius:8px;background:var(--slds-white);">
 <summary style="padding:1rem 1.25rem;cursor:pointer;font-size:1rem;font-weight:700;color:var(--slds-dark);list-style:none;display:flex;align-items:center;gap:.5rem;">
 <span style="transition:transform .2s;display:inline-block;" class="chevron">&#9654;</span> Attrition Events &mdash; Detailed View (72 Records)
 </summary>
 <div style="padding:0 1.25rem 1.25rem;">
 <div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;align-items:center;">
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Feb 2026</option><option>Mar 2026</option><option>Apr 2026</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="5" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Feb 2026</option><option>Mar 2026</option><option>Apr 2026</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="6" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Area <select onchange="filterAttritionTable(this)" data-col="1" data-match="exact" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>RCG</option><option>MAE</option><option>CMRCL</option></select></label>
 </div>
 <div style="overflow-x:auto;">
 <table id="attrition-events-table">
-<thead><tr><th>Account Name</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Stage</th><th>Attrition Type</th><th style="text-align:right">Attrition Amount</th></tr></thead>
+<thead><tr><th>Account Name</th><th>Area</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Stage</th><th>Attrition Type</th><th style="text-align:right">Attrition Amount</th></tr></thead>
 <tbody>
 <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017ERwmAAG/view" target="_blank">General Mills, Inc.</a></td><td>Apr 2026</td><td>Partial</td><td>Adoption</td><td>05 Closed</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$5,847,798</td></tr>
 <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000095WuvAAE/view" target="_blank">Hunter Douglas, Inc.</a></td><td>Feb 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Dead Attrition</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,979,487</td></tr>
@@ -462,6 +482,119 @@ Total Attrition: <span style="color:var(--slds-error);margin-left:.5rem;">$30,42
 </div><!-- end content -->
 
 <script>
+// Area/Portfolio mapping from Core_Q1
+const AREA_MAP = {
+"Mead Johnson & Company, LLC":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"General Mills, Inc.":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"NIKE, Inc.":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Hunter Douglas, Inc.":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Otto Environmental Systems North America Inc.":{"area":"CMRCL","portfolio":"MAE CMRCL MFG E"},
+"Ideal Image Development Corporation":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"The Gap, Inc.****":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Novanta, Inc.":{"area":"CMRCL","portfolio":"MAE CMRCL MFG E"},
+"J.R. Simplot Company":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Hostess Brands, LLC":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"JM Family Automotive LLC":{"area":"CMRCL","portfolio":"MAE CMRCL MFG E"},
+"Honeywell International Inc.":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Equilon Enterprises LLC":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Carlisle Weatherproofing Technologies (CWT)":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"EQT Corporation":{"area":"CMRCL","portfolio":"MAE CMRCL AUE"},
+"ClubCorp USA, Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Dana Limited*":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"RH US, LLC":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"EVgo Services LLC.":{"area":"CMRCL","portfolio":"MAE CMRCL AUE"},
+"Agilent Technologies, Inc.":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"Starbucks Coffee Company":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Rite Aid Hdqtrs. Corp.":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Halliburton Energy Services, Inc.":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Primo Brands":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"The Gap, Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Grailed, LLC":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Driveway":{"area":"MAE","portfolio":"MAE ENTR AUTOMFG"},
+"Yamaha Motor Corporations, U.S.A":{"area":"CMRCL","portfolio":"MAE CMRCL AUE"},
+"Colgate-Palmolive Company":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"BI-LO, LLC":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Commercial Metals Company":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"Del Grande Dealer Group":{"area":"CMRCL","portfolio":"MAE CMRCL AUE"},
+"Heska Corporation":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"PetroChoice Holdings, Inc.":{"area":"CMRCL","portfolio":"MAE CMRCL AUE"},
+"JustFoodForDogs":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"DS Technology Hub, LLC":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Rockwell Automation (Parent)":{"area":"MAE","portfolio":"MAE ENTR AUTOMFG"},
+"LKQ - Pick Your Parts":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Public Service Enterprise Group Incorporated (2nd Org)":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Casey's Retail Company":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Regal Rexnord Corporation*":{"area":"MAE","portfolio":"MAE ENTR AUTOMFG"},
+"Wonder Group Ops, LLC":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"Weatherford International LLC":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Claire's Stores, Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Oncourse":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Walgreen Co.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Schawk USA Inc. / SGK Brand Solutions":{"area":"CMRCL","portfolio":"MAE CMRCL MFG E"},
+"TrimbleP1":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"Toyota Motor North America, Inc.":{"area":"MAE","portfolio":"MAE ENTR AUTOMFG"},
+"Gap Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Dyno Nobel Inc.":{"area":"CMRCL","portfolio":"MAE CMRCL MFG W"},
+"Riboli Family Wines":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"The Walman Optical Company":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Valley Power Systems, Inc.":{"area":"CMRCL","portfolio":"MAE CMRCL MFG W"},
+"Polydeck Screen Corp.":{"area":"CMRCL","portfolio":"MAE CMRCL MFG E"},
+"CarMax Enterprise Services, LLC":{"area":"MAE","portfolio":"MAE ENTR AUTOMFG"},
+"McCormick & Co. (Industrial Division)":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Dunham's Athleisure Corporation":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"TerraSource Global":{"area":"CMRCL","portfolio":"MAE CMRCL MFG W"},
+"Ball Corporation":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"Shorr Packaging, Inc.":{"area":"CMRCL","portfolio":"MAE CMRCL MFG C"},
+"Fox Restaurant Concepts LLC":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Marmon Utility LLC.":{"area":"CMRCL","portfolio":"MAE CMRCL MFG E"},
+"General Mills, Inc*":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Mars Symbioscience":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Giant RV":{"area":"CMRCL","portfolio":"MAE CMRCL AUE"},
+"Baker & Taylor, Inc.*":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"Hydraforce Inc.":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"Land O'Lakes - Purina Animal Feed":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Noodles & Company - Service":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Lixil Corp":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Holman Automotive Group, Inc.":{"area":"CMRCL","portfolio":"MAE CMRCL MFG E"},
+"ZO Skin Health, Inc.":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Quad**":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"Flexsteel Industries, Inc.":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"MISUMI USA, Inc.":{"area":"CMRCL","portfolio":"MAE CMRCL MFG W"},
+"Enerpac Tool Group":{"area":"CMRCL","portfolio":"MAE CMRCL MFG C"},
+"Fanatics Brands":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"EJOT Holding GmbH & Co. KG (2nd Org)":{"area":"CMRCL","portfolio":"MAE CMRCL MFG C"},
+"Lakeshore Learning Materials, LLC":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"S. D. Myers, Inc.":{"area":"CMRCL","portfolio":"MAE CMRCL AUE"},
+"Revelyst Operations LLC":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Noodles & Company":{"area":"RCG","portfolio":"RCG ENTR RETAIL"}
+};
+
+// Fuzzy match: find the best matching key in AREA_MAP for a given account text
+function findArea(accountText){
+const t = accountText.trim().toLowerCase();
+// Direct match attempts
+for(const key of Object.keys(AREA_MAP)){
+if(t.includes(key.toLowerCase()) || key.toLowerCase().includes(t)) return AREA_MAP[key];
+}
+// Partial match on key words
+const words = t.replace(/[^a-z0-9 ]/g,'').split(/\s+/).filter(w=>w.length>3);
+let best=null, bestScore=0;
+for(const key of Object.keys(AREA_MAP)){
+const kl=key.toLowerCase();
+let score=0;
+for(const w of words){if(kl.includes(w)) score++;}
+if(score>bestScore){bestScore=score;best=AREA_MAP[key];}
+}
+if(bestScore>=2) return best;
+return null;
+}
+
+function getAreaTag(area){
+if(!area) return '<span class="tag tag-neutral">--</span>';
+const cls = area==='RCG'?'tag-rcg':area==='MAE'?'tag-mae':'tag-cmrcl';
+return '<span class="tag '+cls+'">'+area+'</span>';
+}
+
 function showPanel(id){
 document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -473,19 +606,86 @@ if(idx>=0)tabs[idx].classList.add('active');
 }
 
 function filterAttritionTable(sel){
-const col=parseInt(sel.dataset.col);
-const val=sel.value;
-const rows=document.querySelectorAll('#attrition-events-table tbody tr');
+const tableEl=document.getElementById('attrition-events-table');
+const rows=tableEl.querySelectorAll('tbody tr');
+// Gather all active filters from the parent container
+const container=tableEl.closest('div[style*="padding"]')||tableEl.parentElement.parentElement;
+const filterSelects=container.querySelectorAll('select');
 rows.forEach(row=>{
-if(!val){row.style.display='';return;}
-const cell=row.cells[col];
-if(cell&&cell.textContent.trim().includes(val)){row.style.display='';}
-else{row.style.display='none';}
+let show=true;
+filterSelects.forEach(s=>{
+const v=s.value;
+if(!v) return;
+const c=parseInt(s.dataset.col);
+const cell=row.cells[c];
+if(!cell) return;
+const ct=cell.textContent.trim();
+if(s.dataset.match==='exact'){
+if(ct!==v) show=false;
+} else {
+if(!ct.includes(v)) show=false;
+}
+});
+row.style.display=show?'':'none';
 });
 }
 
-// Charts
+// Insert Area column into events table and compute area stats
 document.addEventListener('DOMContentLoaded',function(){
+const table=document.getElementById('attrition-events-table');
+if(table){
+const rows=table.querySelectorAll('tbody tr');
+const areaCounts={RCG:0,MAE:0,CMRCL:0};
+const areaAttrition={RCG:0,MAE:0,CMRCL:0};
+const areaPortfolios={RCG:{},MAE:{},CMRCL:{}};
+rows.forEach(row=>{
+const accountCell=row.cells[0];
+const accountText=accountCell?accountCell.textContent.trim():'';
+const amountCell=row.cells[row.cells.length-1];
+const amountText=amountCell?amountCell.textContent.trim().replace(/[$,]/g,''):'0';
+const amount=parseFloat(amountText)||0;
+const match=findArea(accountText);
+const area=match?match.area:null;
+const portfolio=match?match.portfolio:'';
+// Insert new cell after account name
+const newCell=row.insertCell(1);
+newCell.innerHTML=getAreaTag(area);
+if(area){
+areaCounts[area]++;
+areaAttrition[area]+=amount;
+if(portfolio) areaPortfolios[area][portfolio]=(areaPortfolios[area][portfolio]||0)+1;
+}
+});
+
+// Populate Area Breakdown table
+function topPortfolios(obj){
+return Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,3).map(e=>e[0]+' ('+e[1]+')').join(', ');
+}
+function fmtMoney(v){return '$'+(v/1000000).toFixed(2)+'M';}
+document.getElementById('area-rcg-count').textContent=areaCounts.RCG;
+document.getElementById('area-rcg-attrit').textContent=fmtMoney(areaAttrition.RCG);
+document.getElementById('area-rcg-portfolios').textContent=topPortfolios(areaPortfolios.RCG);
+document.getElementById('area-mae-count').textContent=areaCounts.MAE;
+document.getElementById('area-mae-attrit').textContent=fmtMoney(areaAttrition.MAE);
+document.getElementById('area-mae-portfolios').textContent=topPortfolios(areaPortfolios.MAE);
+document.getElementById('area-cmrcl-count').textContent=areaCounts.CMRCL;
+document.getElementById('area-cmrcl-attrit').textContent=fmtMoney(areaAttrition.CMRCL);
+document.getElementById('area-cmrcl-portfolios').textContent=topPortfolios(areaPortfolios.CMRCL);
+
+// Area donut chart
+new Chart(document.getElementById('chart-area'),{type:'doughnut',data:{labels:['RCG ('+areaCounts.RCG+')','MAE ('+areaCounts.MAE+')','CMRCL ('+areaCounts.CMRCL+')'],datasets:[{data:[areaCounts.RCG,areaCounts.MAE,areaCounts.CMRCL],backgroundColor:['#0176d3','#7e57c2','#fe9339']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11}}}}}});
+
+// Populate insight box
+const insightEl=document.getElementById('area-insight-text');
+if(insightEl){
+const total=areaCounts.RCG+areaCounts.MAE+areaCounts.CMRCL;
+const rcgPct=total?Math.round(areaCounts.RCG/total*100):0;
+const maePct=total?Math.round(areaCounts.MAE/total*100):0;
+const cmrclPct=total?Math.round(areaCounts.CMRCL/total*100):0;
+insightEl.textContent='RCG leads with '+areaCounts.RCG+' records ('+rcgPct+'%, '+fmtMoney(areaAttrition.RCG)+'), followed by MAE with '+areaCounts.MAE+' records ('+maePct+'%, '+fmtMoney(areaAttrition.MAE)+') and CMRCL with '+areaCounts.CMRCL+' records ('+cmrclPct+'%, '+fmtMoney(areaAttrition.CMRCL)+'). MAE attrition is concentrated in UE and MFG portfolios, while RCG spans Retail, CG FMCG, and CG HMDU.';
+}
+}
+
 // Classification chart
 new Chart(document.getElementById('chart-classification'),{type:'doughnut',data:{labels:['Not Actionable (16)','Win (4)','Logo Loss (34)','Partial Save (18)'],datasets:[{data:[16,4,34,18],backgroundColor:['#706e6b','#2e844a','#ea001e','#fe9339']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11}}}}}});
 

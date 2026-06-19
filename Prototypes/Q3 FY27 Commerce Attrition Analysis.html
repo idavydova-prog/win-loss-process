@@ -46,6 +46,9 @@ a:hover{text-decoration:underline}
 .notes-cell{max-width:300px;white-space:pre-wrap;word-break:break-word;font-size:.75rem;color:var(--slds-text-weak)}
 .compliance-pass{color:var(--slds-success);font-weight:600}
 .compliance-fail{color:var(--slds-error);font-weight:600}
+.tag-rcg{background:#eaf5fe;color:#0176d3}
+.tag-mae{background:#ede7f6;color:#7e57c2}
+.tag-cmrcl{background:#fff8e6;color:#946f00}
 </style>
 </head>
 <body>
@@ -95,6 +98,7 @@ a:hover{text-decoration:underline}
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">At-Risk Reason</h3><div style="position:relative;height:200px;"><canvas id="chart-reason"></canvas></div></div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Oncycle vs Offcycle</h3><div style="position:relative;height:200px;"><canvas id="chart-type"></canvas></div></div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Top 5 Accounts by At-Risk Amount</h3><div style="position:relative;height:200px;"><canvas id="chart-top5"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition by Area</h3><div style="position:relative;height:200px;"><canvas id="chart-area"></canvas></div></div>
 </div>
 
 <div class="card">
@@ -105,6 +109,16 @@ a:hover{text-decoration:underline}
 <tr><td><span class="tag tag-success">Win (Projected)</span></td><td>0</td><td>&mdash;</td><td>&mdash;</td></tr>
 <tr><td><span class="tag tag-error">Logo Loss (Projected)</span></td><td>6</td><td>$6.07M</td><td>Duluth Trading ($2.43M), e.l.f. Beauty ($2.07M), Fanatics ($567K), Alice+Olivia ($448K), Nexeo Plastics ($328K), Fruit of the Loom ($138K)</td></tr>
 <tr><td><span class="tag tag-warning">Partial Save (Projected)</span></td><td>4</td><td>$1.94M</td><td>Instacart ($1.23M), Fullbeauty Brands ($417K), Ecolab Connect ($285K), Spartannash ($100K)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Area Breakdown</h3>
+<table>
+<tr><th>Area</th><th>Records</th><th>Attrition $</th><th>Key Portfolios</th></tr>
+<tr><td><span class="tag tag-rcg">RCG</span></td><td>7</td><td>$5.05M</td><td>RCG CMRCL GB, RCG ENTR RETAIL, RCG ENTR CG HMDU, RCG ENTR CG FMCG</td></tr>
+<tr><td><span class="tag tag-cmrcl">CMRCL</span></td><td>5</td><td>$3.24M</td><td>RCG CMRCL MM, MAE CMRCL MFG W</td></tr>
+<tr><td><span class="tag tag-mae">MAE</span></td><td>1</td><td>$285K</td><td>MAE ENTR MFG E</td></tr>
 </table>
 </div>
 
@@ -138,34 +152,40 @@ a:hover{text-decoration:underline}
 <p>Instacart ($1.23M at-risk) has an approved ARI with executive presentations underway. Shelfware reduction is the driver, not competitive loss. Active CSM engagement suggests potential for save or partial retention.</p>
 </div>
 
+<div class="insight-box">
+<h4>Area Distribution: RCG Dominates Record Count, CMRCL Leads in Dollar Concentration</h4>
+<p>RCG accounts for 7 of 13 records (54%) with $5.05M at-risk, driven by Duluth Trading ($2.43M) and Instacart ($1.23M). CMRCL has 5 records (38%) totaling $3.24M, anchored by e.l.f. Beauty ($2.07M). MAE has a single record (Ecolab Connect, $285K). RCG CMRCL GB and RCG ENTR RETAIL are the most impacted portfolios.</p>
+</div>
+
 <details class="attrition-events" style="margin-top:1.5rem;border:1px solid var(--slds-border);border-radius:8px;background:var(--slds-white);">
 <summary style="padding:1rem 1.25rem;cursor:pointer;font-size:1rem;font-weight:700;color:var(--slds-dark);list-style:none;display:flex;align-items:center;gap:.5rem;">
 <span style="transition:transform .2s;display:inline-block;" class="chevron">&#9654;</span> Attrition Events &mdash; Detailed View (13 Records)
 </summary>
 <div style="padding:0 1.25rem 1.25rem;">
 <div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;align-items:center;">
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Aug 2026</option><option>Sep 2026</option><option>Oct 2026</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">At-Risk Reason <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Adoption</option><option>Business Change &amp; Distress</option><option>Competitive</option><option>Customer Relationship</option><option>Financial &amp; Contractual</option><option>Product</option><option>Unspecified</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="5" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Aug 2026</option><option>Sep 2026</option><option>Oct 2026</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">At-Risk Reason <select onchange="filterAttritionTable(this)" data-col="4" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Adoption</option><option>Business Change &amp; Distress</option><option>Competitive</option><option>Customer Relationship</option><option>Financial &amp; Contractual</option><option>Product</option><option>Unspecified</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="6" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Area <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>RCG</option><option>MAE</option><option>CMRCL</option></select></label>
 </div>
 <div style="overflow-x:auto;">
 <table id="attrition-events-table">
-<thead><tr><th>Account Name</th><th>Event Month</th><th>Full/Partial</th><th>At-Risk Reason</th><th>At-Risk Reason Detail</th><th>Attrition Type</th><th style="text-align:right">At-Risk Amount</th></tr></thead>
+<thead><tr><th>Account Name</th><th>Area</th><th>Event Month</th><th>Full/Partial</th><th>At-Risk Reason</th><th>At-Risk Reason Detail</th><th>Attrition Type</th><th style="text-align:right">At-Risk Amount</th></tr></thead>
 <tbody>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017eEf2AAE/view" target="_blank">Duluth Trading Company</a></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,430,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198FdUAAU/view" target="_blank">e.l.f. Beauty, Inc.</a></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,074,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wHTxAAM/view" target="_blank">Instacart (Maplebear Inc.)</a></td><td>Aug 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Expertise</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,234,062</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000drsVFAAY/view" target="_blank">Fanatics Holdings, Inc.</a></td><td>Sep 2026</td><td>Full</td><td>Competitive</td><td>Replaced with an In-House Solution</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$567,494</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004NbUSAA0/view" target="_blank">Alice + Olivia, LLC</a></td><td>Oct 2026</td><td>Full</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$448,144</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198M6XAAU/view" target="_blank">Fullbeauty Brands, Inc.</a></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$417,263</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bLRzAAM/view" target="_blank">Nexeo Plastics, LLC</a></td><td>Aug 2026</td><td>Full</td><td>Product</td><td>Product Retirement - Replacement Lacks Parity</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$328,320</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wGKzAAM/view" target="_blank">Ecolab Connect</a></td><td>Aug 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$285,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000JypzCAAR/view" target="_blank">1916 (MS &amp; CC)</a></td><td>Aug 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$238,015</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000MEIDLAA5/view" target="_blank">Christy Sports</a></td><td>Oct 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$165,500</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000OQeOzAAL/view" target="_blank">PetMed Express, Inc.</a></td><td>Oct 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$151,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Nu1PDAAZ/view" target="_blank">Fruit of the Loom, Inc.</a></td><td>Oct 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Price Uplift</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$137,622</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198WgVAAU/view" target="_blank">Spartannash Company</a></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$100,002</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017eEf2AAE/view" target="_blank">Duluth Trading Company</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,430,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198FdUAAU/view" target="_blank">e.l.f. Beauty, Inc.</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,074,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wHTxAAM/view" target="_blank">Instacart (Maplebear Inc.)</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Aug 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Expertise</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,234,062</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000drsVFAAY/view" target="_blank">Fanatics Holdings, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Sep 2026</td><td>Full</td><td>Competitive</td><td>Replaced with an In-House Solution</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$567,494</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004NbUSAA0/view" target="_blank">Alice + Olivia, LLC</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Oct 2026</td><td>Full</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$448,144</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198M6XAAU/view" target="_blank">Fullbeauty Brands, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$417,263</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bLRzAAM/view" target="_blank">Nexeo Plastics, LLC</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Aug 2026</td><td>Full</td><td>Product</td><td>Product Retirement - Replacement Lacks Parity</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$328,320</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wGKzAAM/view" target="_blank">Ecolab Connect</a></td><td><span class="tag tag-mae">MAE</span></td><td>Aug 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$285,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000JypzCAAR/view" target="_blank">1916 (MS &amp; CC)</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Aug 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$238,015</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000MEIDLAA5/view" target="_blank">Christy Sports</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Oct 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$165,500</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000OQeOzAAL/view" target="_blank">PetMed Express, Inc.</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Oct 2026</td><td>Partial</td><td>Unspecified</td><td>&mdash;</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$151,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Nu1PDAAZ/view" target="_blank">Fruit of the Loom, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Oct 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Price Uplift</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$137,622</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198WgVAAU/view" target="_blank">Spartannash Company</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$100,002</td></tr>
 </tbody>
 </table>
 </div>
@@ -547,6 +567,23 @@ else row.style.display='none';
 });
 }
 
+// Area-Portfolio mapping from CC_Q3 data
+const areaPortfolioMap = {
+"Duluth Trading Company": {"area":"RCG","portfolio":"RCG CMRCL GB"},
+"e.l.f. Cosmetics, Inc.": {"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Instacart (Maplebear Inc.) (2nd Org)": {"area":"RCG","portfolio":"RCG CMRCL GB"},
+"Fanatics Holdings, Inc.": {"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Alice + Olivia, LLC": {"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Fullbeauty Brands, Inc.": {"area":"RCG","portfolio":"RCG CMRCL GB"},
+"Nexeo Plastics, LLC": {"area":"CMRCL","portfolio":"MAE CMRCL MFG W"},
+"Ecolab Connect": {"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"1916 (MS & CC)": {"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Christy Sports": {"area":"RCG","portfolio":"RCG CMRCL GB"},
+"PetMed Express, Inc.": {"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Fruit of the Loom, Inc.": {"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Spartannash Company  **": {"area":"RCG","portfolio":"RCG ENTR CG FMCG"}
+};
+
 // Chart.js initialization
 document.addEventListener('DOMContentLoaded',function(){
 // Classification chart
@@ -575,6 +612,13 @@ new Chart(document.getElementById('chart-top5'),{
 type:'bar',
 data:{labels:['Duluth Trading','e.l.f. Beauty','Instacart','Fanatics','Alice+Olivia'],datasets:[{label:'At-Risk ($)',data:[2430000,2074000,1234062,567494,448144],backgroundColor:['#ea001e','#ea001e','#fe9339','#ea001e','#ea001e']}]},
 options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:function(v){return'$'+(v/1000000).toFixed(1)+'M'}}}}}
+});
+
+// Area donut chart
+new Chart(document.getElementById('chart-area'),{
+type:'doughnut',
+data:{labels:['RCG','CMRCL','MAE'],datasets:[{data:[7,5,1],backgroundColor:['#0176d3','#fe9339','#7e57c2']}]},
+options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11}}}}}
 });
 });
 

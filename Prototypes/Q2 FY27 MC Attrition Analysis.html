@@ -37,6 +37,9 @@ tr:hover{background:#f0f7ff}
 .tag-error{background:#fef1f1;color:var(--slds-error)}
 .tag-info{background:#eaf5fe;color:var(--slds-blue)}
 .tag-neutral{background:var(--slds-light);color:var(--slds-text-weak)}
+.tag-rcg{background:#eaf5fe;color:#0176d3}
+.tag-mae{background:#ede7f6;color:#7e57c2}
+.tag-cmrcl{background:#fff8e6;color:#946f00}
 .insight-box{border-left:4px solid var(--slds-blue);padding:.75rem 1rem;margin-bottom:1rem;background:#f8fbfe;border-radius:0 4px 4px 0}
 .insight-box.warn{border-left-color:var(--slds-warning);background:#fffbf5}
 .insight-box.error{border-left-color:var(--slds-error);background:#fef8f8}
@@ -85,7 +88,7 @@ a:hover{text-decoration:underline}
 
 <!-- SUMMARY PANEL -->
 <div class="panel active" id="summary">
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
 <div style="display:flex;align-items:center;gap:2rem;grid-column:1/-1;background:var(--slds-white);border:1px solid var(--slds-border);border-radius:8px;padding:1.25rem 2rem;">
 <div style="text-align:center;"><div style="font-size:2rem;font-weight:700;color:var(--slds-dark);">$9.90M</div><div style="font-size:.75rem;color:var(--slds-text-weak);">Total Forecasted Attrition</div></div>
 <div style="width:1px;height:40px;background:var(--slds-border);"></div>
@@ -93,6 +96,7 @@ a:hover{text-decoration:underline}
 </div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Classification</h3><div style="position:relative;height:200px;"><canvas id="chart-classification"></canvas></div></div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition Reason</h3><div style="position:relative;height:200px;"><canvas id="chart-reason"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition by Area</h3><div style="position:relative;height:200px;"><canvas id="chart-area"></canvas></div></div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Oncycle vs Offcycle</h3><div style="position:relative;height:200px;"><canvas id="chart-type"></canvas></div></div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Top 5 Accounts by Attrition</h3><div style="position:relative;height:200px;"><canvas id="chart-top5"></canvas></div></div>
 </div>
@@ -106,6 +110,16 @@ a:hover{text-decoration:underline}
 <tr><td><span class="tag tag-error">Logo Loss</span></td><td>4</td><td>$6.57M</td><td>Shiseido ($4.30M), Chamberlain Group ($1.89M), American Musical ($238K), CSI Compressco ($142K)</td></tr>
 <tr><td><span class="tag tag-warning">Partial Save</span></td><td>6</td><td>$1.81M</td><td>Rich Products ($592K), Turntide ($387K), Fanatics multi ($355K), Hickory Farms ($234K), Abacode ($138K), NHS ($104K)</td></tr>
 <tr><td><span class="tag tag-info">SP Downgrade</span></td><td>1</td><td>$300K</td><td>American Electric Power ($300K)</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Area Breakdown</h3>
+<table>
+<tr><th>Area</th><th>Records</th><th>Attrition $</th><th>Key Portfolios</th></tr>
+<tr><td><span class="tag tag-rcg">RCG</span></td><td>7</td><td>$6.65M</td><td>RCG ENTR CG HMDU (Shiseido, Rich Products, Abacode), RCG ENTR RETAIL (84.51, Fanatics x2), RCG ENTR CG FMCG (NHS)</td></tr>
+<tr><td><span class="tag tag-mae">MAE</span></td><td>2</td><td>$2.19M</td><td>MAE ENTR MFG E (Chamberlain Group), MAE ENTR UE (American Electric Power)</td></tr>
+<tr><td><span class="tag tag-cmrcl">CMRCL</span></td><td>5</td><td>$1.27M</td><td>RCG CMRCL MM (Winston Brands, American Musical, Hickory Farms), MAE CMRCL MFG W (Turntide), MAE CMRCL AUE (CSI Compressco)</td></tr>
 </table>
 </div>
 
@@ -139,35 +153,41 @@ a:hover{text-decoration:underline}
 <p>Current Q2 event shows 88.41% rate with $795K ACV retained, but CSM notes &ldquo;moving to Klaviyo and this will be a #fullattrit.&rdquo; Expect a Logo Loss in a future quarter. Flag for proactive leadership awareness.</p>
 </div>
 
+<div class="insight-box">
+<h4>Area Distribution: RCG Dominates at 50% of Records, 66% of Attrition $</h4>
+<p>RCG accounts for 7 of 14 records ($6.65M) driven primarily by Shiseido ($4.30M). MAE contributes only 2 records but $2.19M due to the Chamberlain Group logo loss ($1.89M). CMRCL has the most records after RCG (5) but the smallest attrition impact ($1.27M) with no single event exceeding $387K.</p>
+</div>
+
 <details class="attrition-events" style="margin-top:1.5rem;border:1px solid var(--slds-border);border-radius:8px;background:var(--slds-white);">
 <summary style="padding:1rem 1.25rem;cursor:pointer;font-size:1rem;font-weight:700;color:var(--slds-dark);list-style:none;display:flex;align-items:center;gap:.5rem;">
 <span style="transition:transform .2s;display:inline-block;" class="chevron">&#9654;</span> Attrition Events &mdash; Detailed View (14 Records)
 </summary>
 <div style="padding:0 1.25rem 1.25rem;">
 <div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;align-items:center;">
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>May 2026</option><option>Jun 2026</option><option>Jul 2026</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Attrition Reason <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Adoption</option><option>Business Change &amp; Distress</option><option>Financial &amp; Contractual</option><option>Implementation</option><option>Success Plan &amp; Support</option><option>Unspecified</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="5" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>May 2026</option><option>Jun 2026</option><option>Jul 2026</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Attrition Reason <select onchange="filterAttritionTable(this)" data-col="4" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Adoption</option><option>Business Change &amp; Distress</option><option>Financial &amp; Contractual</option><option>Implementation</option><option>Success Plan &amp; Support</option><option>Unspecified</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Area <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>RCG</option><option>MAE</option><option>CMRCL</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="6" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option></select></label>
 </div>
 <div style="overflow-x:auto;">
 <table id="attrition-events-table">
-<thead><tr><th>Account Name</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Attrition Reason Detail</th><th>Attrition Type</th><th style="text-align:right">Attrition Amount</th></tr></thead>
+<thead><tr><th>Account Name</th><th>Area</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Attrition Reason Detail</th><th>Attrition Type</th><th style="text-align:right">Attrition Amount</th></tr></thead>
 <tbody>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XMsFAAW/view" target="_blank">Shiseido Company, Limited</a></td><td>May 2026</td><td>Partial</td><td>Unspecified</td><td>No Reason Given</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$4,304,160</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000003vTBdAAM/view" target="_blank">The Chamberlain Group LLC</a></td><td>May 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,890,615</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE8yXAAT/view" target="_blank">84.51 LLC</a></td><td>May 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Transfer of Users to New Org</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$944,398</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EBzGEAA1/view" target="_blank">Rich Products Corporation</a></td><td>May 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Sponsorship</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$591,719</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bJscAAE/view" target="_blank">Turntide Technologies Inc.</a></td><td>Jul 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Pricing Tier/Term Length</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$386,703</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XWJTAA4/view" target="_blank">Fanatics Holdings, Inc. (multi-cloud)</a></td><td>Jun 2026</td><td>Partial</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Quality/Timeline)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$354,521</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE0piAAD/view" target="_blank">American Electric Power</a></td><td>May 2026</td><td>Full</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Quality/Timeline)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$300,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XiQLAA0/view" target="_blank">Winston Brands Incorporated</a></td><td>Jun 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Financial Distress - Out of Business/Bankruptcy</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$263,950</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019YBvuAAG/view" target="_blank">American Musical Supply, Inc</a></td><td>Jun 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Price Uplift</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$237,773</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000D4dheAAB/view" target="_blank">Hickory Farms, Inc.</a></td><td>May 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Financial Distress - Need to Cut Costs</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$234,448</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XX0bAAG/view" target="_blank">Fanatics Holdings, Inc. (MC only)</a></td><td>Jun 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$209,404</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQe0jAAD/view" target="_blank">CSI Compressco LP (sub of Kodiak)</a></td><td>May 2026</td><td>Full</td><td>Implementation</td><td>Customer Led - Customer Issue</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$142,201</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TfwYpAAJ/view" target="_blank">Abacode</a></td><td>May 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Restructuring/Internal License Reduction</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$138,168</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000F2aGTAAZ/view" target="_blank">NHS U.S. LLC</a></td><td>Jun 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$104,327</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XMsFAAW/view" target="_blank">Shiseido Company, Limited</a></td><td><span class="tag tag-rcg">RCG</span></td><td>May 2026</td><td>Partial</td><td>Unspecified</td><td>No Reason Given</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$4,304,160</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000003vTBdAAM/view" target="_blank">The Chamberlain Group LLC</a></td><td><span class="tag tag-mae">MAE</span></td><td>May 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,890,615</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE8yXAAT/view" target="_blank">84.51 LLC</a></td><td><span class="tag tag-rcg">RCG</span></td><td>May 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Transfer of Users to New Org</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$944,398</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EBzGEAA1/view" target="_blank">Rich Products Corporation</a></td><td><span class="tag tag-rcg">RCG</span></td><td>May 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Sponsorship</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$591,719</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bJscAAE/view" target="_blank">Turntide Technologies Inc.</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Jul 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Pricing Tier/Term Length</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$386,703</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XWJTAA4/view" target="_blank">Fanatics Holdings, Inc. (multi-cloud)</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jun 2026</td><td>Partial</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Quality/Timeline)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$354,521</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE0piAAD/view" target="_blank">American Electric Power</a></td><td><span class="tag tag-mae">MAE</span></td><td>May 2026</td><td>Full</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Quality/Timeline)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$300,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XiQLAA0/view" target="_blank">Winston Brands Incorporated</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Jun 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Financial Distress - Out of Business/Bankruptcy</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$263,950</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019YBvuAAG/view" target="_blank">American Musical Supply, Inc</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Jun 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Price Uplift</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$237,773</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000D4dheAAB/view" target="_blank">Hickory Farms, Inc.</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>May 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Financial Distress - Need to Cut Costs</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$234,448</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XX0bAAG/view" target="_blank">Fanatics Holdings, Inc. (MC only)</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jun 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$209,404</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQe0jAAD/view" target="_blank">CSI Compressco LP (sub of Kodiak)</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>May 2026</td><td>Full</td><td>Implementation</td><td>Customer Led - Customer Issue</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$142,201</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TfwYpAAJ/view" target="_blank">Abacode</a></td><td><span class="tag tag-rcg">RCG</span></td><td>May 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Restructuring/Internal License Reduction</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$138,168</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000F2aGTAAZ/view" target="_blank">NHS U.S. LLC</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Jun 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$104,327</td></tr>
 </tbody>
 </table>
 </div>
@@ -456,6 +476,55 @@ Total Attrition: <span style="color:var(--slds-error);margin-left:.5rem;">$9,902
 </div>
 
 <script>
+const AREA_PORTFOLIO_MAP = {
+"Tapestry, Inc.":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Penney OpCo LLC":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"(Primary) Chevron Technical Center, a division of Chevron U.S.A. Inc.,":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Sunrun Inc.":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Lowe's Companies, Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"GNC Holdings, LLC":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"The Chamberlain Group LLC":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"The Kroger Co.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Transaction Network Services":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"SharkNinja Operating LLC":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Summit Health Management LLC (AfterCare)":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"84.51 LLC":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Ariat International, Inc.":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"800-Flowers, Inc. (Marketing & Slack)":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Rich Products Corporation":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"The Scotts Company, LLC":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"TSI Inc.":{"area":"CMRCL","portfolio":"MAE CMRCL MFG C"},
+"Bethlehem Shared Services (MC)":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Blink Charging":{"area":"CMRCL","portfolio":"MAE CMRCL AUE"},
+"Raley's":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"The Scotts Company, LLC.":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Turntide Technologies Inc.":{"area":"CMRCL","portfolio":"MAE CMRCL MFG W"},
+"Greenworks North America, LLC":{"area":"CMRCL","portfolio":"MAE CMRCL MFG E"},
+"Fanatics Holdings, Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"National Grid USA Service Company - Gas":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"American Electric Power":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Zoro Tools, Inc.":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Winston Brands Incorporated":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Weisiger Group Inc.":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"Rehrig Pacific Company":{"area":"CMRCL","portfolio":"MAE CMRCL MFG W"},
+"American Musical Supply, Inc":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Tangram Interiors":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Hickory Farms, Inc.":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Marvin Windows, Inc.":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Sysco Corporation":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"Stowers Machinery Corp":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"Hale Products":{"area":"CMRCL","portfolio":"MAE CMRCL MFG E"},
+"Cryogenic Industries Inc.":{"area":"CMRCL","portfolio":"MAE CMRCL MFG W"},
+"Target Corporation (Target+)":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"The Mosaic Company":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"LAV US":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"Duke Energy Business Services LLC":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"NHS U.S. LLC":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Shiseido Company, Limited":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"CSI Compressco LP (sub of Kodiak)":{"area":"CMRCL","portfolio":"MAE CMRCL AUE"},
+"Abacode":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"David Yurman Enterprises LLC - 2nd Org":{"area":"RCG","portfolio":"RCG CMRCL GB"}
+};
 function showPanel(id){
 document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
 document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -488,6 +557,7 @@ const chartColors=['#0176d3','#2e844a','#ea001e','#fe9339','#7e57c2','#00bcd4','
 const doughnutOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}}};
 new Chart(document.getElementById('chart-classification'),{type:'doughnut',data:{labels:['Not Actionable','Wins','Logo Losses','Partial Saves','SP Downgrades'],datasets:[{data:[1,2,4,6,1],backgroundColor:['#8d6e63','#2e844a','#ea001e','#fe9339','#7e57c2']}]},options:doughnutOpts});
 new Chart(document.getElementById('chart-reason'),{type:'doughnut',data:{labels:['Financial & Contractual','Business Change & Distress','Success Plan & Support','Adoption','Implementation','Unspecified'],datasets:[{data:[4,4,2,1,1,2],backgroundColor:chartColors}]},options:doughnutOpts});
+new Chart(document.getElementById('chart-area'),{type:'doughnut',data:{labels:['RCG (7)','MAE (2)','CMRCL (5)'],datasets:[{data:[7,2,5],backgroundColor:['#0176d3','#7e57c2','#fe9339']}]},options:doughnutOpts});
 new Chart(document.getElementById('chart-type'),{type:'doughnut',data:{labels:['Oncycle'],datasets:[{data:[14],backgroundColor:['#0176d3']}]},options:doughnutOpts});
 new Chart(document.getElementById('chart-top5'),{type:'bar',data:{labels:['Shiseido','Chamberlain Group','84.51 LLC','Rich Products','Turntide'],datasets:[{data:[4304160,1890615,944398,591719,386703],backgroundColor:'#0176d3'}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>'$'+(v/1000000).toFixed(1)+'M'}},y:{ticks:{font:{size:11}}}}}});
 </script>

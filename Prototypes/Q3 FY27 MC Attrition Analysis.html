@@ -36,6 +36,9 @@ tr:hover{background:#f0f7ff}
 .tag-error{background:#fef1f1;color:var(--slds-error)}
 .tag-info{background:#eaf5fe;color:var(--slds-blue)}
 .tag-neutral{background:var(--slds-light);color:var(--slds-text-weak)}
+.tag-rcg{background:#eaf5fe;color:#0176d3}
+.tag-mae{background:#ede7f6;color:#7e57c2}
+.tag-cmrcl{background:#fff8e6;color:#946f00}
 .insight-box{border-left:4px solid var(--slds-blue);padding:.75rem 1rem;margin-bottom:1rem;background:#f8fbfe;border-radius:0 4px 4px 0}
 .insight-box.warn{border-left-color:var(--slds-warning);background:#fffbf5}
 .insight-box.error{border-left-color:var(--slds-error);background:#fef8f8}
@@ -95,6 +98,7 @@ a:hover{text-decoration:underline}
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition Reason</h3><div style="position:relative;height:200px;"><canvas id="chart-reason"></canvas></div></div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Oncycle vs Offcycle</h3><div style="position:relative;height:200px;"><canvas id="chart-type"></canvas></div></div>
 <div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Top 5 Accounts by At-Risk Attrition</h3><div style="position:relative;height:200px;"><canvas id="chart-top5"></canvas></div></div>
+<div class="card" style="margin-bottom:0;"><h3 style="font-size:.8125rem;margin-bottom:.5rem;">Attrition by Area</h3><div style="position:relative;height:200px;"><canvas id="chart-area"></canvas></div></div>
 </div>
 
 <div class="card">
@@ -108,6 +112,16 @@ a:hover{text-decoration:underline}
 </div>
 
 <div class="card">
+<h3>Area Breakdown</h3>
+<table>
+<tr><th>Area</th><th>Records</th><th>Attrition $</th><th>Key Portfolios</th></tr>
+<tr><td><span class="tag tag-rcg">RCG</span></td><td id="area-rcg-count">—</td><td id="area-rcg-amount">—</td><td id="area-rcg-portfolios">—</td></tr>
+<tr><td><span class="tag tag-mae">MAE</span></td><td id="area-mae-count">—</td><td id="area-mae-amount">—</td><td id="area-mae-portfolios">—</td></tr>
+<tr><td><span class="tag tag-cmrcl">CMRCL</span></td><td id="area-cmrcl-count">—</td><td id="area-cmrcl-amount">—</td><td id="area-cmrcl-portfolios">—</td></tr>
+</table>
+</div>
+
+<div class="card">
 <h3>Compliance Overview</h3>
 <div class="metric-grid">
 <div class="metric"><div class="value" style="color:var(--slds-success)">4</div><div class="label">Fully Compliant</div></div>
@@ -115,6 +129,11 @@ a:hover{text-decoration:underline}
 <div class="metric"><div class="value">12%</div><div class="label">Compliance Rate</div></div>
 </div>
 <p style="font-size:.8125rem;color:var(--slds-text-weak)">4 records pass (Bunge, Albertsons, Sally Holdings, Hormel). 10 records have empty CSG Notes. 9 records contain invalid hashtags (#FullAttrit, #PartialAttrit, #nonactionable, etc.). 8 records have offense tags (#ARI, #SWAP, #RA) in CSG Notes instead of Red Account ECOMM Headline.</p>
+</div>
+
+<div class="insight-box">
+<h4>Area Distribution: RCG Dominates by Dollar Value (72%), MAE Leads in High-Value Individual Records</h4>
+<p>RCG accounts for 17 of 33 records ($20.65M, 72% of at-risk attrition), driven by IRB ($6.40M), Nordstrom ($3.65M), and Kohl's ($1.61M). MAE holds 9 records ($6.25M, 22%) with Bunge ($2.07M) and Ecolab ($1.56M) as top risks. CMRCL contributes 7 records ($1.76M, 6%) predominantly from smaller commercial accounts.</p>
 </div>
 
 <div class="insight-box error">
@@ -148,48 +167,49 @@ a:hover{text-decoration:underline}
 </summary>
 <div style="padding:0 1.25rem 1.25rem;">
 <div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem;align-items:center;">
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Aug 2026</option><option>Sep 2026</option><option>Oct 2026</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Attrition Reason <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Adoption</option><option>Business Change &amp; Distress</option><option>Competitive</option><option>Customer Relationship</option><option>Financial &amp; Contractual</option><option>Product</option><option>Success Plan &amp; Support</option><option>Unspecified</option></select></label>
-<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="5" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Event Month <select onchange="filterAttritionTable(this)" data-col="2" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Aug 2026</option><option>Sep 2026</option><option>Oct 2026</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Full/Partial <select onchange="filterAttritionTable(this)" data-col="3" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Full</option><option>Partial</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Attrition Reason <select onchange="filterAttritionTable(this)" data-col="4" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Adoption</option><option>Business Change &amp; Distress</option><option>Competitive</option><option>Customer Relationship</option><option>Financial &amp; Contractual</option><option>Product</option><option>Success Plan &amp; Support</option><option>Unspecified</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Area <select onchange="filterAttritionTable(this)" data-col="1" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>RCG</option><option>MAE</option><option>CMRCL</option></select></label>
+<label style="font-size:.75rem;font-weight:600;color:var(--slds-text-weak);">Type <select onchange="filterAttritionTable(this)" data-col="6" style="margin-left:4px;font-size:.75rem;padding:2px 6px;border:1px solid var(--slds-border);border-radius:4px;"><option value="">(All)</option><option>Oncycle</option><option>Offcycle</option></select></label>
 </div>
 <div style="overflow-x:auto;">
 <table id="attrition-events-table">
-<thead><tr><th>Account Name</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Attrition Reason Detail</th><th>Attrition Type</th><th style="text-align:right">At-Risk Amount</th></tr></thead>
+<thead><tr><th>Account Name</th><th>Area</th><th>Event Month</th><th>Full/Partial</th><th>Attrition Reason</th><th>Attrition Reason Detail</th><th>Attrition Type</th><th style="text-align:right">At-Risk Amount</th></tr></thead>
 <tbody>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198ttNAAQ/view" target="_blank">IRB Holding Corp. (Marketing)</a></td><td>Oct 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$6,398,575</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000M1iGsAAJ/view" target="_blank">Nordstrom, Inc.</a></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$3,647,906</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000006D9BhAAK/view" target="_blank">Bunge Management Services</a></td><td>Oct 2026</td><td>Partial</td><td>Product</td><td>Product Feature Gap</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,066,226</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000OQeqPAAT/view" target="_blank">Kohl's, Inc.</a></td><td>Oct 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Pricing Change</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,612,500</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000001ZKGEAA4/view" target="_blank">Ecolab Data Cloud</a></td><td>Aug 2026</td><td>Partial</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Lack of Knowledge)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,557,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wonbAAA/view" target="_blank">Albertsons Companies, Inc.</a></td><td>Sep 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Sponsorship</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,500,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wHTxAAM/view" target="_blank">Instacart (Maplebear Inc.)</a></td><td>Aug 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Expertise</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,234,062</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I4ymSAAR/view" target="_blank">iFIT Inc.</a></td><td>Aug 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,149,526</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000003C2AoAAK/view" target="_blank">Claire's Stores, Inc.</a></td><td>Oct 2026</td><td>Partial</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,099,310</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000032dpxAAA/view" target="_blank">H-E-B, LP</a></td><td>Sep 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Pricing Tier/Term Length</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$868,129</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198v9lAAA/view" target="_blank">Love's Travel Stops</a></td><td>Oct 2026</td><td>Full</td><td>Competitive</td><td>Switched to a Direct Competitor</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$843,059</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Nu8H0AAJ/view" target="_blank">New MVP Org: One Clean Earth</a></td><td>Oct 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>M&amp;A Activity - License Reduction</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$771,490</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000NugCDAAZ/view" target="_blank">Chico's FAS Inc.</a></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$700,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000dxsifAAA/view" target="_blank">Fanatics Holdings, Inc. (MC)</a></td><td>Sep 2026</td><td>Full</td><td>Competitive</td><td>Replaced with an In-House Solution</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$678,923</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000drsVFAAY/view" target="_blank">Fanatics Holdings, Inc. (Multi)</a></td><td>Sep 2026</td><td>Full</td><td>Competitive</td><td>Replaced with an In-House Solution</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$567,494</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000L95FhAAJ/view" target="_blank">Alliance Consumer Group</a></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$466,592</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004NZkMAAW/view" target="_blank">Alice + Olivia, LLC</a></td><td>Oct 2026</td><td>Full</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$329,957</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wGQ3AAM/view" target="_blank">Network Distribution</a></td><td>Aug 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$312,403</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000KddFhAAJ/view" target="_blank">UNFI (Cub Food - MC)</a></td><td>Sep 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$300,467</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000JqzfbAAB/view" target="_blank">Johnson Controls (Pardot)</a></td><td>Aug 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$254,882</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018kF6BAAU/view" target="_blank">Ashland Inc.</a></td><td>Aug 2026</td><td>Partial</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Lack of Knowledge)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$250,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198v7LAAQ/view" target="_blank">Deere &amp; Company*</a></td><td>Oct 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$250,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198qxLAAQ/view" target="_blank">Ahold Delhaize USA Services</a></td><td>Oct 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$233,440</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198FrGAAU/view" target="_blank">Sally Holdings LLC</a></td><td>Sep 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$220,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000LLiZpAAL/view" target="_blank">DriveTime Automotive Group</a></td><td>Sep 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Price Uplift</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$205,957</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wb0UAAQ/view" target="_blank">UNFI (mybiz)</a></td><td>Aug 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$189,675</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000LhELOAA3/view" target="_blank">Resco Products, Inc.</a></td><td>Sep 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$179,330</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000NulzuAAB/view" target="_blank">XYLEM</a></td><td>Oct 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Expertise</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$160,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198pMHAAY/view" target="_blank">Hormel Foods Corporation*</a></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$140,000</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wHj6AAE/view" target="_blank">Tooling Acquisition Co</a></td><td>Aug 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$133,512</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019ukqTAAQ/view" target="_blank">Fashionphile Group, LLC</a></td><td>Sep 2026</td><td>Full</td><td>Competitive</td><td>Switched to a Direct Competitor</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$132,697</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004QEpqAAG/view" target="_blank">Harmons Grocery</a></td><td>Oct 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$109,620</td></tr>
-<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Jr8e2AAB/view" target="_blank">Johnson Controls, Inc. (MC)</a></td><td>Aug 2026</td><td>Partial</td><td>Customer Relationship</td><td>Lack of Executive Sponsorship</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$100,215</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198ttNAAQ/view" target="_blank">IRB Holding Corp. (Marketing)</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Oct 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$6,398,575</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000M1iGsAAJ/view" target="_blank">Nordstrom, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$3,647,906</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000006D9BhAAK/view" target="_blank">Bunge Management Services</a></td><td><span class="tag tag-mae">MAE</span></td><td>Oct 2026</td><td>Partial</td><td>Product</td><td>Product Feature Gap</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$2,066,226</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000OQeqPAAT/view" target="_blank">Kohl's, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Oct 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Pricing Change</td><td>Offcycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,612,500</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000001ZKGEAA4/view" target="_blank">Ecolab Data Cloud</a></td><td><span class="tag tag-mae">MAE</span></td><td>Aug 2026</td><td>Partial</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Lack of Knowledge)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,557,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wonbAAA/view" target="_blank">Albertsons Companies, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Sep 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Sponsorship</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,500,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wHTxAAM/view" target="_blank">Instacart (Maplebear Inc.)</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Aug 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Expertise</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,234,062</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I4ymSAAR/view" target="_blank">iFIT Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Aug 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,149,526</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000003C2AoAAK/view" target="_blank">Claire's Stores, Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Oct 2026</td><td>Partial</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$1,099,310</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000032dpxAAA/view" target="_blank">H-E-B, LP</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Sep 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Pricing Tier/Term Length</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$868,129</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198v9lAAA/view" target="_blank">Love's Travel Stops</a></td><td><span class="tag tag-mae">MAE</span></td><td>Oct 2026</td><td>Full</td><td>Competitive</td><td>Switched to a Direct Competitor</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$843,059</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Nu8H0AAJ/view" target="_blank">New MVP Org: One Clean Earth</a></td><td><span class="tag tag-mae">MAE</span></td><td>Oct 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>M&amp;A Activity - License Reduction</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$771,490</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000NugCDAAZ/view" target="_blank">Chico's FAS Inc.</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$700,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000dxsifAAA/view" target="_blank">Fanatics Holdings, Inc. (MC)</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Sep 2026</td><td>Full</td><td>Competitive</td><td>Replaced with an In-House Solution</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$678,923</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000drsVFAAY/view" target="_blank">Fanatics Holdings, Inc. (Multi)</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Sep 2026</td><td>Full</td><td>Competitive</td><td>Replaced with an In-House Solution</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$567,494</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000L95FhAAJ/view" target="_blank">Alliance Consumer Group</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Sep 2026</td><td>Full</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$466,592</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004NZkMAAW/view" target="_blank">Alice + Olivia, LLC</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Oct 2026</td><td>Full</td><td>Customer Relationship</td><td>Product-Market Fit Mismatch/Oversold</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$329,957</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wGQ3AAM/view" target="_blank">Network Distribution</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Aug 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$312,403</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000KddFhAAJ/view" target="_blank">UNFI (Cub Food - MC)</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Sep 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$300,467</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000JqzfbAAB/view" target="_blank">Johnson Controls (Pardot)</a></td><td><span class="tag tag-mae">MAE</span></td><td>Aug 2026</td><td>Full</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$254,882</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018kF6BAAU/view" target="_blank">Ashland Inc.</a></td><td><span class="tag tag-mae">MAE</span></td><td>Aug 2026</td><td>Partial</td><td>Success Plan &amp; Support</td><td>Low Success Plan Utilization (Lack of Knowledge)</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$250,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198v7LAAQ/view" target="_blank">Deere &amp; Company*</a></td><td><span class="tag tag-mae">MAE</span></td><td>Oct 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$250,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198qxLAAQ/view" target="_blank">Ahold Delhaize USA Services</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Oct 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$233,440</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198FrGAAU/view" target="_blank">Sally Holdings LLC</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Sep 2026</td><td>Partial</td><td>Business Change &amp; Distress</td><td>Business Direction Change - Product No Longer Relevant</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$220,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000LLiZpAAL/view" target="_blank">DriveTime Automotive Group</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Sep 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Dissatisfaction with Price Uplift</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$205,957</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wb0UAAQ/view" target="_blank">UNFI (mybiz)</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Aug 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Low Perceived ROI</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$189,675</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000LhELOAA3/view" target="_blank">Resco Products, Inc.</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Sep 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$179,330</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000NulzuAAB/view" target="_blank">XYLEM</a></td><td><span class="tag tag-mae">MAE</span></td><td>Oct 2026</td><td>Partial</td><td>Adoption</td><td>Lack of Internal Expertise</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$160,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y0000198pMHAAY/view" target="_blank">Hormel Foods Corporation*</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Oct 2026</td><td>Partial</td><td>Financial &amp; Contractual</td><td>Shelfware Due to Pricing</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$140,000</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018wHj6AAE/view" target="_blank">Tooling Acquisition Co</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Aug 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$133,512</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019ukqTAAQ/view" target="_blank">Fashionphile Group, LLC</a></td><td><span class="tag tag-cmrcl">CMRCL</span></td><td>Sep 2026</td><td>Full</td><td>Competitive</td><td>Switched to a Direct Competitor</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$132,697</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004QEpqAAG/view" target="_blank">Harmons Grocery</a></td><td><span class="tag tag-rcg">RCG</span></td><td>Oct 2026</td><td>Partial</td><td>&mdash;</td><td>&mdash;</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$109,620</td></tr>
+<tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Jr8e2AAB/view" target="_blank">Johnson Controls, Inc. (MC)</a></td><td><span class="tag tag-mae">MAE</span></td><td>Aug 2026</td><td>Partial</td><td>Customer Relationship</td><td>Lack of Executive Sponsorship</td><td>Oncycle</td><td style="text-align:right;font-weight:600;color:var(--slds-error)">$100,215</td></tr>
 </tbody>
 </table>
 </div>
@@ -444,17 +464,19 @@ const map={'summary':0,'not-actionable':1,'losses':2,'partial-saves':3,'complian
 if(map[id]!==undefined)tabs[map[id]].classList.add('active');
 }
 
-function filterAttritionTable(sel){
-const col=parseInt(sel.dataset.col);
-const val=sel.value;
+function filterAttritionTable(){
+const container=document.getElementById('attrition-events-table').closest('details');
+const selects=container.querySelectorAll('select[data-col]');
+const filters=[];
+selects.forEach(s=>{if(s.value)filters.push({col:parseInt(s.dataset.col),val:s.value});});
 const rows=document.querySelectorAll('#attrition-events-table tbody tr');
 rows.forEach(row=>{
-const cell=row.cells[col];
-if(!val||cell.textContent.trim()===val){
-row.style.display='';
-}else{
-row.style.display='none';
-}
+let show=true;
+filters.forEach(f=>{
+const cell=row.cells[f.col];
+if(cell&&cell.textContent.trim()!==f.val)show=false;
+});
+row.style.display=show?'':'none';
 });
 }
 
@@ -465,8 +487,66 @@ if(chev)chev.style.transform=d.open?'rotate(90deg)':'rotate(0deg)';
 });
 });
 
+// Area/Portfolio mapping from MC_Q3
+const areaPortfolioMap = {
+"IRB Holding Corp. (Marketing)":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Nordstrom, Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Bunge Management Services":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Kohl's, Inc.":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Ecolab Data Cloud":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Albertsons Companies, Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Instacart (Maplebear Inc.) (2nd Org)":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"iFIT Inc.":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"Claire's Stores, Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"H-E-B, LP":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Love's Travel Stops & Country Stores":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"New MVP Org: One Clean Earth":{"area":"MAE","portfolio":"MAE ENTR UE"},
+"Chico's FAS   Inc.":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"Fanatics Holdings, Inc.":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Alliance Consumer Group":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Alice + Olivia, LLC":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Network Distribution":{"area":"CMRCL","portfolio":"MAE CMRCL MFG C"},
+"United Natural Foods Inc (Cub Food- Marketing Cloud)":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Johnson Controls- 00D1t000000tCEN":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Deere & Company*":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"Ashland Inc.":{"area":"MAE","portfolio":"MAE ENTR MFG W"},
+"Ahold Delhaize USA Services, LLC":{"area":"RCG","portfolio":"RCG ENTR RETAIL"},
+"Sally Holdings LLC  (New Service Org)":{"area":"RCG","portfolio":"RCG ENTR CG HMDU"},
+"DriveTime Automotive Group, Inc.":{"area":"CMRCL","portfolio":"MAE CMRCL AUE"},
+"United Natural Foods Inc (mybiz)":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Resco Products, Inc.":{"area":"CMRCL","portfolio":"MAE CMRCL MFG E"},
+"XYLEM":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Hormel Foods Corporation*":{"area":"RCG","portfolio":"RCG ENTR CG FMCG"},
+"Fashionphile Group, LLC":{"area":"CMRCL","portfolio":"RCG CMRCL MM"},
+"Harmons Grocery":{"area":"RCG","portfolio":"RCG CMRCL GB"},
+"Johnson Controls, Inc.":{"area":"MAE","portfolio":"MAE ENTR MFG E"},
+"Tooling Acquisition Co":{"area":"CMRCL","portfolio":"MAE CMRCL MFG C"}
+};
+
+// Area amounts (pre-computed from table data)
+const areaData = {
+RCG: {count:17, amount:20649627, portfolios:['RCG ENTR RETAIL','RCG ENTR CG HMDU','RCG CMRCL GB','RCG ENTR CG FMCG']},
+MAE: {count:9, amount:6252872, portfolios:['MAE ENTR MFG E','MAE ENTR UE','MAE ENTR MFG W']},
+CMRCL: {count:7, amount:1760448, portfolios:['RCG CMRCL MM','MAE CMRCL MFG C','MAE CMRCL AUE','MAE CMRCL MFG E']}
+};
+
+// Populate Area Breakdown table
+function populateAreaBreakdown(){
+function fmt(n){return '$'+n.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});}
+document.getElementById('area-rcg-count').textContent=areaData.RCG.count;
+document.getElementById('area-rcg-amount').textContent=fmt(areaData.RCG.amount);
+document.getElementById('area-rcg-portfolios').textContent=areaData.RCG.portfolios.join(', ');
+document.getElementById('area-mae-count').textContent=areaData.MAE.count;
+document.getElementById('area-mae-amount').textContent=fmt(areaData.MAE.amount);
+document.getElementById('area-mae-portfolios').textContent=areaData.MAE.portfolios.join(', ');
+document.getElementById('area-cmrcl-count').textContent=areaData.CMRCL.count;
+document.getElementById('area-cmrcl-amount').textContent=fmt(areaData.CMRCL.amount);
+document.getElementById('area-cmrcl-portfolios').textContent=areaData.CMRCL.portfolios.join(', ');
+}
+
 // Charts
 document.addEventListener('DOMContentLoaded',function(){
+populateAreaBreakdown();
 // Classification Chart
 new Chart(document.getElementById('chart-classification'),{type:'doughnut',data:{labels:['Not Actionable (4)','Logo Loss (6)','Partial Save (23)'],datasets:[{data:[12.43,3.02,13.21],backgroundColor:['#706e6b','#ea001e','#fe9339']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}}}});
 
@@ -478,6 +558,9 @@ new Chart(document.getElementById('chart-type'),{type:'doughnut',data:{labels:['
 
 // Top 5 Chart
 new Chart(document.getElementById('chart-top5'),{type:'bar',data:{labels:['IRB Holding','Nordstrom','Bunge','Kohl\'s','Ecolab'],datasets:[{label:'At-Risk ($M)',data:[6.40,3.65,2.07,1.61,1.56],backgroundColor:['#ea001e','#ea001e','#fe9339','#706e6b','#fe9339']}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{callback:function(v){return '$'+v+'M'}}}}}});
+
+// Attrition by Area Chart
+new Chart(document.getElementById('chart-area'),{type:'doughnut',data:{labels:['RCG (17)','MAE (9)','CMRCL (7)'],datasets:[{data:[17,9,7],backgroundColor:['#0176d3','#7e57c2','#fe9339']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11}}}}}});
 });
 </script>
 </body>

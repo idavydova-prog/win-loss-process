@@ -1,0 +1,1734 @@
+{
+  "MC_Q1": {
+    "Fossil Group, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Bath & Body Works, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Colgate-Palmolive Company (Corporate)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Hot Topic, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "SharkNinja Operating LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Landry's Restaurants   Inc.*": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "JM Family Automotive LLC": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "TXU Energy Retail Company LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Janie and Jack LLC": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "At Home Stores LLC": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "PetSmart LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Phoenix BNBS Fashion, LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Otter Products, LLC": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Arbonne International, LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Yamaha Motor Corporations, U.S.A": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Revelyst Operations LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Carvana - ADESA": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR AUTOMFG"
+    },
+    "PPL Electric Utilities Corporation": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "JustFoodForDogs": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Mary Kay Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Regal Rexnord Corporation*": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR AUTOMFG"
+    },
+    "Noodles & Company": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "The Walman Optical Company": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Fanatics, LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Foley Family Wines": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "The RealReal": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Mitsubishi Electric Automation": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "TARGET CORPORATION": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Ball Corporation": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Fox Restaurant Concepts LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "800-Flowers, Inc. (Marketing & Slack)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "General Mills, Inc*": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "BI-LO, LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Bethlehem Shared Services (MC)": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "MBI Inc.": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Commercial Metals Company": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    }
+  },
+  "MC_Q2": {
+    "Tapestry, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Penney OpCo LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "(Primary) Chevron Technical Center, a division of Chevron U.S.A. Inc.,": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Sunrun Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Lowe's Companies, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "GNC Holdings, LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "The Chamberlain Group LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "The Kroger Co.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Transaction Network Services": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "SharkNinja Operating LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Summit Health Management LLC (AfterCare)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "84.51 LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Ariat International, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "800-Flowers, Inc. (Marketing & Slack)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Rich Products Corporation": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "The Scotts Company, LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "TSI Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG C"
+    },
+    "Bethlehem Shared Services (MC)": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Blink Charging": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Raley's": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "The Scotts Company, LLC.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Turntide Technologies Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "Greenworks North America, LLC": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "Fanatics Holdings, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "National Grid USA Service Company - Gas": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "American Electric Power": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Zoro Tools, Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Winston Brands Incorporated": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Weisiger Group Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Rehrig Pacific Company": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "American Musical Supply, Inc": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Tangram Interiors": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Hickory Farms, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Marvin Windows, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Sysco Corporation": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Stowers Machinery Corp": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Hale Products": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "Cryogenic Industries Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "Target Corporation (Target+)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "The Mosaic Company": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "LAV US": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Duke Energy Business Services LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "NHS U.S. LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Shiseido Company, Limited": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "CSI Compressco LP (sub of Kodiak)": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Abacode": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "David Yurman Enterprises LLC - 2nd Org": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    }
+  },
+  "MC_Q3": {
+    "IRB Holding Corp. (Marketing)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Nordstrom, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Bunge Management Services": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Kohl's, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Ecolab Data Cloud": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Albertsons Companies, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Instacart (Maplebear Inc.) (2nd Org)": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "iFIT Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Claire's Stores, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "H-E-B, LP": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Love's Travel Stops & Country Stores": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "New MVP Org: One Clean Earth": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Chico's FAS   Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Fanatics Holdings, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Alliance Consumer Group": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Alice + Olivia, LLC": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Network Distribution": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG C"
+    },
+    "United Natural Foods Inc (Cub Food- Marketing Cloud)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Johnson Controls- 00D1t000000tCEN": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Deere & Company*": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Ashland Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Ahold Delhaize USA Services, LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Sally Holdings LLC  (New Service Org)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "DriveTime Automotive Group, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "United Natural Foods Inc (mybiz)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Resco Products, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "XYLEM": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Hormel Foods Corporation*": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Fashionphile Group, LLC": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Harmons Grocery": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Johnson Controls, Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    }
+  },
+  "CC_Q1": {
+    "Under Armour, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "YETI Coolers, LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Tapestry, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Otto Environmental Systems North America Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "Cole Haan LLC": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Vista Outdoor Operations LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Nebraska Furniture Mart, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "PartyCity.com, LLC (a wholly owned subsidiary of Ad Populum, LLC)": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Claire's Stores, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Lands' End, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Gap Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Riboli Family Wines": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "SLT Lending SPV, Inc": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Dunham's Athleisure Corporation": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Land O'Lakes - Purina Animal Feed": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Kendra Scott LLC": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Hallmark Cards, Incorporated.": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    }
+  },
+  "CC_Q2": {
+    "Duluth Trading Company": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "e.l.f. Cosmetics, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Instacart (Maplebear Inc.) (2nd Org)": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Fanatics Holdings, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Alice + Olivia, LLC": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Fullbeauty Brands, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Nexeo Plastics, LLC": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "Ecolab Connect": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "1916 (MS & CC)": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "800-JR Cigar, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Christy Sports": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "PetMed Express, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Fruit of the Loom, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Spartannash Company  **": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    }
+  },
+  "CC_Q3": {
+    "Otter Products, LLC": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Dooney & Bourke, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "The Honest Company Inc": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Fanatics Holdings, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "BJ's Wholesale Club,Inc": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "New Balance Athletics, Inc. - Corporate": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Mountaire Farms Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Trends International (Main)": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "The Reformation": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "CF Industries Enterprises, LLC": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG C"
+    },
+    "Absolute Beauty LLC": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    }
+  },
+  "Core_Q1": {
+    "Mead Johnson & Company, LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "General Mills, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "NIKE, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Hunter Douglas, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Otto Environmental Systems North America Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "Ideal Image Development Corporation": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "The Gap, Inc.****": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Novanta, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "J.R. Simplot Company": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Hostess Brands, LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "JM Family Automotive LLC": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "Honeywell International Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Equilon Enterprises LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Carlisle Weatherproofing Technologies (CWT)": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "EQT Corporation": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "ClubCorp USA, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Dana Limited*": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "RH US, LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "EVgo Services LLC.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Agilent Technologies, Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Starbucks Coffee Company": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Rite Aid Hdqtrs. Corp.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Halliburton Energy Services, Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Primo Brands": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "The Gap, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Grailed, LLC": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Driveway": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR AUTOMFG"
+    },
+    "Yamaha Motor Corporations, U.S.A": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Colgate-Palmolive Company": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "BI-LO, LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Commercial Metals Company": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Del Grande Dealer Group": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Heska Corporation": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "PetroChoice Holdings, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "JustFoodForDogs": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "DS Technology Hub, LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Rockwell Automation (Parent)": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR AUTOMFG"
+    },
+    "LKQ - Pick Your Parts": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Public Service Enterprise Group Incorporated (2nd Org)": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Casey's Retail Company": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Regal Rexnord Corporation*": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR AUTOMFG"
+    },
+    "Wonder Group Ops, LLC": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Weatherford International LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Claire's Stores, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Oncourse": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Walgreen Co.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Schawk USA Inc. / SGK Brand Solutions": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "TrimbleP1": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Toyota Motor North America, Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR AUTOMFG"
+    },
+    "Gap Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Dyno Nobel Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "Riboli Family Wines": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "The Walman Optical Company": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Valley Power Systems, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "Polydeck Screen Corp.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "CarMax Enterprise Services, LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR AUTOMFG"
+    },
+    "McCormick & Co. (Industrial Division)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Dunham's Athleisure Corporation": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "TerraSource Global": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "Ball Corporation": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Shorr Packaging, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG C"
+    },
+    "Fox Restaurant Concepts LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Marmon Utility LLC.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "General Mills, Inc*": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Mars Symbioscience": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Giant RV": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Baker & Taylor, Inc.*": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Hydraforce Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Land O'Lakes - Purina Animal Feed": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Noodles & Company - Service": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Lixil Corp": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Holman Automotive Group, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "ZO Skin Health, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Quad**": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Flexsteel Industries, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "MISUMI USA, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "Enerpac Tool Group": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG C"
+    },
+    "Fanatics Brands": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "EJOT Holding GmbH & Co. KG (2nd Org)": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG C"
+    },
+    "Lakeshore Learning Materials, LLC": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "S. D. Myers, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    }
+  },
+  "Core_Q2": {
+    "(Primary) Chevron Technical Center, a division of Chevron U.S.A. Inc.,": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Saks.com LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Lowe's Companies, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "CarGurus Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Nissan North America, Inc": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR AUTOMFG"
+    },
+    "W. L. Gore & Associates, Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Sysco Corporation": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Specialized Bicycle Components Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Dooney & Bourke, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Transaction Network Services": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Peloton Interactive, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "84.51 LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Ariat International, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Rich Products Corporation": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Dupont - Electronics Specialty Utility": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Florida Power & Light Company*": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Pine Gate Renewables": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Imperial Dade Canada Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "American Honda Motor Co., Inc. CIAM": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR AUTOMFG"
+    },
+    "Niantic, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "Cars.com LLC dba Cars Commerce": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Pentair Management Company": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Colgate-Palmolive Company": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Milliken & Company**": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Fossil Group, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "AMERICAN BATH GROUP": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "TSI Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG C"
+    },
+    "Ferrara Candy Company": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "TreeHouse Foods, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Bethlehem Shared Services (MC)": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Blink Charging": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Belden Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR AUTOMFG"
+    },
+    "The Scotts Company, LLC.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Turntide Technologies Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "TARGET": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Ambient Enterprises Holdco LLC": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "minted. LLC": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "TOTO USA, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "Winston Brands Incorporated": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "The Scotts Company, LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Vertex Energy": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "The Mosaic Company Global Org": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Duke Energy Business Services LLC (MAIN)": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Vertex Energy - IT Service Center": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Systems Protection Group US LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Yanmar America Corporation": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "The Winebow Group LLC": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Target Corporation (Roundel)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Stanley Black & Decker, Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Weisiger Group Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Rehrig Pacific Company": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "Dupont Specialty Products USA, LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Tangram Interiors": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Hale Products": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "Cryogenic Industries Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "Target Corporation (Target+)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Greenrise": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG C"
+    },
+    "Audio Enhancement Inc.": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "GR Energy Services": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Henkel Corporation": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Lands' End, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Arconic Corporation": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Penney OpCo LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Duke Energy Business Services LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Coca-Cola North America, a division of The Coca-Cola Company": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Molson Coors Beverage Company": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "7-Eleven, Inc. (MAIN)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "TT Electronics (US)": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG C"
+    },
+    "Hitachi High-Tech Corporation": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR AUTOMFG"
+    },
+    "Waste Management National Services Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Generator Supercenter, LP": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Inventus Power": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG C"
+    },
+    "Vertex Energy - Service Platform": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Hibbett Retail, Inc": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Arcadia": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "HF Sinclair": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "CF Industries Enterprises, LLC": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG C"
+    },
+    "Tyson Shared Services, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Nike, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Hyundai Autoever America, LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR AUTOMFG"
+    },
+    "Waste Management National Services, Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "CSI Compressco LP (sub of Kodiak)": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Micro Commercial Components Corp": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "CECO Environmental Corp": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "JM Family Automotive LLC - SET Org": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    }
+  },
+  "Core_Q3": {
+    "Safelite Group, Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR AUTOMFG"
+    },
+    "Corteva Agriscience LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Bunge Management Services": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Walmart Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Ecolab Data Cloud": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Instacart (Maplebear Inc.) (2nd Org)": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Ecolab Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Estee Lauder Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Clean Earth Environmental Solutions, Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Phoenix BNBS Fashion, LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Top Golf USA, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Ball Corporation": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "New MVP Org: One Clean Earth": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Fanatics Holdings, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "West Marine Products Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "nVent Management Company*": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "America's Car-Mart": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Estee Lauder Inc.*": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "TK Elevator Corporation": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "BlueTriton Brands, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "e.l.f. Cosmetics, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Halliburton Energy Services, Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Alliance Consumer Group": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Alice + Olivia, LLC": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "Kao USA Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Clorox Services Company": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Smurfit Kappa North America LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Tronox Investment Holdings Limited": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Cracker Barrel (Employee Org)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Love's Travel Stops & Country Stores": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Del Grande Dealer Group": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Nexeo Plastics, LLC": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "Core-Mark International, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Lindsay (2nd Org)": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "Ecolab Connect": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Primo Water (Glacier)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Ahold Delhaize USA Services, LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Ashland Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Atmos Energy Corporation - Stakeholder": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Ameren Services Company": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Sally Holdings LLC  (New Service Org)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Terex Corp.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Spartannash Company  **": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Lippert Components, Inc. (Main)": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Bruckner Truck Sales": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "United Natural Foods Inc (mybiz)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Estee Lauder Inc.**": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Christy Sports": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "LG Energy Solution Vertech, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Inpro Corporation": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG C"
+    },
+    "XYLEM": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Hyundai L&C USA": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR AUTOMFG"
+    },
+    "Hormel Foods Corporation*": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG FMCG"
+    },
+    "Fruit of the Loom, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Gibson Brands, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Powerhouse Dynamics": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG C"
+    },
+    "TruckPro, LLC": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "Harmons Grocery": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Mattress Firm, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "RealTruck": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Johnson Controls, Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    }
+  },
+  "May_MC": {
+    "Tapestry, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "(Primary) Chevron Technical Center, a division of Chevron U.S.A. Inc.,": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "The Chamberlain Group LLC": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Transaction Network Services": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "84.51 LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Rich Products Corporation": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Bethlehem Shared Services (MC)": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "American Electric Power": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "Hickory Farms, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "CSI Compressco LP (sub of Kodiak)": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Abacode": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Shiseido Company, Limited": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    }
+  },
+  "May_CC": {
+    "BJ's Wholesale Club,Inc": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "New Balance Athletics, Inc. - Corporate": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Trends International (Main)": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "The Reformation": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    }
+  },
+  "May_Core": {
+    "(Primary) Chevron Technical Center, a division of Chevron U.S.A. Inc.,": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "CarGurus Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Nissan North America, Inc": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR AUTOMFG"
+    },
+    "W. L. Gore & Associates, Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "Transaction Network Services": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "84.51 LLC": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Sysco Corporation": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Pine Gate Renewables": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Imperial Dade Canada Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG W"
+    },
+    "Rich Products Corporation": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "Niantic, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "Bethlehem Shared Services (MC)": {
+      "area": "CMRCL",
+      "portfolio": "RCG CMRCL MM"
+    },
+    "TOTO USA, Inc.": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "Vertex Energy": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "The Mosaic Company Global Org": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR UE"
+    },
+    "The Winebow Group LLC": {
+      "area": "RCG",
+      "portfolio": "RCG CMRCL GB"
+    },
+    "Stanley Black & Decker, Inc.": {
+      "area": "MAE",
+      "portfolio": "MAE ENTR MFG E"
+    },
+    "CECO Environmental Corp": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "JM Family Automotive LLC - SET Org": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG E"
+    },
+    "Micro Commercial Components Corp": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG W"
+    },
+    "Inventus Power": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG C"
+    },
+    "Vertex Energy - Service Platform": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "Greenrise": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL MFG C"
+    },
+    "Lands' End, Inc.": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "Molson Coors Beverage Company": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    },
+    "7-Eleven, Inc. (MAIN)": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR RETAIL"
+    },
+    "CSI Compressco LP (sub of Kodiak)": {
+      "area": "CMRCL",
+      "portfolio": "MAE CMRCL AUE"
+    },
+    "EBzGEAA1 Rich Products Corporation": {
+      "area": "RCG",
+      "portfolio": "RCG ENTR CG HMDU"
+    }
+  }
+}
