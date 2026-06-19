@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Win/Loss Automation | Strategic Brief</title>
+<style>
+:root{--slds-blue:#0176d3;--slds-dark:#032d60;--slds-light:#f3f3f3;--slds-white:#fff;--slds-border:#e5e5e5;--slds-success:#2e844a;--slds-warning:#fe9339;--slds-error:#ea001e;--slds-text:#181818;--slds-text-weak:#706e6b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Salesforce Sans',Arial,sans-serif;background:var(--slds-light);color:var(--slds-text);line-height:1.6}
+.page{max-width:900px;margin:0 auto;padding:2rem}
+.header{background:var(--slds-dark);color:var(--slds-white);padding:2rem 2.5rem;border-radius:8px 8px 0 0;margin-bottom:0}
+.header h1{font-size:1.5rem;font-weight:700;margin-bottom:.25rem}
+.header p{font-size:.875rem;color:#90cdf4}
+.body-card{background:var(--slds-white);border:1px solid var(--slds-border);border-radius:0 0 8px 8px;padding:2rem 2.5rem}
+h2{font-size:1.125rem;font-weight:700;color:var(--slds-dark);margin:1.75rem 0 .75rem;padding-bottom:.5rem;border-bottom:2px solid var(--slds-border)}
+h2:first-of-type{margin-top:.5rem}
+h3{font-size:.9375rem;font-weight:700;color:var(--slds-dark);margin:1.25rem 0 .5rem}
+p,li{font-size:.875rem;color:var(--slds-text)}
+ul,ol{padding-left:1.5rem;margin-bottom:.75rem}
+li{margin-bottom:.375rem}
+.highlight{background:#f0f7ff;border-left:4px solid var(--slds-blue);padding:.75rem 1rem;margin:1rem 0;border-radius:0 4px 4px 0}
+.highlight p{margin:0;font-size:.8125rem}
+.highlight strong{color:var(--slds-dark)}
+.metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:1.25rem 0}
+.metric{text-align:center;padding:1rem;background:var(--slds-light);border-radius:8px}
+.metric .number{font-size:1.5rem;font-weight:700;color:var(--slds-dark)}
+.metric .label{font-size:.6875rem;color:var(--slds-text-weak);text-transform:uppercase;letter-spacing:.5px;margin-top:.25rem}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:1rem 0}
+.col{background:var(--slds-light);padding:1rem 1.25rem;border-radius:8px}
+.col h3{margin-top:0}
+.tag{display:inline-block;padding:.125rem .5rem;border-radius:10px;font-size:.6875rem;font-weight:600;margin:.125rem}
+.tag-blue{background:#eaf5fe;color:var(--slds-blue)}
+.tag-green{background:#ecfbf1;color:var(--slds-success)}
+.tag-orange{background:#fff8e6;color:#946f00}
+.footer{margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--slds-border);font-size:.75rem;color:var(--slds-text-weak);text-align:center}
+@media print{.page{padding:0}.header{border-radius:0}.body-card{border:none;padding:1.5rem}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="header">
+<h1>Win/Loss Attrition Analysis &mdash; Process Automation</h1>
+<p>Strategic Brief &bull; PACE AMER CSM Leadership &bull; June 2026</p>
+</div>
+
+<div class="body-card">
+
+<h2>The Problem</h2>
+<p>Every quarter, CSM leaders manually pull attrition data from Org62, classify outcomes, validate compliance against PACE guidance, and build leadership reports. This process is:</p>
+<ul>
+<li><strong>Time-intensive</strong> &mdash; 2&ndash;4 hours per report, with 9+ reports per quarter (3 clouds &times; 3 quarters)</li>
+<li><strong>Inconsistent</strong> &mdash; Classification of "Logo Loss" vs "Partial Save" varies by analyst and interpretation</li>
+<li><strong>Invisible</strong> &mdash; Compliance gaps in CSG Notes go undetected until audits, missing coaching opportunities</li>
+<li><strong>Non-scalable</strong> &mdash; Requires tribal knowledge; onboarding new leaders takes weeks of shadowing</li>
+</ul>
+
+<h2>The Solution</h2>
+<p>A standardized, automated 5-step workflow that any CSM leader can execute in minutes:</p>
+<ol>
+<li><strong>Pull</strong> &mdash; Query Org62 for attrition events (configurable cloud, period, region, threshold)</li>
+<li><strong>Classify</strong> &mdash; Apply a consistent decision tree: Risk &rarr; Actionable &rarr; Win / Logo Loss / Partial Save / SP Downgrade / Not Actionable</li>
+<li><strong>Validate</strong> &mdash; Check every record against PACE hashtag guidance (license tags, sig tags, date stamps)</li>
+<li><strong>Report</strong> &mdash; Generate interactive HTML with charts, drill-downs, compliance tables, and Org62 links</li>
+<li><strong>Verify</strong> &mdash; 3-pass automated validation for classification accuracy and report integrity</li>
+</ol>
+
+<div class="highlight">
+<p><strong>Invocation:</strong> Any team member types: <code>"Run the Win/Loss Process for [Cloud] for [Period]"</code> &mdash; and the full 5-step process executes end-to-end.</p>
+</div>
+
+<h2>Impact (Pilot Results &mdash; Q1&ndash;Q3 FY27)</h2>
+
+<div class="metric-row">
+<div class="metric"><div class="number">9</div><div class="label">Reports Generated</div></div>
+<div class="metric"><div class="number">~30 hrs</div><div class="label">Analyst Time Saved</div></div>
+<div class="metric"><div class="number">12%</div><div class="label">Compliance Baseline</div></div>
+<div class="metric"><div class="number">100%</div><div class="label">Classification Consistency</div></div>
+</div>
+
+<p>The pilot surfaced that <strong>only 12% of MC Q1 records</strong> met full PACE compliance &mdash; a gap invisible to leadership before this workflow existed. This immediately identified coaching opportunities across 13 CSMs with empty or invalid CSG Notes.</p>
+
+<h2>Strategic Value</h2>
+
+<div class="two-col">
+<div class="col">
+<h3>For Leadership</h3>
+<ul>
+<li>Real-time visibility into attrition patterns by cloud, quarter, and reason</li>
+<li>Compliance trends trackable over time (quarter-over-quarter improvement)</li>
+<li>Consistent "story" format for VP+ reporting</li>
+<li>Competitive intelligence surfaced automatically (competitors named in reports)</li>
+</ul>
+</div>
+<div class="col">
+<h3>For Frontline Managers</h3>
+<ul>
+<li>Instant identification of coaching targets (compliance failures by CSM)</li>
+<li>Pattern recognition: Which attrition reasons are trending? Which plays are working?</li>
+<li>Onboarding tool: New leaders can run the process day one</li>
+<li>Eliminates manual SOQL + spreadsheet + slide deck cycle</li>
+</ul>
+</div>
+</div>
+
+<h2>How We Measure Success</h2>
+
+<table style="width:100%;border-collapse:collapse;font-size:.8125rem;margin:1rem 0">
+<thead>
+<tr style="background:var(--slds-light)"><th style="text-align:left;padding:.5rem .75rem;border-bottom:2px solid var(--slds-border)">Metric</th><th style="text-align:left;padding:.5rem .75rem;border-bottom:2px solid var(--slds-border)">Baseline (Q1 FY27)</th><th style="text-align:left;padding:.5rem .75rem;border-bottom:2px solid var(--slds-border)">Target (Q4 FY27)</th><th style="text-align:left;padding:.5rem .75rem;border-bottom:2px solid var(--slds-border)">How Measured</th></tr>
+</thead>
+<tbody>
+<tr><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">CSG Notes Compliance Rate</td><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">12% (MC)</td><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">&ge;60%</td><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">#Compliance tab in each report</td></tr>
+<tr><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">Time-to-Report</td><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">2&ndash;4 hours / report</td><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">&lt;15 minutes</td><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">Execution time from invocation to HTML</td></tr>
+<tr><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">Classification Accuracy</td><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">Varies by analyst</td><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">0 reclassifications post-review</td><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">3-pass verification step</td></tr>
+<tr><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">Empty CSG Notes (%)</td><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">38% (MC Q1)</td><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">&lt;10%</td><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">Report flags empty notes per CSM</td></tr>
+<tr><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">Leadership Report Coverage</td><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">Ad-hoc, incomplete</td><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">All clouds, all quarters, every cycle</td><td style="padding:.5rem .75rem;border-bottom:1px solid var(--slds-border)">Dashboard tracks report generation</td></tr>
+</tbody>
+</table>
+
+<h2>What&rsquo;s Next</h2>
+<ul>
+<li><span class="tag tag-green">Done</span> Pilot: 9 reports generated (Core, Commerce, MC &times; Q1&ndash;Q3 FY27)</li>
+<li><span class="tag tag-green">Done</span> Generic skill created &mdash; any leader can run it for their cloud/period</li>
+<li><span class="tag tag-blue">In Progress</span> Peer testing and feedback on report format</li>
+<li><span class="tag tag-orange">Next</span> Monthly cadence: Auto-run at close of each quarter for all clouds</li>
+<li><span class="tag tag-orange">Next</span> Integrate Red Account validation (pending API access to all 5 fields)</li>
+<li><span class="tag tag-orange">Next</span> Track compliance trends over time (quarter-over-quarter delta charts)</li>
+</ul>
+
+<h2>Ask</h2>
+<p>Approve rollout of the Win/Loss Attrition Analysis workflow as the standard monthly process for PACE AMER. This gives us:</p>
+<ul>
+<li>A single source of truth for attrition classification</li>
+<li>A measurable compliance improvement mechanism tied to coaching</li>
+<li>30+ hours per quarter returned to strategic work</li>
+</ul>
+
+<div class="footer">
+Win/Loss Process Automation &bull; Built with Claude Code &bull; Live reports: <a href="https://idavydova-prog.github.io/win-loss-process/Prototypes/dashboard.html">idavydova-prog.github.io/win-loss-process</a>
+</div>
+
+</div>
+</div>
+</body>
+</html>

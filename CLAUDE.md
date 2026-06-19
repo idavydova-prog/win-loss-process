@@ -33,11 +33,15 @@ Cloud substitution:
 | Commerce Cloud | `'Commerce Cloud', 'B2B Commerce', 'Order Management'` |
 | Marketing Cloud | `'MC ExactTarget', 'Marketing Cloud', 'Pardot', 'Datorama'` |
 
-Additional filters:
-- `Account.CSG_Region__c = 'AMER PACE'`
+Additional fields to include in SOQL:
+- `Account.CSG_Subregion__c` (for Area segmentation)
+- `Account.CSG_Portfolio__c` (for Portfolio segmentation)
+- `Account.CSG_Region__c = 'AMER PACE'` (filter)
 - For large result sets or timeout-prone queries, split into two queries (one per stage, or by month) and combine results
 
-**Scaling:** When running for "all clouds for Q1–Q3", launch 9 agents in parallel (3 clouds × 3 quarters). Each agent runs the full 5-step process independently.
+**Scaling:** When running for "all clouds for Q1–Q4", launch agents in parallel (3 clouds × N quarters). Each agent runs the full 5-step process independently.
+
+**Salesforce Fiscal Year:** FY starts Feb 1. Q1 = Feb–Apr, Q2 = May–Jul, Q3 = Aug–Oct, Q4 = Nov–Jan.
 
 ### Step 2 — Classify via Workflow Diagram
 
@@ -76,25 +80,43 @@ Validate each record's `SEM_Notes__c` against PACE guidance:
 Produce a self-contained HTML report with:
 - **Chart.js CDN** loaded before `<style>`: `<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>`
 - **SLDS styling** (Salesforce Lightning Design System: light theme, brand tokens, cards, badges, tags)
-- **Sticky nav bar** with links to other quarters and clouds for the same period
+- **Sticky nav bar** with links to other quarters (Q1–Q4) and clouds for the same period
 - **6 tabs:** Summary, Not Actionable, Wins, Losses, #Compliance, Methodology
 - **Summary panel:**
   - Hero banner: Total Forecasted Attrition ($ large font) + Record count
-  - 4 Chart.js charts: Classification donut, Attrition Reason donut, Oncycle/Offcycle donut, Top 5 Accounts horizontal bar
+  - 5 Chart.js charts: Classification donut, Attrition Reason donut, Oncycle/Offcycle donut, Top 5 Accounts horizontal bar, **Area donut** (RCG/MAE/CMRCL)
   - Classification Breakdown table (category, count, attrition $, key accounts)
+  - **Area Breakdown table** (area, records, attrition $, % of total)
   - Compliance Overview card (pass/fail/rate)
-  - Insight boxes highlighting key patterns
-  - Collapsible Attrition Events section (`<details>`) with filter dropdowns (Event Month, Full/Partial, Attrition Reason, Type) and table columns: Account Name (Org62 hyperlink), Event Month, Full/Partial, Attrition Reason, Attrition Reason Detail, Attrition Type, Attrition Amount
+  - Insight boxes highlighting key patterns (including area distribution insight)
+  - Collapsible Attrition Events section (`<details>`) with filter dropdowns (Event Month, Full/Partial, Attrition Reason, **Area**, Type) and table columns: Account Name (Org62 hyperlink), **Area**, Event Month, Full/Partial, Attrition Reason, Attrition Reason Detail, Attrition Type, Attrition Amount
 - All account names hyperlinked to Org62: `https://org62.lightning.force.com/lightning/r/Opportunity/[ID]/view`
 - Records grouped by classification with Org62 links
 - Red Account validation insight boxes (all 5 fields)
 - CSG Notes compliance table with pass/fail per record
 - AF/D360 decision tree findings where applicable
 - For pipeline/open quarters (Q3+): add a warning insight box noting all records are open and classifications are projected
+- **Methodology tab** must include a **Success Metrics & Impact Tracking** section with these KPIs:
+
+| Metric | Baseline (Q1 FY27) | Target | How Measured |
+|---|---|---|---|
+| CSG Notes Compliance Rate | 12% (MC) | ≥60% | #Compliance tab pass/fail per record |
+| Time-to-Report | 2–4 hours / report | <15 minutes | End-to-end automation runtime |
+| Empty CSG Notes (%) | 38% (MC Q1) | <10% | Records with no SEM_Notes__c |
+| Classification Consistency | Varies by analyst | 0 reclassifications | 3-pass verification step |
+| Report Coverage | Ad-hoc, incomplete | All clouds, all quarters | Report generation log |
+
+  Include the current report's actual compliance rate and empty notes % in the "Current" column. Add quarter-over-quarter trend commentary and coaching mechanism explanation.
 
 **Classification logic for Attrition Events table:**
 - **Full/Partial:** `License_Renewal_Status__c = 'Will Attrit'` (exact match) → Full; everything else → Partial
 - **Attrition Type:** Opportunity Name contains "Off Cycle" or "Offcycle" or "Non-Coterminous" → Offcycle; otherwise Oncycle
+
+**Area segmentation:**
+- `Account.CSG_Subregion__c` → Area: "AMER PACE MAE ENTR" → MAE, "AMER PACE RCG" → RCG, "AMER PACE CMRCL" → CMRCL
+- Area colors: RCG = #0176d3 (blue), MAE = #7e57c2 (purple), CMRCL = #fe9339 (orange)
+- Tag classes: `.tag-rcg{background:#eaf5fe;color:#0176d3}`, `.tag-mae{background:#ede7f6;color:#7e57c2}`, `.tag-cmrcl{background:#fff8e6;color:#946f00}`
+- `Account.CSG_Portfolio__c` → Portfolio (sub-segmentation within Area)
 
 Output: `Prototypes/[Period] [Cloud] Attrition Analysis.html`
 
@@ -119,3 +141,20 @@ Confirm the generated HTML report accurately reflects all findings from Passes 1
 - Only flag violations from the ACTUAL PACE guidance document — no inferred data hygiene checks.
 - Never label accounts as "Pilot" or "Test" without explicit confirmation.
 - AF/D360 Decision Tree: "Is there AF or DC attrition risk? Yes → tag #AfAttrit / #D360Attrit (always, no exceptions)." This is NOT a Global Standard requirement but should be flagged as a gap.
+
+## Report Inventory
+
+Reports are published to GitHub Pages at: `https://idavydova-prog.github.io/win-loss-process/Prototypes/`
+
+| Quarter | Period | Core | Commerce | Marketing |
+|---|---|---|---|---|
+| Q1 FY27 | Feb–Apr 2026 | ✅ Closed | ✅ Closed | ✅ Closed |
+| Q2 FY27 | May–Jul 2026 | ✅ Closed | ✅ Closed | ✅ Closed |
+| Q3 FY27 | Aug–Oct 2026 | ✅ Pipeline | ✅ Pipeline | ✅ Pipeline |
+| Q4 FY27 | Nov–Jan 2027 | ✅ Pipeline | ✅ Pipeline | ✅ Pipeline |
+
+All 16 reports include Area/Portfolio segmentation and Success Metrics tracking in the Methodology tab.
+
+## Dashboard
+
+The central hub is `Prototypes/dashboard.html` — links to all reports with summary stats (record count, attrition $, compliance rate). Update the dashboard whenever new reports are generated or existing ones are refreshed.
