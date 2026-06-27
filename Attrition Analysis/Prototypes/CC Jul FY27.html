@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PACE Attrition Analysis — CC Jul FY27</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --navy: #032d60;
+            --dark: #001639;
+            --blue: #0176d3;
+            --blue-light: #1b96ff;
+            --red: #ea001e;
+            --red-soft: #ff5d5d;
+            --orange: #fe9339;
+            --green: #2e844a;
+            --green-light: #45c65a;
+            --purple: #7e57c2;
+            --teal: #06a59a;
+            --gray: #706e6b;
+            --bg: #f3f3f3;
+            --card: #ffffff;
+            --shadow: 0 2px 12px rgba(3,45,96,0.08);
+            --shadow-lg: 0 8px 32px rgba(3,45,96,0.12);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: #181818;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--dark) 0%, #e65100 40%, #ff8f00 100%);
+            color: #fff;
+            padding: 3rem 2rem 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255,143,0,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.25rem; }
+        .header .meta { font-size: 0.8rem; opacity: 0.6; margin-bottom: 2rem; }
+
+        .hero-grid { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; }
+        .hero-num { text-align: center; }
+        .hero-num .val { font-size: 2rem; font-weight: 900; display: block; }
+        .hero-num .val.red { color: #ff6b6b; }
+        .hero-num .val.green { color: #69db7c; }
+        .hero-num .val.white { color: #fff; }
+        .hero-num .val.amber { color: #ffd43b; }
+        .hero-num .lbl { font-size: 0.68rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px; }
+
+        .nav { background: var(--card); border-bottom: 1px solid #e0e0e0; display: flex; justify-content: center; gap: 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .nav button { background: none; border: none; padding: 1rem 1.75rem; font-size: 0.78rem; font-weight: 700; color: var(--gray); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+        .nav button:hover { color: #e65100; }
+        .nav button.active { color: #e65100; border-bottom-color: #e65100; }
+        .nav button .q-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #fff3e0; color: #e65100; font-size: 0.65rem; font-weight: 800; }
+        .nav button.active .q-num { background: #e65100; color: #fff; }
+        .nav-back { position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 0.75rem; font-weight: 700; color: var(--gray); text-decoration: none; padding: 0.4rem 0.75rem; border-radius: 6px; transition: all 0.2s; }
+        .nav-back:hover { color: #e65100; background: #fff8f0; }
+
+        .container { max-width: 1180px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .q-banner { background: linear-gradient(135deg, #fff8f0 0%, #fff3e0 100%); border: 1px solid #fde2c8; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 2rem; }
+        .q-banner .q-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #e65100; margin-bottom: 0.25rem; }
+        .q-banner h2 { font-size: 1.2rem; font-weight: 800; color: var(--navy); }
+
+        .card { background: var(--card); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; margin-bottom: 1.5rem; }
+        .card h3 { font-size: 0.85rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; }
+
+        .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .tile { background: var(--card); border-radius: 10px; padding: 1.25rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; position: relative; overflow: hidden; }
+        .tile::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .tile.t-red::before { background: var(--red); }
+        .tile.t-green::before { background: var(--green); }
+        .tile.t-orange::before { background: var(--orange); }
+        .tile.t-blue::before { background: var(--blue); }
+        .tile.t-purple::before { background: var(--purple); }
+        .tile .t-val { font-size: 1.5rem; font-weight: 900; color: var(--navy); }
+        .tile .t-lbl { font-size: 0.65rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 4px; }
+        .tile .t-sub { font-size: 0.7rem; color: var(--gray); margin-top: 2px; }
+
+        .insight { border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex; gap: 1rem; align-items: flex-start; }
+        .insight.i-red { background: #fff5f5; border: 1px solid #ffd5d5; }
+        .insight.i-green { background: #f0fff4; border: 1px solid #c3e6cb; }
+        .insight.i-blue { background: #f0f7ff; border: 1px solid #c8dff7; }
+        .insight.i-orange { background: #fff8f0; border: 1px solid #fde2c8; }
+        .insight.i-purple { background: #f8f4ff; border: 1px solid #e0d4f5; }
+        .insight .i-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+        .insight.i-red .i-icon { background: #ffeaea; }
+        .insight.i-green .i-icon { background: #e6f9eb; }
+        .insight.i-blue .i-icon { background: #e3f0ff; }
+        .insight.i-orange .i-icon { background: #fff0e0; }
+        .insight.i-purple .i-icon { background: #f0e8ff; }
+        .insight .i-text { flex: 1; }
+        .insight .i-title { font-size: 0.78rem; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+        .insight .i-body { font-size: 0.72rem; color: #444; line-height: 1.5; }
+
+        .no-data-card { background: var(--card); border-radius: 12px; padding: 3rem 2rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; margin-bottom: 1.5rem; text-align: center; }
+        .no-data-card .nd-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+        .no-data-card .nd-title { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem; }
+        .no-data-card .nd-body { font-size: 0.8rem; color: var(--gray); max-width: 500px; margin: 0 auto; line-height: 1.6; }
+
+        .footer { text-align: center; padding: 3rem 2rem; font-size: 0.65rem; color: #aaa; }
+
+        @media (max-width: 768px) {
+            .tiles { grid-template-columns: 1fr 1fr; }
+            .hero-grid { gap: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <h1>Commerce Cloud &mdash; Attrition Analysis</h1>
+    <div class="meta">July FY27 (Jul 1&ndash;31, 2026) &middot; AMER PACE &middot; Opportunities &ge;$100K Attrition</div>
+    <div class="hero-grid">
+        <div class="hero-num"><span class="val white">$0</span><div class="lbl">Total Attrition</div></div>
+        <div class="hero-num"><span class="val white">0</span><div class="lbl">Accounts</div></div>
+        <div class="hero-num"><span class="val white">0</span><div class="lbl">Closed / Lost</div></div>
+        <div class="hero-num"><span class="val white">0</span><div class="lbl">Still in Play</div></div>
+        <div class="hero-num"><span class="val white">0</span><div class="lbl">Actionable</div></div>
+    </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+    <a href="index.html" class="nav-back">&larr; Home</a>
+    <button class="active" onclick="showTab(0)"><span class="q-num">1</span> How Much Taken</button>
+    <button onclick="showTab(1)"><span class="q-num">2</span> What Was Saved</button>
+    <button onclick="showTab(2)"><span class="q-num">3</span> Where Are the Gaps</button>
+    <button onclick="showTab(3)"><span class="q-num">4</span> Emerging Patterns</button>
+</div>
+
+<div class="container">
+
+<!-- TAB 1: HOW MUCH TAKEN -->
+<div class="section active" id="tab0">
+    <div class="q-banner">
+        <div class="q-label">Question 1</div>
+        <h2>How much attrition was taken in Commerce Cloud for July FY27?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-green">
+            <div class="t-val">$0</div>
+            <div class="t-lbl">Total Attrition</div>
+            <div class="t-sub">0 accounts</div>
+        </div>
+        <div class="tile t-green">
+            <div class="t-val">0</div>
+            <div class="t-lbl">Logo Losses</div>
+            <div class="t-sub">No full attrition</div>
+        </div>
+        <div class="tile t-green">
+            <div class="t-val">0</div>
+            <div class="t-lbl">Partial Losses</div>
+            <div class="t-sub">No partial attrition</div>
+        </div>
+        <div class="tile t-green">
+            <div class="t-val">0</div>
+            <div class="t-lbl">Actionable</div>
+            <div class="t-sub">No swing opportunities</div>
+        </div>
+    </div>
+
+    <div class="no-data-card">
+        <div class="nd-icon">&#10003;</div>
+        <div class="nd-title">No Commerce Cloud attrition events &ge;$100K with a July FY27 close date</div>
+        <div class="nd-body">This may update as the month progresses and new opportunities are forecasted. No renewal or off-cycle opportunities meeting the AMER PACE threshold criteria exist for this period.</div>
+    </div>
+
+    <div class="insight i-blue">
+        <div class="i-icon">&#9432;</div>
+        <div class="i-text">
+            <div class="i-title">Clean month &mdash; no Commerce Cloud accounts have attrition forecasted above the $100K threshold for July</div>
+            <div class="i-body">Monitor for late-breaking forecasts as end-of-quarter approaches. July is the final month of Q2 FY27 (May&ndash;Jul 2026), so any new attrition events would need to be forecasted and closed within the remaining window.</div>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 2: WHAT WAS SAVED -->
+<div class="section" id="tab1">
+    <div class="q-banner">
+        <div class="q-label">Question 2</div>
+        <h2>How much was saved &amp; which programs were deployed?</h2>
+    </div>
+
+    <div class="no-data-card">
+        <div class="nd-icon">&mdash;</div>
+        <div class="nd-title">No data available for this period</div>
+        <div class="nd-body">With zero attrition events in scope, no save programs were required or deployed for Commerce Cloud in July FY27.</div>
+    </div>
+</div>
+
+<!-- TAB 3: WHERE ARE THE GAPS -->
+<div class="section" id="tab2">
+    <div class="q-banner">
+        <div class="q-label">Question 3</div>
+        <h2>Where are the gaps in coverage and documentation?</h2>
+    </div>
+
+    <div class="no-data-card">
+        <div class="nd-icon">&mdash;</div>
+        <div class="nd-title">No data available for this period</div>
+        <div class="nd-body">No attrition records exist to evaluate for documentation gaps. Compliance analysis requires at least one qualifying opportunity.</div>
+    </div>
+</div>
+
+<!-- TAB 4: EMERGING PATTERNS -->
+<div class="section" id="tab3">
+    <div class="q-banner">
+        <div class="q-label">Question 4</div>
+        <h2>What patterns are emerging across Commerce Cloud attrition?</h2>
+    </div>
+
+    <div class="no-data-card">
+        <div class="nd-icon">&mdash;</div>
+        <div class="nd-title">No data available for this period</div>
+        <div class="nd-body">Pattern analysis requires attrition events to identify trends. Refer to the Q2 FY27 quarterly roll-up or adjacent months (May, June) for Commerce Cloud trend data.</div>
+    </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+    PACE Attrition Analysis &middot; Source: Org62 SOQL &middot; Account.CSG_Region__c = 'AMER PACE' &middot; Generated Jun 2026
+</div>
+
+<script>
+function showTab(idx) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab' + idx).classList.add('active');
+    document.querySelectorAll('.nav button')[idx].classList.add('active');
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PACE Attrition Analysis — CC Q1 FY27</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@salesforce-ux/design-system@2.24.4/assets/styles/salesforce-lightning-design-system.min.css">
+    <style>
+        :root {
+            --navy: #032d60;
+            --dark: #001639;
+            --blue: #0176d3;
+            --blue-light: #1b96ff;
+            --red: #ea001e;
+            --red-soft: #ff5d5d;
+            --orange: #fe9339;
+            --green: #2e844a;
+            --green-light: #45c65a;
+            --purple: #7e57c2;
+            --teal: #06a59a;
+            --gray: #706e6b;
+            --bg: #f3f3f3;
+            --card: #ffffff;
+            --shadow: 0 2px 12px rgba(3,45,96,0.08);
+            --shadow-lg: 0 8px 32px rgba(3,45,96,0.12);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: #181818;
+            line-height: 1.6;
+        }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--navy) 40%, #0d47a1 100%);
+            color: #fff;
+            padding: 3rem 2rem 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(1,118,211,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .header .meta {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-bottom: 2rem;
+        }
+
+        .hero-grid {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .hero-num {
+            text-align: center;
+        }
+
+        .hero-num .big {
+            font-size: 2.8rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            line-height: 1;
+        }
+
+        .hero-num .big.red { color: #ff6b6b; }
+        .hero-num .big.green { color: #69db7c; }
+        .hero-num .big.amber { color: #ffd43b; }
+        .hero-num .big.white { color: #fff; }
+
+        .hero-num .lbl {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            margin-top: 6px;
+        }
+
+        /* NAV */
+        .nav {
+            background: var(--card);
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .nav button {
+            background: none;
+            border: none;
+            padding: 1rem 1.75rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--gray);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav button:hover { color: var(--blue); }
+        .nav button.active {
+            color: var(--blue);
+            border-bottom-color: var(--blue);
+        }
+
+        .nav button .q-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #eef6ff;
+            color: var(--blue);
+            font-size: 0.65rem;
+            font-weight: 800;
+        }
+
+        .nav button.active .q-num {
+            background: var(--blue);
+            color: #fff;
+        }
+
+        .nav-back {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--gray);
+            text-decoration: none;
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-back:hover {
+            color: var(--blue);
+            background: #f0f7ff;
+        }
+
+        /* LAYOUT */
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .question-banner {
+            background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%);
+            border: 1px solid #d4e5f7;
+            border-radius: 12px;
+            padding: 1.75rem 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .question-banner .q-number {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--blue);
+            margin-bottom: 0.4rem;
+        }
+
+        .question-banner h2 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--navy);
+            line-height: 1.3;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1.75rem;
+            box-shadow: var(--shadow);
+            border: 1px solid #eaeaea;
+        }
+
+        .card-header {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--gray);
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+
+        .mb { margin-bottom: 1.5rem; }
+        .mb-sm { margin-bottom: 1rem; }
+
+        /* STAT TILES */
+        .tile {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid #eaeaea;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tile::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .tile.t-red::before { background: var(--red); }
+        .tile.t-green::before { background: var(--green); }
+        .tile.t-orange::before { background: var(--orange); }
+        .tile.t-blue::before { background: var(--blue); }
+        .tile.t-purple::before { background: var(--purple); }
+
+        .tile .t-value {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            line-height: 1.1;
+        }
+
+        .tile.t-red .t-value { color: var(--red); }
+        .tile.t-green .t-value { color: var(--green); }
+        .tile.t-orange .t-value { color: var(--orange); }
+        .tile.t-blue .t-value { color: var(--blue); }
+        .tile.t-purple .t-value { color: var(--purple); }
+
+        .tile .t-label {
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-top: 6px;
+        }
+
+        .tile .t-sub {
+            font-size: 0.72rem;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        /* INSIGHT CALLOUT */
+        .insight {
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .insight.i-red { background: #fff5f5; border: 1px solid #ffd5d5; }
+        .insight.i-green { background: #f0fff4; border: 1px solid #c3e6cb; }
+        .insight.i-blue { background: #f0f7ff; border: 1px solid #c8dff7; }
+        .insight.i-orange { background: #fff8f0; border: 1px solid #fde2c8; }
+        .insight.i-purple { background: #f8f4ff; border: 1px solid #e0d4f5; }
+
+        .insight .i-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .insight.i-red .i-icon { background: #ffeaea; }
+        .insight.i-green .i-icon { background: #e6f9eb; }
+        .insight.i-blue .i-icon { background: #e3f0ff; }
+        .insight.i-orange .i-icon { background: #fff0de; }
+        .insight.i-purple .i-icon { background: #ede3fd; }
+
+        .insight .i-body h4 {
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+            color: #1a1a1a;
+        }
+
+        .insight .i-body p {
+            font-size: 0.75rem;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        /* CHARTS */
+        .chart-wrap {
+            position: relative;
+            height: 240px;
+        }
+
+        .chart-wrap.tall { height: 300px; }
+
+        /* TABLES */
+        table { width: 100%; border-collapse: collapse; }
+
+        th {
+            text-align: left;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray);
+            padding: 0.65rem 0.75rem;
+            border-bottom: 2px solid #e5e5e5;
+            background: #fafbfc;
+        }
+
+        td {
+            padding: 0.65rem 0.75rem;
+            border-bottom: 1px solid #f2f2f2;
+            font-size: 0.78rem;
+            vertical-align: middle;
+        }
+
+        tr:hover td { background: #f8faff; }
+
+        td a { color: var(--blue); text-decoration: none; font-weight: 700; }
+        td a:hover { text-decoration: underline; }
+
+        /* BADGES */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .b-dead { background: #ffeaea; color: var(--red); }
+        .b-partial { background: #fff3e0; color: #e65100; }
+        .b-won { background: #e8f5e9; color: var(--green); }
+        .b-lost { background: #fce4ec; color: #b71c1c; }
+        .b-active { background: #e3f2fd; color: var(--blue); }
+        .b-declined { background: #f3e5f5; color: #6a1b9a; }
+        .b-none { background: #f5f5f5; color: #999; }
+
+        /* PROGRAM TAGS */
+        .ptag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            margin: 2px 3px;
+        }
+
+        .ptag-ari { background: #e8f5e9; color: #1b5e20; }
+        .ptag-rfp { background: #e3f2fd; color: #0d47a1; }
+        .ptag-swe { background: #ede7f6; color: #4a148c; }
+        .ptag-swap { background: #fff3e0; color: #e65100; }
+        .ptag-ra { background: #fff3e0; color: #e65100; }
+        .ptag-none { background: #f5f5f5; color: #999; border: 1px dashed #ddd; }
+
+        /* GAP BARS */
+        .gap-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .gap-row:last-child { border-bottom: none; }
+
+        .gap-row .gap-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            min-width: 200px;
+            color: #333;
+        }
+
+        .gap-row .gap-track {
+            flex: 1;
+            height: 28px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gap-row .gap-fill {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            color: #fff;
+            transition: width 0.6s ease;
+        }
+
+        .gap-row .gap-stat {
+            min-width: 80px;
+            text-align: right;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        /* COMPETITOR */
+        .comp-row {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            padding: 1rem 1.25rem;
+            background: #fafbfc;
+            border-radius: 8px;
+            margin-bottom: 0.6rem;
+            border: 1px solid #eee;
+        }
+
+        .comp-row .comp-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.75rem;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .comp-row .comp-info { flex: 1; }
+        .comp-row .comp-info .comp-name { font-weight: 700; font-size: 0.82rem; }
+        .comp-row .comp-info .comp-detail { font-size: 0.72rem; color: #666; margin-top: 2px; }
+        .comp-row .comp-amount { font-weight: 800; font-size: 0.9rem; color: var(--red); }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            font-size: 0.65rem;
+            color: #aaa;
+        }
+
+        .answer-box {
+            background: #fff;
+            border-radius: 12px;
+            border: 2px solid var(--blue);
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .answer-box .answer-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .answer-box .answer-value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--navy);
+            letter-spacing: -1px;
+        }
+
+        .answer-box .answer-sub {
+            font-size: 0.78rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HERO HEADER -->
+<div class="header">
+    <h1>PACE Attrition Analysis</h1>
+    <div class="meta">Commerce Cloud &nbsp;&middot;&nbsp; Q1 FY27 (Feb&ndash;Apr 2026) &nbsp;&middot;&nbsp; AMER PACE Territory</div>
+    <div class="hero-grid">
+        <div class="hero-num">
+            <div class="big red">$13.9M</div>
+            <div class="lbl">Total Attrition</div>
+        </div>
+        <div class="hero-num">
+            <div class="big white">18</div>
+            <div class="lbl">Accounts</div>
+        </div>
+        <div class="hero-num">
+            <div class="big red">10</div>
+            <div class="lbl">Logos Lost</div>
+        </div>
+        <div class="hero-num">
+            <div class="big green">8</div>
+            <div class="lbl">Retained</div>
+        </div>
+        <div class="hero-num">
+            <div class="big amber">$2.0M</div>
+            <div class="lbl">Confirmed Saves</div>
+        </div>
+    </div>
+</div>
+
+<!-- NAVIGATION -->
+<nav class="nav">
+    <a href="index.html" class="nav-back">&larr; Home</a>
+    <button class="active" data-s="q1"><span class="q-num">1</span> How Much Taken</button>
+    <button data-s="q2"><span class="q-num">2</span> What Was Saved</button>
+    <button data-s="q3"><span class="q-num">3</span> Where Are the Gaps</button>
+    <button data-s="q4"><span class="q-num">4</span> Emerging Patterns</button>
+</nav>
+
+<div class="container">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Q1: HOW MUCH ATTRITION WAS TAKEN -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section active" id="q1">
+    <div class="question-banner">
+        <div class="q-number">Question 1</div>
+        <h2>How much attrition was taken — by cloud?</h2>
+    </div>
+
+    <div class="answer-box">
+        <div class="answer-label">Commerce Cloud — Total Q1 FY27 Attrition</div>
+        <div class="answer-value">$13,913,931</div>
+        <div class="answer-sub">18 accounts &nbsp;&middot;&nbsp; AMER PACE territory &nbsp;&middot;&nbsp; All opportunities &gt;$100K</div>
+    </div>
+
+    <div class="grid-4 mb">
+        <div class="tile t-red">
+            <div class="t-value">$5.5M</div>
+            <div class="t-label">Logo Loss</div>
+            <div class="t-sub">10 accounts / 40%</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-value">$8.4M</div>
+            <div class="t-label">Partial Attrition</div>
+            <div class="t-sub">8 accounts / 60%</div>
+        </div>
+        <div class="tile t-blue">
+            <div class="t-value">$9.1M</div>
+            <div class="t-label">On-Cycle (Renewal)</div>
+            <div class="t-sub">12 accounts / 67%</div>
+        </div>
+        <div class="tile t-purple">
+            <div class="t-value">$4.8M</div>
+            <div class="t-label">Off-Cycle</div>
+            <div class="t-sub">6 accounts / 33%</div>
+        </div>
+    </div>
+
+    <div class="grid-2 mb">
+        <div class="card">
+            <div class="card-header">Logo Loss vs Retained (by $ amount)</div>
+            <div class="chart-wrap">
+                <canvas id="c-split"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">On-Cycle vs Off-Cycle</div>
+            <div class="chart-wrap">
+                <canvas id="c-cycle"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb">
+        <div class="card-header">Top 10 Accounts — Highest Attrition Impact</div>
+        <div class="chart-wrap tall">
+            <canvas id="c-top10"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">All 18 Accounts — Sorted by Attrition</div>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Account</th><th>Renewed</th><th>Attrition</th><th>Swing</th><th>Outcome</th><th>Type</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FlbGPAAZ/view" target="_blank"><strong>Under Armour</strong></a></td><td style="color:var(--green);font-weight:600;">$2,987,775</td><td style="color:var(--red);font-weight:700;">$2,290,058</td><td style="color:var(--gray);">—</td><td><span class="badge b-partial">Partial</span></td><td>Off-Cycle</td></tr>
+                <tr><td>2</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017UtgbAAC/view" target="_blank"><strong>YETI Coolers</strong></a></td><td style="color:var(--green);font-weight:600;">$3,882,724</td><td style="color:var(--red);font-weight:700;">$2,007,929</td><td style="color:var(--gray);">—</td><td><span class="badge b-partial">Partial</span></td><td>Renewal</td></tr>
+                <tr><td>3</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Cyqb7AAB/view" target="_blank"><strong>Tapestry</strong></a></td><td style="color:var(--green);font-weight:600;">$17,852,759</td><td style="color:var(--red);font-weight:700;">$2,000,000</td><td style="color:var(--gray);">$0</td><td><span class="badge b-partial">Partial</span></td><td>Off-Cycle</td></tr>
+                <tr><td>4</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000W7vbpAAB/view" target="_blank"><strong>Otto Environmental Systems</strong></a></td><td style="color:var(--gray);">$0</td><td style="color:var(--red);font-weight:700;">$1,771,625</td><td style="color:var(--gray);">$0</td><td><span class="badge b-dead">Logo Loss</span></td><td>Off-Cycle</td></tr>
+                <tr><td>5</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000008QdkHAAS/view" target="_blank"><strong>Cole Haan</strong></a></td><td style="color:var(--gray);">$0</td><td style="color:var(--red);font-weight:700;">$1,650,074</td><td style="color:var(--gray);">$0</td><td><span class="badge b-dead">Logo Loss</span></td><td>Renewal</td></tr>
+                <tr><td>6</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000VgQlrAAF/view" target="_blank"><strong>Vista Outdoor Operations</strong></a></td><td style="color:var(--green);font-weight:600;">$601,620</td><td style="color:var(--red);font-weight:700;">$953,841</td><td style="color:var(--gray);">—</td><td><span class="badge b-partial">Partial</span></td><td>Renewal</td></tr>
+                <tr><td>7</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000007qNkTAAU/view" target="_blank"><strong>Nebraska Furniture Mart</strong></a></td><td style="color:var(--gray);">$0</td><td style="color:var(--red);font-weight:700;">$654,969</td><td style="color:var(--gray);">$0</td><td><span class="badge b-dead">Logo Loss</span></td><td>Off-Cycle</td></tr>
+                <tr><td>8</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000B5KvpAAF/view" target="_blank"><strong>PartyCity.com</strong></a></td><td style="color:var(--green);font-weight:600;">$7,800</td><td style="color:var(--red);font-weight:700;">$471,702</td><td style="color:var(--gray);">$0</td><td><span class="badge b-partial">Partial</span></td><td>Renewal</td></tr>
+                <tr><td>9</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000IRLE5AAP/view" target="_blank"><strong>Claire's Stores (Bad Debt)</strong></a></td><td style="color:var(--gray);">$0</td><td style="color:var(--red);font-weight:700;">$455,000</td><td style="color:var(--gray);">$0</td><td><span class="badge b-dead">Logo Loss</span></td><td>Off-Cycle</td></tr>
+                <tr><td>10</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017eulVAAQ/view" target="_blank"><strong>Lands' End</strong></a></td><td style="color:var(--green);font-weight:600;">$1,301,125</td><td style="color:var(--red);font-weight:700;">$300,125</td><td style="color:var(--gray);">—</td><td><span class="badge b-partial">Partial</span></td><td>Renewal</td></tr>
+                <tr><td>11</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000009hX8PAAU/view" target="_blank"><strong>Claire's Stores (Renewal)</strong></a></td><td style="color:var(--gray);">$0</td><td style="color:var(--red);font-weight:700;">$218,080</td><td style="color:var(--gray);">$0</td><td><span class="badge b-dead">Logo Loss</span></td><td>Renewal</td></tr>
+                <tr><td>12</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000BGrLNAA1/view" target="_blank"><strong>Gap Inc.</strong></a></td><td style="color:var(--gray);">$0</td><td style="color:var(--red);font-weight:700;">$188,000</td><td style="color:var(--gray);">—</td><td><span class="badge b-dead">Logo Loss</span></td><td>Renewal</td></tr>
+                <tr><td>13</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000095DdnAAE/view" target="_blank"><strong>Riboli Family Wines</strong></a></td><td style="color:var(--gray);">$0</td><td style="color:var(--red);font-weight:700;">$183,334</td><td style="color:var(--gray);">—</td><td><span class="badge b-dead">Logo Loss</span></td><td>Renewal</td></tr>
+                <tr><td>14</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000A2zWHAAZ/view" target="_blank"><strong>SLT Lending SPV</strong></a></td><td style="color:var(--green);font-weight:600;">$1,318,858</td><td style="color:var(--red);font-weight:700;">$156,411</td><td style="color:var(--gray);">—</td><td><span class="badge b-partial">Partial</span></td><td>Renewal</td></tr>
+                <tr><td>15</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000000q0wnAAA/view" target="_blank"><strong>Dunham's Athleisure</strong></a></td><td style="color:var(--gray);">$0</td><td style="color:var(--red);font-weight:700;">$153,198</td><td style="color:var(--gray);">—</td><td><span class="badge b-dead">Logo Loss</span></td><td>Renewal</td></tr>
+                <tr><td>16</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019WqZXAA0/view" target="_blank"><strong>Land O'Lakes</strong></a></td><td style="color:var(--gray);">$0</td><td style="color:var(--red);font-weight:700;">$143,360</td><td style="color:var(--gray);">—</td><td><span class="badge b-dead">Logo Loss</span></td><td>Renewal</td></tr>
+                <tr><td>17</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019W10RAAS/view" target="_blank"><strong>Kendra Scott</strong></a></td><td style="color:var(--green);font-weight:600;">$1,794,000</td><td style="color:var(--red);font-weight:700;">$116,228</td><td style="color:var(--gray);">$0</td><td><span class="badge b-partial">Partial</span></td><td>Renewal</td></tr>
+                <tr><td>18</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000095IjuAAE/view" target="_blank"><strong>Hallmark Cards</strong></a></td><td style="color:var(--gray);">$0</td><td style="color:var(--red);font-weight:700;">$100,000</td><td style="color:var(--gray);">—</td><td><span class="badge b-dead">Logo Loss</span></td><td>Renewal</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Q2: WHAT WAS SAVED -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="q2">
+    <div class="question-banner">
+        <div class="q-number">Question 2</div>
+        <h2>How much was saved — and which programs were used?</h2>
+    </div>
+
+    <div class="grid-3 mb">
+        <div class="answer-box" style="border-color:var(--green);">
+            <div class="answer-label" style="color:var(--green);">Confirmed Saves</div>
+            <div class="answer-value" style="font-size:2rem;">$2.0M</div>
+            <div class="answer-sub">YETI — early 3-year renewal signed</div>
+        </div>
+        <div class="answer-box" style="border-color:var(--blue);">
+            <div class="answer-label" style="color:var(--blue);">Programs Deployed</div>
+            <div class="answer-value" style="font-size:2rem;">1</div>
+            <div class="answer-sub">#RFP on Lands' End (lost)</div>
+        </div>
+        <div class="answer-box" style="border-color:var(--red);">
+            <div class="answer-label" style="color:var(--red);">No Program Run</div>
+            <div class="answer-value" style="font-size:2rem;">78%</div>
+            <div class="answer-sub">14 of 18 accounts — no save program</div>
+        </div>
+    </div>
+
+    <div class="card mb">
+        <div class="card-header">Program Deployment Summary</div>
+        <div class="chart-wrap">
+            <canvas id="c-programs"></canvas>
+        </div>
+    </div>
+
+    <div class="insight i-green mb-sm">
+        <div class="i-icon">&#10003;</div>
+        <div class="i-body">
+            <h4>YETI: The one confirmed save — $2M retained via early renewal</h4>
+            <p>YETI Coolers pre-signed a 3-year renewal including Commerce Cloud Signature, beginning 3/1/26. The early renewal locked in the customer before competitive alternatives were explored. This is the sole confirmed save for the quarter.</p>
+        </div>
+    </div>
+
+    <div class="insight i-red mb">
+        <div class="i-icon">!</div>
+        <div class="i-body">
+            <h4>78% of accounts had zero intervention — no programs deployed.</h4>
+            <p>14 of 18 accounts ($11.6M) closed without any save program attempted. Only 1 formal program (#RFP on Lands' End) was deployed and it was lost. No #ARI, #SWE, #SWAP, #SIGTRIAL, #ADOPT, or #IMPLEMENT programs were used this quarter.</p>
+        </div>
+    </div>
+
+    <!-- RA Detail -->
+    <div class="card mb">
+        <div class="card-header"><span class="ptag ptag-ra">#RA</span> Red Account Documentation — 3 Accounts, $4.3M at Risk</div>
+        <table>
+            <thead><tr><th>Account</th><th>$ at Risk</th><th>Status</th><th>Context</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>YETI Coolers</strong></td>
+                    <td>$2,007,929</td>
+                    <td><span class="badge b-won">SAVE &#10003;</span></td>
+                    <td>Pre-signed 3-year renewal including Signature. Early renewal = confirmed save.</td>
+                </tr>
+                <tr>
+                    <td><strong>Cole Haan</strong></td>
+                    <td>$1,650,074</td>
+                    <td><span class="badge b-lost">Lost</span></td>
+                    <td>Customer migrated to Shopify. CC cited as not keeping pace. Personalization pricing was key driver.</td>
+                </tr>
+                <tr>
+                    <td><strong>Nebraska Furniture Mart</strong></td>
+                    <td>$654,969</td>
+                    <td><span class="badge b-lost">Lost</span></td>
+                    <td>Decided not to renew Signature. No major planned CC activities for 2026. Funding issues.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- RFP Detail -->
+    <div class="card mb">
+        <div class="card-header"><span class="ptag ptag-rfp">#RFP</span> Competitive Response — 1 Account, $300K at Risk</div>
+        <table>
+            <thead><tr><th>Account</th><th>$ at Risk</th><th>Status</th><th>Context</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>Lands' End</strong></td>
+                    <td>$300,125</td>
+                    <td><span class="badge b-lost">Lost</span></td>
+                    <td>Not selected in RFP. Customer taking 1-year deal at reduced cost. Larger attrition expected next FY. Tagged #nonactionable.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <div class="card-header">Program Scorecard</div>
+        <table>
+            <thead><tr><th>Program</th><th>Accounts</th><th>$ at Risk</th><th>Won</th><th>Lost</th><th>Active</th><th>Win Rate</th></tr></thead>
+            <tbody>
+                <tr><td><span class="ptag ptag-ra">#RA</span></td><td>3</td><td>$4.3M</td><td>1</td><td>2</td><td>0</td><td>33%</td></tr>
+                <tr><td><span class="ptag ptag-rfp">#RFP</span></td><td>1</td><td>$300K</td><td>0</td><td>1</td><td>0</td><td>0%</td></tr>
+                <tr><td><span class="ptag ptag-ari">#ARI</span></td><td>0</td><td>—</td><td>0</td><td>0</td><td>0</td><td>—</td></tr>
+                <tr><td><span class="ptag ptag-swe">#SWE</span></td><td>0</td><td>—</td><td>0</td><td>0</td><td>0</td><td>—</td></tr>
+                <tr style="font-weight:700;background:#f8fafb;"><td>TOTAL</td><td>4*</td><td>$4.6M</td><td>1</td><td>3</td><td>0</td><td>25%</td></tr>
+            </tbody>
+        </table>
+        <p style="font-size:0.68rem;color:#999;margin-top:0.75rem;">*Unique accounts with any program documentation: 4. Remaining 14 accounts (78%) had no program activity whatsoever.</p>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Q3: WHERE ARE THE GAPS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="q3">
+    <div class="question-banner">
+        <div class="q-number">Question 3</div>
+        <h2>Where were the gaps — non-actionable, missing reds, no programs run?</h2>
+    </div>
+
+    <div class="grid-3 mb">
+        <div class="tile t-red">
+            <div class="t-value">6</div>
+            <div class="t-label">No CSG Notes At All</div>
+            <div class="t-sub">$1.8M — silent accounts</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-value">14</div>
+            <div class="t-label">No Save Program</div>
+            <div class="t-sub">$11.6M — 78% of accounts</div>
+        </div>
+        <div class="tile t-purple">
+            <div class="t-value">15</div>
+            <div class="t-label">No #RA Documentation</div>
+            <div class="t-sub">83% — no Red Account hashtag</div>
+        </div>
+    </div>
+
+    <div class="card mb">
+        <div class="card-header">Gap Severity — Visual Breakdown</div>
+        <div style="padding: 0.5rem 0;">
+            <div class="gap-row">
+                <div class="gap-label">No CSG Notes (completely dark)</div>
+                <div class="gap-track"><div class="gap-fill" style="width:33%;background:var(--red);">6 accts</div></div>
+                <div class="gap-stat">$1.8M</div>
+            </div>
+            <div class="gap-row">
+                <div class="gap-label">Dead Attrition + No Notes</div>
+                <div class="gap-track"><div class="gap-fill" style="width:28%;background:#b71c1c;">5 accts</div></div>
+                <div class="gap-stat">$768K</div>
+            </div>
+            <div class="gap-row">
+                <div class="gap-label">Has Notes, No Program Deployed</div>
+                <div class="gap-track"><div class="gap-fill" style="width:50%;background:var(--orange);">9 accts</div></div>
+                <div class="gap-stat">$9.8M</div>
+            </div>
+            <div class="gap-row">
+                <div class="gap-label">No Red Account (#RA) Documentation</div>
+                <div class="gap-track"><div class="gap-fill" style="width:83%;background:#455a64;">15 accts</div></div>
+                <div class="gap-stat">83%</div>
+            </div>
+            <div class="gap-row">
+                <div class="gap-label">Marked #nonactionable</div>
+                <div class="gap-track"><div class="gap-fill" style="width:11%;background:#78909c;">2 accts</div></div>
+                <div class="gap-stat">$2.1M</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="insight i-red mb-sm">
+        <div class="i-icon">&#9888;</div>
+        <div class="i-body">
+            <h4>$768K in logo loss with ZERO documented engagement</h4>
+            <p>5 accounts went to Dead Attrition with no CSG Notes whatsoever — Gap Inc., Riboli Family Wines, Dunham's Athleisure, Land O'Lakes, and Hallmark Cards. These customers left without any record of outreach or risk assessment.</p>
+        </div>
+    </div>
+
+    <div class="insight i-orange mb">
+        <div class="i-icon">&#9889;</div>
+        <div class="i-body">
+            <h4>The gap is action, not awareness</h4>
+            <p>67% of accounts (12/18) had CSG Notes documenting the risk. But only 22% (4/18) had any program documented. The conversion from "we know there's risk" to "we did something about it" is the critical failure point.</p>
+        </div>
+    </div>
+
+    <div class="grid-2 mb">
+        <div class="card">
+            <div class="card-header">Engagement Funnel</div>
+            <div class="chart-wrap">
+                <canvas id="c-funnel"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Gap Composition</div>
+            <div class="chart-wrap">
+                <canvas id="c-gaps-pie"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Silent Loss Table -->
+    <div class="card mb">
+        <div class="card-header">&#9899; Silent Losses — Dead Attrition, No CSG Notes</div>
+        <table>
+            <thead><tr><th>Account</th><th>Attrition</th><th>Reason</th><th>Gap</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Gap Inc.</strong></td><td>$188,000</td><td>Business Direction Change — Product No Longer Relevant</td><td>No notes, no program, no RA</td></tr>
+                <tr><td><strong>Riboli Family Wines</strong></td><td>$183,334</td><td>Financial Distress — Downsizing</td><td>No notes, no program, no RA</td></tr>
+                <tr><td><strong>Dunham's Athleisure</strong></td><td>$153,198</td><td>New Security Policies/Requirements</td><td>No notes, no program, no RA</td></tr>
+                <tr><td><strong>Land O'Lakes</strong></td><td>$143,360</td><td>Product Feature Gap</td><td>No notes, no program, no RA</td></tr>
+                <tr><td><strong>Hallmark Cards</strong></td><td>$100,000</td><td>Business Direction Change — Product No Longer Relevant</td><td>No notes, no program, no RA</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Documented but No Program -->
+    <div class="card">
+        <div class="card-header">&#128993; Had Risk Documentation — But No Program Deployed</div>
+        <table>
+            <thead><tr><th>Account</th><th>Attrition</th><th>What Notes Say</th><th>Why No Program?</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Under Armour</strong></td><td>$2,290,058</td><td>Fully approved restructure. Oversold/cost savings.</td><td>#PartAttrit #NoSigRisk — tagged non-standard hashtags only</td></tr>
+                <tr><td><strong>Tapestry</strong></td><td>$2,000,000</td><td>Restructured agreement lowers GMV commit and reduces rate over time</td><td>#partialattrit — documented but no save play</td></tr>
+                <tr><td><strong>Otto Environmental Systems</strong></td><td>$1,771,625</td><td>#fullattrit non-actionable — bad debt</td><td>Bad debt — non-actionable, no engagement possible</td></tr>
+                <tr><td><strong>Vista Outdoor Operations</strong></td><td>$953,841</td><td>No CSG Notes</td><td>No notes, no documentation, no program</td></tr>
+                <tr><td><strong>PartyCity.com</strong></td><td>$471,702</td><td>#SigRisk #LicFullAttrit — financial distress, signature offboarding</td><td>Documented but no save play attempted</td></tr>
+                <tr><td><strong>Claire's Stores (Bad Debt)</strong></td><td>$455,000</td><td>Confirmed attrition of CC</td><td>Bankruptcy — non-actionable</td></tr>
+                <tr><td><strong>Claire's Stores (Renewal)</strong></td><td>$218,080</td><td>Customer in bankruptcy. Not keeping OMS.</td><td>Bankruptcy — non-actionable</td></tr>
+                <tr><td><strong>SLT Lending SPV</strong></td><td>$156,411</td><td>#SigRisk — wants well-rounded TA vs multiple architect engagements</td><td>Sig dissatisfaction documented but no formal program</td></tr>
+                <tr><td><strong>Kendra Scott</strong></td><td>$116,228</td><td>#NoAttrit #NoSigRisk — Shift SFRA to composable. C-suite turnover.</td><td>Tagged as no attrit despite attrition closing — low attention</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- Q4: EMERGING PATTERNS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="q4">
+    <div class="question-banner">
+        <div class="q-number">Question 4</div>
+        <h2>What patterns are emerging — by reason, by program type?</h2>
+    </div>
+
+    <div class="insight i-red mb-sm">
+        <div class="i-icon">1</div>
+        <div class="i-body">
+            <h4>"Product-Market Fit Mismatch / Oversold" dominates — $7.3M across 4 accounts (52%)</h4>
+            <p>The #1 attrition driver is customers who were sold more than they needed. Under Armour, YETI, Tapestry, and Vista Outdoor all reflect over-commitment on capacity or features. This is a sales-side issue, not a product gap.</p>
+        </div>
+    </div>
+
+    <div class="insight i-orange mb-sm">
+        <div class="i-icon">2</div>
+        <div class="i-body">
+            <h4>Off-cycle ratio unusually high — 33% vs MC's 7%</h4>
+            <p>6 of 18 accounts ($4.8M) are off-cycle events: restructures, bad debts, and ramp-downs. This is 4.7x the MC proportion, suggesting more mid-contract adjustments in the Commerce Cloud portfolio.</p>
+        </div>
+    </div>
+
+    <div class="insight i-purple mb-sm">
+        <div class="i-icon">3</div>
+        <div class="i-body">
+            <h4>Dead ratio is 56% (10 of 18) — higher than MC's 45%</h4>
+            <p>More than half of all attrition events are full logo losses. Once Commerce Cloud customers decide to leave, they leave entirely — there's less partial retention than Marketing Cloud.</p>
+        </div>
+    </div>
+
+    <div class="insight i-blue mb">
+        <div class="i-icon">4</div>
+        <div class="i-body">
+            <h4>Shopify is the only named competitor — $1.65M (1 account)</h4>
+            <p>Cole Haan migrated to Shopify, citing CC not keeping pace with platform needs. Personalization pricing was the tipping point. No other competitor named in any account notes — this is not a competitive loss quarter.</p>
+        </div>
+    </div>
+
+    <div class="grid-2 mb">
+        <div class="card">
+            <div class="card-header">Attrition by Reason Category ($M)</div>
+            <div class="chart-wrap tall">
+                <canvas id="c-reasons"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">Top Reason Details</div>
+            <table>
+                <thead><tr><th>Reason Detail</th><th>Accounts</th><th>$ Amount</th><th>% Total</th></tr></thead>
+                <tbody>
+                    <tr style="background:#fff5f5;"><td><strong>Product-Market Fit / Oversold</strong></td><td><strong>4</strong></td><td style="color:var(--red);font-weight:800;">$7.3M</td><td><strong>52%</strong></td></tr>
+                    <tr><td>Financial Distress (Bankruptcy/Costs)</td><td>5</td><td>$2.7M</td><td>19%</td></tr>
+                    <tr><td>Business Direction Change</td><td>2</td><td>$288K</td><td>2%</td></tr>
+                    <tr><td>Competitive (Shopify)</td><td>1</td><td>$1.65M</td><td>12%</td></tr>
+                    <tr><td>Packaging Change</td><td>1</td><td>$655K</td><td>5%</td></tr>
+                    <tr><td>Found Less Expensive Alternative</td><td>1</td><td>$300K</td><td>2%</td></tr>
+                    <tr><td>Low Success Plan Utilization</td><td>1</td><td>$156K</td><td>1%</td></tr>
+                    <tr><td>Dissatisfaction with Pricing</td><td>1</td><td>$116K</td><td>1%</td></tr>
+                    <tr><td>Product Feature Gap</td><td>1</td><td>$143K</td><td>1%</td></tr>
+                    <tr><td>Security Policies</td><td>1</td><td>$153K</td><td>1%</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Competitors -->
+    <div class="card mb">
+        <div class="card-header">Competitor Landscape</div>
+        <div style="padding:0.5rem 0;">
+            <div class="comp-row" style="flex-direction:column;align-items:stretch;">
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                    <div class="comp-logo" style="background:#96bf48;">S</div>
+                    <div>
+                        <div class="comp-name">Shopify</div>
+                        <div class="comp-detail">1 account &middot; $1.65M</div>
+                    </div>
+                </div>
+                <div style="margin-top:0.5rem;font-size:0.72rem;color:#555;">
+                    Cole Haan ($1.65M) &mdash; CC not keeping pace with platform needs. Personalization pricing as extra cost was key driver.
+                </div>
+            </div>
+        </div>
+        <div class="insight i-blue" style="margin-top:1rem;">
+            <div class="i-icon">&#8505;</div>
+            <div class="i-body">
+                <h4>Low competitive pressure this quarter</h4>
+                <p>Only 1 of 18 accounts (6%) cited a competitor. The dominant attrition drivers are internal (oversold, financial distress, business direction change) — not external market forces.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patterns by Program Type -->
+    <div class="card mb">
+        <div class="card-header">Pattern by Program Type</div>
+        <table>
+            <thead><tr><th>Program</th><th>Pattern</th><th>Observation</th></tr></thead>
+            <tbody>
+                <tr><td><span class="ptag ptag-ra">#RA</span></td><td>Only program with a win</td><td>YETI early renewal = confirmed save. Cole Haan & Nebraska = lost despite RA documentation.</td></tr>
+                <tr><td><span class="ptag ptag-rfp">#RFP</span></td><td>Deployed once, lost</td><td>Lands' End: not selected in RFP. Customer leaving next FY. Tagged #nonactionable.</td></tr>
+                <tr><td><span class="ptag ptag-ari">#ARI</span></td><td>Not deployed</td><td>Zero Attrition Reduction Investments this quarter. Major gap given $7.3M "oversold" attrition.</td></tr>
+                <tr><td><span class="ptag ptag-none">No Program</span></td><td>Default state — 78% of accounts</td><td>$11.6M at risk with zero formal intervention. Most dominant gap in CC Q1.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Summary -->
+    <div class="card">
+        <div class="card-header">Leadership Pattern Summary — What This Means</div>
+        <table>
+            <thead><tr><th>Pattern</th><th>Scale</th><th>Implication</th><th>Recommended Action</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td><strong>"Oversold" dominates</strong></td>
+                    <td>$7.3M / 52%</td>
+                    <td>Customers bought more than needed — cost savings drive restructures</td>
+                    <td>Pre-renewal ACV right-sizing conversations 6+ months out</td>
+                </tr>
+                <tr>
+                    <td><strong>78% no program</strong></td>
+                    <td>14 accounts</td>
+                    <td>Almost no formal save programs deployed</td>
+                    <td>Require program hashtag on all &gt;$100K risk accounts</td>
+                </tr>
+                <tr>
+                    <td><strong>56% full logo loss</strong></td>
+                    <td>10 accounts</td>
+                    <td>Higher dead ratio than MC — CC customers leave entirely</td>
+                    <td>Earlier Red Account activation for CC renewals</td>
+                </tr>
+                <tr>
+                    <td><strong>33% off-cycle</strong></td>
+                    <td>6 accounts / $4.8M</td>
+                    <td>Mid-contract adjustments are 4.7x the MC proportion</td>
+                    <td>Monitor KMOD/restructure pipeline more proactively</td>
+                </tr>
+                <tr>
+                    <td><strong>33% no notes</strong></td>
+                    <td>6 accounts</td>
+                    <td>One-third of accounts have zero visibility pre-close</td>
+                    <td>Monthly CSG Notes cadence for T-180 day renewals</td>
+                </tr>
+                <tr>
+                    <td><strong>83% no Red Account</strong></td>
+                    <td>15 accounts</td>
+                    <td>Early-warning system rarely activated</td>
+                    <td>Auto-trigger RA review when attrition forecasted &gt;$250K</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+    Source: Org62 SOQL &nbsp;&middot;&nbsp; Account.CSG_Region__c = 'AMER PACE' &nbsp;&middot;&nbsp; Targeted_Clouds__c INCLUDES ('Commerce Cloud', 'B2B Commerce', 'Order Management') &nbsp;&middot;&nbsp; Q1 FY27 (Feb&ndash;Apr 2026) &nbsp;&middot;&nbsp; Generated Jun 2026
+</div>
+
+<script>
+// Navigation
+document.querySelectorAll('.nav button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.s).classList.add('active');
+    });
+});
+
+// Chart config
+Chart.defaults.font.family = "'Salesforce Sans', -apple-system, sans-serif";
+Chart.defaults.font.size = 11;
+
+// Q1: Split donut
+new Chart(document.getElementById('c-split'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Logo Loss — $5.5M (10 accounts)', 'Partial — $8.4M (8 accounts)'],
+        datasets: [{ data: [5.5, 8.4], backgroundColor: ['#ea001e', '#fe9339'], borderWidth: 0, hoverOffset: 8 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } } } }
+});
+
+// Q1: Cycle donut
+new Chart(document.getElementById('c-cycle'), {
+    type: 'doughnut',
+    data: {
+        labels: ['On-Cycle — $9.1M (12 accounts)', 'Off-Cycle — $4.8M (6 accounts)'],
+        datasets: [{ data: [9.1, 4.8], backgroundColor: ['#0176d3', '#7e57c2'], borderWidth: 0, hoverOffset: 8 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } } } }
+});
+
+// Q1: Top 10 horizontal bar
+new Chart(document.getElementById('c-top10'), {
+    type: 'bar',
+    data: {
+        labels: ['Under Armour', 'YETI Coolers', 'Tapestry', 'Otto Environmental', 'Cole Haan', 'Vista Outdoor', 'Nebraska Furniture', 'PartyCity.com', "Claire's (Bad Debt)", "Lands' End"],
+        datasets: [{
+            data: [2.29, 2.01, 2.00, 1.77, 1.65, 0.95, 0.65, 0.47, 0.46, 0.30],
+            backgroundColor: ctx => {
+                const dead = [3, 4, 6, 8];
+                return dead.includes(ctx.dataIndex) ? '#ea001e' : '#0176d3';
+            },
+            borderRadius: 6,
+            barPercentage: 0.6,
+            categoryPercentage: 0.85
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => `$${ctx.raw}M attrition` } }
+        },
+        scales: {
+            x: { title: { display: true, text: '$ Millions', font: { weight: '600' } }, grid: { color: '#f0f0f0' }, beginAtZero: true },
+            y: { grid: { display: false }, ticks: { font: { weight: '600' } } }
+        }
+    }
+});
+
+// Q2: Programs bar
+new Chart(document.getElementById('c-programs'), {
+    type: 'bar',
+    data: {
+        labels: ['#RA (3 accts)', '#RFP (1 acct)', '#ARI (0 accts)', 'No Program (14 accts)'],
+        datasets: [
+            { label: '$ at Risk (M)', data: [4.3, 0.3, 0, 11.6], backgroundColor: ['#fe9339', '#0176d3', '#2e844a', '#e0e0e0'], borderRadius: 6, barThickness: 36 }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => `$${ctx.raw}M at risk` } }
+        },
+        scales: {
+            y: { title: { display: true, text: '$ Millions at Risk' }, grid: { color: '#f0f0f0' }, beginAtZero: true },
+            x: { grid: { display: false }, ticks: { font: { weight: '600' } } }
+        }
+    }
+});
+
+// Q3: Funnel
+new Chart(document.getElementById('c-funnel'), {
+    type: 'bar',
+    data: {
+        labels: ['Total Accounts', 'Had CSG Notes', 'Program Documented', 'Save Confirmed'],
+        datasets: [{
+            data: [18, 12, 4, 1],
+            backgroundColor: ['#032d60', '#0176d3', '#fe9339', '#2e844a'],
+            borderRadius: 6,
+            barThickness: 40
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+            x: { grid: { display: false }, ticks: { font: { weight: '600' } } }
+        }
+    }
+});
+
+// Q3: Gap composition pie
+new Chart(document.getElementById('c-gaps-pie'), {
+    type: 'doughnut',
+    data: {
+        labels: ['No Notes ($1.8M)', 'Notes + No Program ($9.8M)', 'Program Documented ($4.6M)'],
+        datasets: [{ data: [1.8, 9.8, 4.6], backgroundColor: ['#ea001e', '#fe9339', '#2e844a'], borderWidth: 0, hoverOffset: 8 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '58%', plugins: { legend: { position: 'bottom', labels: { padding: 14, usePointStyle: true } } } }
+});
+
+// Q4: Reasons horizontal bar
+new Chart(document.getElementById('c-reasons'), {
+    type: 'bar',
+    data: {
+        labels: ['Product-Market Fit/Oversold', 'Financial Distress', 'Competitive (Shopify)', 'Packaging Change', 'Found Cheaper Alt.', 'Business Direction', 'Other (Pricing/SP/Security/Feature)'],
+        datasets: [{
+            data: [7.3, 2.7, 1.65, 0.65, 0.30, 0.29, 0.57],
+            backgroundColor: ['#ea001e', '#7e57c2', '#ff6b6b', '#fe9339', '#06a59a', '#0176d3', '#b0b0b0'],
+            borderRadius: 6,
+            barPercentage: 0.6,
+            categoryPercentage: 0.85
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `$${ctx.raw}M` } } },
+        scales: {
+            x: { title: { display: true, text: '$ Millions' }, grid: { color: '#f0f0f0' }, beginAtZero: true },
+            y: { grid: { display: false }, ticks: { font: { weight: '600' } } }
+        }
+    }
+});
+</script>
+
+</body>
+</html>

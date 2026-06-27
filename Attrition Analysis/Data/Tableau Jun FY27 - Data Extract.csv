@@ -1,0 +1,5 @@
+Account,Area,Attrition ($),Swing ($),Stage,Type,Reason,Reason Detail,CSG Notes,Close Date,Renewed ($),Opportunity ID,Status
+S.C. Johnson & Son Inc. **,RCG,456059,,05 Closed,Renewal,Business Change & Distress,Business Direction Change - Product No Longer Relevant,05/26/2026 Cole Ellis #LicPartialAttrit #SigRisk #RA - budget constraints,2026-06-16,406080,0063y000019RA9WAAW,Closed/Lost
+DriveTime Automotive Group Inc.,CMRCL,411498,,04 Pending,Renewal,Product,Platform Performance/Speed,6/8/26 EA #FullAttrit DriveTime is migrating off Tableau. Moving to Sigma,2026-06-29,0,0063y000019Y6dlAAC,Still in Play
+Colgate-Palmolive Company,RCG,229890,,Dead Attrition,Renewal,Business Change & Distress,Business Direction Change - Product No Longer Relevant,,2026-06-13,0,006ed00000QWo2kAAD,Closed/Lost
+1-800-Flowers.com Inc. (Tableau),RCG,143426.4,,Dead Attrition,Renewal,Financial & Contractual,Found Less Expensive Alternative,05/12/26 RL #LicFullAttrit - Sigma compete,2026-06-26,0,006ed00000DyvFFAAZ,Closed/Lost

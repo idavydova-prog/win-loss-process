@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PACE Attrition Analysis — MC Jun FY27</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --navy: #032d60;
+            --dark: #001639;
+            --blue: #0176d3;
+            --blue-light: #1b96ff;
+            --red: #ea001e;
+            --red-soft: #ff5d5d;
+            --orange: #fe9339;
+            --green: #2e844a;
+            --green-light: #45c65a;
+            --purple: #7e57c2;
+            --teal: #06a59a;
+            --gray: #706e6b;
+            --bg: #f3f3f3;
+            --card: #ffffff;
+            --shadow: 0 2px 12px rgba(3,45,96,0.08);
+            --shadow-lg: 0 8px 32px rgba(3,45,96,0.12);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: #181818;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--dark) 0%, #0d47a1 40%, #1976d2 100%);
+            color: #fff;
+            padding: 3rem 2rem 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(1,118,211,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.25rem; }
+        .header .meta { font-size: 0.8rem; opacity: 0.6; margin-bottom: 2rem; }
+
+        .hero-grid { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; }
+        .hero-num { text-align: center; }
+        .hero-num .val { font-size: 2rem; font-weight: 900; display: block; }
+        .hero-num .val.red { color: #ff6b6b; }
+        .hero-num .val.green { color: #69db7c; }
+        .hero-num .val.white { color: #fff; }
+        .hero-num .val.amber { color: #ffd43b; }
+        .hero-num .lbl { font-size: 0.68rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px; }
+
+        .nav { background: var(--card); border-bottom: 1px solid #e0e0e0; display: flex; justify-content: center; gap: 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .nav button { background: none; border: none; padding: 1rem 1.75rem; font-size: 0.78rem; font-weight: 700; color: var(--gray); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+        .nav button:hover { color: var(--blue); }
+        .nav button.active { color: var(--blue); border-bottom-color: var(--blue); }
+        .nav button .q-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #eef6ff; color: var(--blue); font-size: 0.65rem; font-weight: 800; }
+        .nav button.active .q-num { background: var(--blue); color: #fff; }
+        .nav-back { position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 0.75rem; font-weight: 700; color: var(--gray); text-decoration: none; padding: 0.4rem 0.75rem; border-radius: 6px; transition: all 0.2s; }
+        .nav-back:hover { color: var(--blue); background: #f0f7ff; }
+
+        .container { max-width: 1180px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .q-banner { background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%); border: 1px solid #d4e5f7; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 2rem; }
+        .q-banner .q-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--blue); margin-bottom: 0.25rem; }
+        .q-banner h2 { font-size: 1.2rem; font-weight: 800; color: var(--navy); }
+
+        .card { background: var(--card); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; margin-bottom: 1.5rem; }
+        .card h3 { font-size: 0.85rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; }
+
+        .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .tile { background: var(--card); border-radius: 10px; padding: 1.25rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; position: relative; overflow: hidden; }
+        .tile::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .tile.t-red::before { background: var(--red); }
+        .tile.t-green::before { background: var(--green); }
+        .tile.t-orange::before { background: var(--orange); }
+        .tile.t-blue::before { background: var(--blue); }
+        .tile.t-purple::before { background: var(--purple); }
+        .tile .t-val { font-size: 1.5rem; font-weight: 900; color: var(--navy); }
+        .tile .t-lbl { font-size: 0.65rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 4px; }
+        .tile .t-sub { font-size: 0.7rem; color: var(--gray); margin-top: 2px; }
+
+        .insight { border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex; gap: 1rem; align-items: flex-start; }
+        .insight.i-red { background: #fff5f5; border: 1px solid #ffd5d5; }
+        .insight.i-green { background: #f0fff4; border: 1px solid #c3e6cb; }
+        .insight.i-blue { background: #f0f7ff; border: 1px solid #c8dff7; }
+        .insight.i-orange { background: #fff8f0; border: 1px solid #fde2c8; }
+        .insight.i-purple { background: #f8f4ff; border: 1px solid #e0d4f5; }
+        .insight .i-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+        .insight.i-red .i-icon { background: #ffeaea; }
+        .insight.i-green .i-icon { background: #e6f9eb; }
+        .insight.i-blue .i-icon { background: #e3f0ff; }
+        .insight.i-orange .i-icon { background: #fff0e0; }
+        .insight.i-purple .i-icon { background: #f0e8ff; }
+        .insight .i-text { flex: 1; }
+        .insight .i-title { font-size: 0.78rem; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+        .insight .i-body { font-size: 0.72rem; color: #444; line-height: 1.5; }
+
+        .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .chart-box { background: var(--card); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; }
+        .chart-box h4 { font-size: 0.72rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.3px; }
+        .chart-box canvas { max-height: 260px; }
+
+        .tbl { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+        .tbl th { background: #f8f9fa; padding: 0.75rem 1rem; text-align: left; font-weight: 700; color: var(--navy); border-bottom: 2px solid #e0e0e0; text-transform: uppercase; font-size: 0.62rem; letter-spacing: 0.3px; }
+        .tbl td { padding: 0.75rem 1rem; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+        .tbl tr:hover td { background: #f8fbff; }
+        .tbl a { color: var(--blue); text-decoration: none; font-weight: 600; }
+        .tbl a:hover { text-decoration: underline; }
+
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+        .badge-red { background: #ffeaea; color: var(--red); }
+        .badge-orange { background: #fff3e0; color: #e65100; }
+        .badge-green { background: #e8f5e9; color: var(--green); }
+        .badge-blue { background: #e3f2fd; color: var(--blue); }
+        .badge-purple { background: #f3e8ff; color: var(--purple); }
+        .badge-gray { background: #f0f0f0; color: #666; }
+
+        .amt-red { color: var(--red); font-weight: 800; }
+        .amt-green { color: var(--green); font-weight: 700; }
+        .amt-gray { color: #999; font-weight: 600; }
+        .amt-blue { color: var(--blue); font-weight: 700; }
+
+        .tag-rcg { background: #eaf5fe; color: #0176d3; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; }
+        .tag-mae { background: #ede7f6; color: #7e57c2; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; }
+        .tag-cmrcl { background: #fff8e6; color: #946f00; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; }
+
+        .table-divider { margin: 2rem 0 1rem; padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.72rem; font-weight: 700; }
+        .table-divider.closed { background: #f8f9fa; border: 1px solid #e0e0e0; color: var(--gray); }
+        .table-divider.open { background: #e8f5e9; border: 1px solid #c3e6cb; color: var(--green); }
+
+        .footer { text-align: center; padding: 3rem 2rem; font-size: 0.65rem; color: #aaa; }
+
+        @media (max-width: 768px) {
+            .chart-row { grid-template-columns: 1fr; }
+            .tiles { grid-template-columns: 1fr 1fr; }
+            .hero-grid { gap: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <h1>Marketing Cloud — Attrition Analysis</h1>
+    <div class="meta">June FY27 (Jun 1–30, 2026) · AMER PACE · Opportunities &ge;$100K Attrition</div>
+    <div class="hero-grid">
+        <div class="hero-num"><span class="val red">$6.25M</span><div class="lbl">Total Attrition</div></div>
+        <div class="hero-num"><span class="val white">13</span><div class="lbl">Accounts</div></div>
+        <div class="hero-num"><span class="val red">6</span><div class="lbl">Closed / Lost</div></div>
+        <div class="hero-num"><span class="val amber">7</span><div class="lbl">Still in Play</div></div>
+        <div class="hero-num"><span class="val green">1</span><div class="lbl">Actionable (Swing&gt;$0)</div></div>
+    </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+    <a href="index.html" class="nav-back">&larr; Home</a>
+    <button class="active" onclick="showTab(0)"><span class="q-num">1</span> How Much Taken</button>
+    <button onclick="showTab(1)"><span class="q-num">2</span> What Was Saved</button>
+    <button onclick="showTab(2)"><span class="q-num">3</span> Where Are the Gaps</button>
+    <button onclick="showTab(3)"><span class="q-num">4</span> Emerging Patterns</button>
+</div>
+
+<div class="container">
+
+<!-- TAB 1: HOW MUCH TAKEN -->
+<div class="section active" id="tab0">
+    <div class="q-banner">
+        <div class="q-label">Question 1</div>
+        <h2>How much attrition was taken in Marketing Cloud for June FY27?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-red">
+            <div class="t-val">$6.25M</div>
+            <div class="t-lbl">Total Attrition at Risk</div>
+            <div class="t-sub">13 accounts</div>
+        </div>
+        <div class="tile t-red">
+            <div class="t-val">$1.65M</div>
+            <div class="t-lbl">Confirmed Lost</div>
+            <div class="t-sub">6 accounts — closed</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-val">$4.60M</div>
+            <div class="t-lbl">Still in Play</div>
+            <div class="t-sub">7 accounts — open pipeline</div>
+        </div>
+        <div class="tile t-green">
+            <div class="t-val">$200K</div>
+            <div class="t-lbl">Actionable (Swing&gt;$0)</div>
+            <div class="t-sub">1 account — Sysco</div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box">
+            <h4>Closed vs Still in Play</h4>
+            <canvas id="chart-split"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>Area Breakdown (All 13)</h4>
+            <canvas id="chart-area"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box" style="grid-column: span 2;">
+            <h4>Top Accounts — Highest Attrition</h4>
+            <canvas id="chart-top"></canvas>
+        </div>
+    </div>
+
+    <div class="insight i-red">
+        <div class="i-icon">&#9888;</div>
+        <div class="i-text">
+            <div class="i-title">Summit Health (AfterCare) leads at $1.89M — still in play</div>
+            <div class="i-body">The largest single exposure this month is Summit Health Management LLC (AfterCare) at $1.89M, still in 02 Negotiate with no CSG Notes. Combined with a second Summit record ($442K), this parent account carries $2.33M in MC attrition risk.</div>
+        </div>
+    </div>
+
+    <div class="insight i-orange">
+        <div class="i-icon">&#9733;</div>
+        <div class="i-text">
+            <div class="i-title">RCG dominates: 7 accounts, $3.98M (64% of total)</div>
+            <div class="i-body">RCG carries the majority of MC attrition this month, driven by Summit Health (2 records), Ariat, Village Practice, 800-Flowers, Fanatics, and David Yurman. CMRCL adds $1.07M across 5 accounts, and MAE has a single actionable deal (Sysco, $200K).</div>
+        </div>
+    </div>
+
+    <!-- CLOSED / LOST TABLE -->
+    <div class="table-divider closed">Closed / Lost — 6 accounts, $1.65M confirmed attrition</div>
+    <div class="card">
+        <h3>Confirmed Losses — Already Closed</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>#</th><th>Account</th><th>Area</th><th>Renewed</th><th>Attrition</th><th>Swing</th><th>Outcome</th><th>Type</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EB04gAAD/view" target="_blank"><strong>800-Flowers Inc. (Marketing &amp; Slack)</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-green">$2,093,295</td><td class="amt-red">$646,378</td><td class="amt-gray">—</td><td><span class="badge badge-orange">Partial</span></td><td>Renewal</td></tr>
+                    <tr><td>2</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XiQLAA0/view" target="_blank"><strong>Winston Brands Incorporated</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-gray">$0</td><td class="amt-red">$263,950</td><td class="amt-gray">—</td><td><span class="badge badge-red">Logo Loss</span></td><td>Renewal</td></tr>
+                    <tr><td>3</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019YBvuAAG/view" target="_blank"><strong>American Musical Supply Inc</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-gray">$0</td><td class="amt-red">$237,773</td><td class="amt-gray">—</td><td><span class="badge badge-red">Logo Loss</span></td><td>Renewal</td></tr>
+                    <tr><td>4</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XWJTAA4/view" target="_blank"><strong>Fanatics Holdings Inc.</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-green">$566,214</td><td class="amt-red">$228,521</td><td class="amt-gray">—</td><td><span class="badge badge-orange">Partial</span></td><td>Renewal</td></tr>
+                    <tr><td>5</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FrpN8AAJ/view" target="_blank"><strong>Hale Products</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-green">$3,960</td><td class="amt-red">$172,858</td><td class="amt-gray">—</td><td><span class="badge badge-orange">Partial</span></td><td>Renewal</td></tr>
+                    <tr><td>6</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000F2aGTAAZ/view" target="_blank"><strong>NHS U.S. LLC</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-green">$795,602</td><td class="amt-red">$104,327</td><td class="amt-gray">—</td><td><span class="badge badge-orange">Partial</span></td><td>Renewal</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- STILL IN PLAY TABLE -->
+    <div class="table-divider open">Still in Play — 7 accounts, $4.60M attrition at risk</div>
+    <div class="card">
+        <h3>Open Pipeline — Outcome Pending</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>#</th><th>Account</th><th>Area</th><th>Attrition at Risk</th><th>Swing</th><th>Stage</th><th>Context</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000d4SgoAAE/view" target="_blank"><strong>Summit Health Management LLC (AfterCare)</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$1,885,668</td><td class="amt-gray">—</td><td><span class="badge badge-blue">02 Negotiate</span></td><td>Low Perceived ROI; no CSG Notes</td></tr>
+                    <tr><td>2</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000G5uefAAB/view" target="_blank"><strong>Ariat International Inc.</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$908,746</td><td class="amt-gray">—</td><td><span class="badge badge-blue">04 Pending</span></td><td>#LicPartialAttrit; will fully attrit MCE; #RFP active</td></tr>
+                    <tr><td>3</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000d4fFpAAI/view" target="_blank"><strong>Village Practice Management Company LLC</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$627,759</td><td class="amt-gray">—</td><td><span class="badge badge-blue">02 Negotiate</span></td><td>Low Perceived ROI; no CSG Notes</td></tr>
+                    <tr><td>4</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000d4QALAA2/view" target="_blank"><strong>Summit Health Management LLC</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$441,688</td><td class="amt-gray">—</td><td><span class="badge badge-blue">02 Negotiate</span></td><td>Low Perceived ROI; no CSG Notes</td></tr>
+                    <tr><td>5</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000XHflJAAT/view" target="_blank"><strong>Blink Charging</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$400,000</td><td class="amt-gray">—</td><td><span class="badge badge-blue">02 Negotiate</span></td><td>#LicFullAttrit — overbought; Off-Cycle Restructure</td></tr>
+                    <tr><td>6</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019RauTAAS/view" target="_blank"><strong>Sysco Corporation</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-red">$200,000</td><td class="amt-green">$200,000</td><td><span class="badge badge-blue">01 Initiate</span></td><td>#LicPartialAttrit #NoSigRisk; est.300k MCP attrition</td></tr>
+                    <tr><td>7</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004u1dRAAQ/view" target="_blank"><strong>David Yurman Enterprises LLC - 2nd Org</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$136,740</td><td class="amt-gray">—</td><td><span class="badge badge-blue">02 - Determining Problem Impact Ideal</span></td><td>No reason given; no CSG Notes</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 2: WHAT WAS SAVED -->
+<div class="section" id="tab1">
+    <div class="q-banner">
+        <div class="q-label">Question 2</div>
+        <h2>How much was saved &amp; which programs were deployed?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-green">
+            <div class="t-val">$200K</div>
+            <div class="t-lbl">Actionable (Swing &gt; $0)</div>
+            <div class="t-sub">Sysco — intervention possible</div>
+        </div>
+        <div class="tile t-blue">
+            <div class="t-val">1</div>
+            <div class="t-lbl">Program Deployed</div>
+            <div class="t-sub">#RFP on Ariat</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-val">92%</div>
+            <div class="t-lbl">No Program Deployed</div>
+            <div class="t-sub">12 of 13 accounts</div>
+        </div>
+    </div>
+
+    <div class="insight i-blue">
+        <div class="i-icon">&#128270;</div>
+        <div class="i-text">
+            <div class="i-title">Ariat: #RFP deployed — $909K at risk, still in 04 Pending</div>
+            <div class="i-body">Ariat International ($909K) is the only account with a documented save program. CSG Notes indicate #LicPartialAttrit with plans to fully attrit MCE. The #RFP is active but outcome is not yet determined.</div>
+        </div>
+    </div>
+
+    <div class="insight i-green">
+        <div class="i-icon">&#9733;</div>
+        <div class="i-text">
+            <div class="i-title">Sysco: $200K actionable — only deal with Swing &gt; $0</div>
+            <div class="i-body">Sysco ($200K) has confirmed actionable attrition with #LicPartialAttrit and #NoSigRisk documented. Estimated 300K MCP attrition noted. This is the only deal where leadership has confirmed something is still saveable.</div>
+        </div>
+    </div>
+
+    <div class="insight i-red">
+        <div class="i-icon">&#9888;</div>
+        <div class="i-text">
+            <div class="i-title">12 of 13 accounts (92%) have no save program deployed</div>
+            <div class="i-body">Only Ariat has a documented program hashtag. The remaining accounts — including Summit Health ($2.33M combined) and Village Practice ($628K) — have no offensive play in CSG Notes.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Program Hashtag Summary</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Program</th><th>Accounts</th><th>$ at Risk</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>#RFP (Competitive Response)</td><td>1</td><td>$908,746</td><td><span class="badge badge-blue">Active</span></td></tr>
+                <tr><td>#ARI (At-Risk Intervention)</td><td>0</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#SWAP (Product Swap)</td><td>0</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#SIGTRIAL (Signature Trial)</td><td>0</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#SWE (Strategic Win Engagement)</td><td>0</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#IMPLEMENT</td><td>0</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#ADOPT</td><td>0</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#REVIVE</td><td>0</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- TAB 3: WHERE ARE THE GAPS -->
+<div class="section" id="tab2">
+    <div class="q-banner">
+        <div class="q-label">Question 3</div>
+        <h2>Where are the gaps in coverage and documentation?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-red">
+            <div class="t-val">5 / 13</div>
+            <div class="t-lbl">No CSG Notes</div>
+            <div class="t-sub">38% of accounts — completely silent</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-val">2</div>
+            <div class="t-lbl">Invalid Hashtags</div>
+            <div class="t-sub">#FullAttrit (Blink, Winston)</div>
+        </div>
+        <div class="tile t-purple">
+            <div class="t-val">$3.49M</div>
+            <div class="t-lbl">Silent Pipeline</div>
+            <div class="t-sub">3 open deals with no notes</div>
+        </div>
+    </div>
+
+    <div class="insight i-red">
+        <div class="i-icon">&#128683;</div>
+        <div class="i-text">
+            <div class="i-title">Summit Health ($2.33M combined) + Village Practice ($628K) have zero documentation</div>
+            <div class="i-body">Three of the largest open pipeline deals — Summit AfterCare ($1.89M), Summit ($442K), and Village Practice ($628K) — are all in 02 Negotiate with no CSG Notes. This represents $2.96M in undocumented pipeline risk closing 6/29.</div>
+        </div>
+    </div>
+
+    <div class="insight i-orange">
+        <div class="i-icon">&#128196;</div>
+        <div class="i-text">
+            <div class="i-title">Invalid hashtag: #FullAttrit used on Blink Charging and Winston Brands</div>
+            <div class="i-body">#FullAttrit is not a valid PACE hashtag. The correct tag is #LicFullAttrit. Both Blink Charging and Winston Brands use this invalid variant in their CSG Notes. Winston also references it alongside the correct #LicFullAttrit.</div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box">
+            <h4>Gap Composition</h4>
+            <canvas id="chart-gaps"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>Engagement Funnel</h4>
+            <canvas id="chart-funnel"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Engagement Funnel</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Level</th><th>Accounts</th><th>%</th><th>Attrition $</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Total Accounts</td><td>13</td><td>100%</td><td>$6,254,407</td></tr>
+                <tr><td>Has CSG Notes</td><td>8</td><td>62%</td><td>$3,286,016</td></tr>
+                <tr><td>Has Program Hashtag</td><td>1</td><td>8%</td><td>$908,746</td></tr>
+                <tr><td>Actionable (Swing &gt; $0)</td><td>1</td><td>8%</td><td>$200,000</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Silent Accounts — No CSG Notes</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>#</th><th>Account</th><th>Area</th><th>Attrition</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000d4SgoAAE/view" target="_blank">Summit Health Management LLC (AfterCare)</a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$1,885,668</td><td><span class="badge badge-orange">Still in Play</span></td></tr>
+                <tr><td>2</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000d4fFpAAI/view" target="_blank">Village Practice Management Company LLC</a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$627,759</td><td><span class="badge badge-orange">Still in Play</span></td></tr>
+                <tr><td>3</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000d4QALAA2/view" target="_blank">Summit Health Management LLC</a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$441,688</td><td><span class="badge badge-orange">Still in Play</span></td></tr>
+                <tr><td>4</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019YBvuAAG/view" target="_blank">American Musical Supply Inc</a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$237,773</td><td><span class="badge badge-red">Closed/Lost</span></td></tr>
+                <tr><td>5</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000FrpN8AAJ/view" target="_blank">Hale Products</a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$172,858</td><td><span class="badge badge-red">Closed/Lost</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Open Pipeline — No Documentation (Urgent)</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>#</th><th>Account</th><th>Area</th><th>Attrition at Risk</th><th>Stage</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000d4SgoAAE/view" target="_blank">Summit Health Management LLC (AfterCare)</a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$1,885,668</td><td>02 Negotiate</td></tr>
+                <tr><td>2</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000d4fFpAAI/view" target="_blank">Village Practice Management Company LLC</a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$627,759</td><td>02 Negotiate</td></tr>
+                <tr><td>3</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000d4QALAA2/view" target="_blank">Summit Health Management LLC</a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$441,688</td><td>02 Negotiate</td></tr>
+                <tr><td>4</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed000004u1dRAAQ/view" target="_blank">David Yurman Enterprises LLC - 2nd Org</a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$136,740</td><td>02 - Determining Problem Impact Ideal</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- TAB 4: EMERGING PATTERNS -->
+<div class="section" id="tab3">
+    <div class="q-banner">
+        <div class="q-label">Question 4</div>
+        <h2>What patterns are emerging?</h2>
+    </div>
+
+    <div class="insight i-blue">
+        <div class="i-icon">1</div>
+        <div class="i-text">
+            <div class="i-title">Financial &amp; Contractual dominates — 5 accounts, $3.39M (54%)</div>
+            <div class="i-body">Low Perceived ROI is the leading specific reason with 4 accounts (Summit AfterCare, Village Practice, Summit, and Dissatisfaction with Price Uplift on American Musical). This signals a pricing/value perception challenge across the MC portfolio.</div>
+        </div>
+    </div>
+
+    <div class="insight i-orange">
+        <div class="i-icon">2</div>
+        <div class="i-text">
+            <div class="i-title">Business Change &amp; Distress: 3 accounts, $810K</div>
+            <div class="i-body">Ariat ($909K, Business Direction Change), Winston Brands ($264K, Out of Business/Bankruptcy), and NHS ($104K, Business Direction Change). Two of these are confirmed losses — structural departures that may not have been saveable.</div>
+        </div>
+    </div>
+
+    <div class="insight i-purple">
+        <div class="i-icon">3</div>
+        <div class="i-text">
+            <div class="i-title">Competitor identified: Klaviyo displacing NHS ($104K)</div>
+            <div class="i-body">NHS U.S. LLC confirmed moving to Klaviyo in CSG Notes. This is a direct Marketing Cloud competitive loss. Klaviyo targets mid-market e-commerce — watch for this pattern in CMRCL and smaller RCG accounts.</div>
+        </div>
+    </div>
+
+    <div class="insight i-green">
+        <div class="i-icon">4</div>
+        <div class="i-text">
+            <div class="i-title">Customer Relationship issues driving 2 large accounts ($1.05M)</div>
+            <div class="i-body">800-Flowers ($646K, Lack of Executive Sponsorship) and Blink Charging ($400K, Product-Market Fit Mismatch/Oversold). These represent relationship management failures where the product itself isn't the issue.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Attrition by Reason Category (All 13 Accounts)</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>Reason</th><th>Accounts</th><th>Attrition $</th><th>% of Total</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Financial &amp; Contractual</td><td>5</td><td>$3,393,438</td><td>54%</td></tr>
+                    <tr><td>Customer Relationship</td><td>2</td><td>$1,046,378</td><td>17%</td></tr>
+                    <tr><td>Business Change &amp; Distress</td><td>3</td><td>$810,016</td><td>13%</td></tr>
+                    <tr><td>Success Plan &amp; Support</td><td>1</td><td>$228,521</td><td>4%</td></tr>
+                    <tr><td>Adoption</td><td>1</td><td>$200,000</td><td>3%</td></tr>
+                    <tr><td>Product</td><td>1</td><td>$172,858</td><td>3%</td></tr>
+                    <tr><td>Unspecified / None</td><td>1</td><td>$136,740</td><td>2%</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box">
+            <h4>Attrition Reason Breakdown</h4>
+            <canvas id="chart-reasons"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>Area Distribution</h4>
+            <canvas id="chart-area2"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Competitor Mentions</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Competitor</th><th>Account</th><th>Attrition</th><th>Source</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><span class="badge badge-red">Klaviyo</span></td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000F2aGTAAZ/view" target="_blank">NHS U.S. LLC</a></td><td class="amt-red">$104,327</td><td>CSG Notes: "customer moving to Klaviyo"</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Leadership Action Summary</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Action</th><th>Priority</th><th>Detail</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Document Summit Health ($2.33M combined, no notes)</td><td><span class="badge badge-red">Critical</span></td><td>Two records totaling $2.33M in 02 Negotiate with close date 6/29 — zero documentation. Immediate CSAL engagement needed.</td></tr>
+                <tr><td>Document Village Practice ($628K, no notes)</td><td><span class="badge badge-red">Critical</span></td><td>$628K in 02 Negotiate closing 6/29 with no CSG Notes. Need visibility into what's happening.</td></tr>
+                <tr><td>Support Ariat #RFP ($909K, active)</td><td><span class="badge badge-orange">Medium</span></td><td>Active competitive response in 04 Pending. Only deal with a documented save program.</td></tr>
+                <tr><td>Monitor Sysco ($200K, only actionable deal)</td><td><span class="badge badge-green">Track</span></td><td>Only deal with Swing &gt; $0. Documented with #LicPartialAttrit and #NoSigRisk.</td></tr>
+                <tr><td>Address Low Perceived ROI pattern</td><td><span class="badge badge-orange">Medium</span></td><td>4 accounts cite Low Perceived ROI — signals systemic value perception issue for MC in healthcare/medical verticals.</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+    PACE Attrition Analysis · Marketing Cloud · June FY27 · Generated from Org62 SOQL · AMER PACE Territory · 13 records
+</div>
+
+<script>
+function showTab(idx) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab' + idx).classList.add('active');
+    document.querySelectorAll('.nav button')[idx].classList.add('active');
+}
+
+const RED = '#ea001e', ORANGE = '#fe9339', GREEN = '#2e844a', BLUE = '#0176d3', PURPLE = '#7e57c2', GRAY = '#706e6b', TEAL = '#06a59a';
+
+// Chart: Closed vs Still in Play
+new Chart(document.getElementById('chart-split'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Closed / Lost ($1.65M)', 'Still in Play ($4.60M)'],
+        datasets: [{
+            data: [1653807, 4600601],
+            backgroundColor: [RED, ORANGE],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+
+// Chart: Area Breakdown
+new Chart(document.getElementById('chart-area'), {
+    type: 'doughnut',
+    data: {
+        labels: ['RCG ($3.98M, 7 accts)', 'CMRCL ($1.07M, 5 accts)', 'MAE ($200K, 1 acct)'],
+        datasets: [{
+            data: [3979827, 1074581, 200000],
+            backgroundColor: [BLUE, ORANGE, PURPLE],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+
+// Chart: Top Accounts
+new Chart(document.getElementById('chart-top'), {
+    type: 'bar',
+    data: {
+        labels: ['Summit (AfterCare)', 'Ariat', '800-Flowers', 'Village Practice', 'Summit', 'Blink Charging', 'Winston Brands', 'American Musical', 'Fanatics', 'Sysco', 'Hale Products', 'David Yurman', 'NHS'],
+        datasets: [{
+            data: [1885668, 908746, 646378, 627759, 441688, 400000, 263950, 237773, 228521, 200000, 172858, 136740, 104327],
+            backgroundColor: [ORANGE, ORANGE, RED, ORANGE, ORANGE, ORANGE, RED, RED, RED, GREEN, RED, ORANGE, RED],
+            barPercentage: 0.6,
+            categoryPercentage: 0.85
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { callback: v => '$' + (v/1000000).toFixed(1) + 'M' } }
+        }
+    }
+});
+
+// Chart: Gap Composition
+new Chart(document.getElementById('chart-gaps'), {
+    type: 'doughnut',
+    data: {
+        labels: ['No Notes ($2.97M)', 'Notes, No Program ($2.38M)', 'Has Program ($909K)'],
+        datasets: [{
+            data: [2968391, 2377270, 908746],
+            backgroundColor: [RED, ORANGE, GREEN],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } }
+});
+
+// Chart: Engagement Funnel
+new Chart(document.getElementById('chart-funnel'), {
+    type: 'bar',
+    data: {
+        labels: ['Total Accounts', 'Has CSG Notes', 'Has Program', 'Actionable (Swing>$0)'],
+        datasets: [{
+            data: [13, 8, 1, 1],
+            backgroundColor: [GRAY, BLUE, GREEN, '#45c65a'],
+            barPercentage: 0.6,
+            categoryPercentage: 0.85
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 2 } } }
+    }
+});
+
+// Chart: Reasons
+new Chart(document.getElementById('chart-reasons'), {
+    type: 'bar',
+    data: {
+        labels: ['Financial & Contractual', 'Customer Relationship', 'Business Change', 'Success Plan', 'Adoption', 'Product', 'Unspecified'],
+        datasets: [{
+            data: [3393438, 1046378, 810016, 228521, 200000, 172858, 136740],
+            backgroundColor: [RED, ORANGE, PURPLE, BLUE, TEAL, GREEN, GRAY],
+            barPercentage: 0.6,
+            categoryPercentage: 0.85
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { callback: v => '$' + (v/1000000).toFixed(1) + 'M' } }
+        }
+    }
+});
+
+// Chart: Area Distribution
+new Chart(document.getElementById('chart-area2'), {
+    type: 'doughnut',
+    data: {
+        labels: ['RCG (7 accts)', 'CMRCL (5 accts)', 'MAE (1 acct)'],
+        datasets: [{
+            data: [7, 5, 1],
+            backgroundColor: [BLUE, ORANGE, PURPLE],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+</script>
+
+</body>
+</html>

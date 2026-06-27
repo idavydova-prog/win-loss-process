@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PACE Attrition Analysis — Core May FY27</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --navy: #032d60;
+            --dark: #001639;
+            --blue: #0176d3;
+            --blue-light: #1b96ff;
+            --red: #ea001e;
+            --red-soft: #ff5d5d;
+            --orange: #fe9339;
+            --green: #2e844a;
+            --green-light: #45c65a;
+            --purple: #7e57c2;
+            --teal: #06a59a;
+            --gray: #706e6b;
+            --bg: #f3f3f3;
+            --card: #ffffff;
+            --shadow: 0 2px 12px rgba(3,45,96,0.08);
+            --shadow-lg: 0 8px 32px rgba(3,45,96,0.12);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: #181818;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--dark) 0%, #1b5e20 40%, #2e844a 100%);
+            color: #fff;
+            padding: 3rem 2rem 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(46,132,74,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.25rem; }
+        .header .meta { font-size: 0.8rem; opacity: 0.6; margin-bottom: 2rem; }
+
+        .hero-grid { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; }
+        .hero-num { text-align: center; }
+        .hero-num .val { font-size: 2rem; font-weight: 900; display: block; }
+        .hero-num .val.red { color: #ff6b6b; }
+        .hero-num .val.green { color: #69db7c; }
+        .hero-num .val.white { color: #fff; }
+        .hero-num .val.amber { color: #ffd43b; }
+        .hero-num .lbl { font-size: 0.68rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px; }
+
+        .nav { background: var(--card); border-bottom: 1px solid #e0e0e0; display: flex; justify-content: center; gap: 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .nav button { background: none; border: none; padding: 1rem 1.75rem; font-size: 0.78rem; font-weight: 700; color: var(--gray); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+        .nav button:hover { color: var(--green); }
+        .nav button.active { color: var(--green); border-bottom-color: var(--green); }
+        .nav button .q-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #e8f5e9; color: var(--green); font-size: 0.65rem; font-weight: 800; }
+        .nav button.active .q-num { background: var(--green); color: #fff; }
+        .nav-back { position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 0.75rem; font-weight: 700; color: var(--gray); text-decoration: none; padding: 0.4rem 0.75rem; border-radius: 6px; transition: all 0.2s; }
+        .nav-back:hover { color: var(--green); background: #f0fff4; }
+
+        .container { max-width: 1180px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .q-banner { background: linear-gradient(135deg, #f5fff8 0%, #e8f5e9 100%); border: 1px solid #c3e6cb; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 2rem; }
+        .q-banner .q-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--green); margin-bottom: 0.25rem; }
+        .q-banner h2 { font-size: 1.2rem; font-weight: 800; color: var(--navy); }
+
+        .card { background: var(--card); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; margin-bottom: 1.5rem; }
+        .card h3 { font-size: 0.85rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; }
+
+        .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .tile { background: var(--card); border-radius: 10px; padding: 1.25rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; position: relative; overflow: hidden; }
+        .tile::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .tile.t-red::before { background: var(--red); }
+        .tile.t-green::before { background: var(--green); }
+        .tile.t-orange::before { background: var(--orange); }
+        .tile.t-blue::before { background: var(--blue); }
+        .tile.t-purple::before { background: var(--purple); }
+        .tile .t-val { font-size: 1.5rem; font-weight: 900; color: var(--navy); }
+        .tile .t-lbl { font-size: 0.65rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 4px; }
+        .tile .t-sub { font-size: 0.7rem; color: var(--gray); margin-top: 2px; }
+
+        .insight { border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex; gap: 1rem; align-items: flex-start; }
+        .insight.i-red { background: #fff5f5; border: 1px solid #ffd5d5; }
+        .insight.i-green { background: #f0fff4; border: 1px solid #c3e6cb; }
+        .insight.i-blue { background: #f0f7ff; border: 1px solid #c8dff7; }
+        .insight.i-orange { background: #fff8f0; border: 1px solid #fde2c8; }
+        .insight.i-purple { background: #f8f4ff; border: 1px solid #e0d4f5; }
+        .insight .i-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+        .insight.i-red .i-icon { background: #ffeaea; }
+        .insight.i-green .i-icon { background: #e6f9eb; }
+        .insight.i-blue .i-icon { background: #e3f0ff; }
+        .insight.i-orange .i-icon { background: #fff0e0; }
+        .insight.i-purple .i-icon { background: #f0e8ff; }
+        .insight .i-text { flex: 1; }
+        .insight .i-title { font-size: 0.78rem; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+        .insight .i-body { font-size: 0.72rem; color: #444; line-height: 1.5; }
+
+        .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .chart-box { background: var(--card); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; }
+        .chart-box h4 { font-size: 0.72rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.3px; }
+        .chart-box canvas { max-height: 260px; }
+
+        .tbl { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+        .tbl th { background: #f8f9fa; padding: 0.75rem 1rem; text-align: left; font-weight: 700; color: var(--navy); border-bottom: 2px solid #e0e0e0; text-transform: uppercase; font-size: 0.62rem; letter-spacing: 0.3px; }
+        .tbl td { padding: 0.75rem 1rem; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+        .tbl tr:hover td { background: #f8fbff; }
+        .tbl a { color: var(--blue); text-decoration: none; font-weight: 600; }
+        .tbl a:hover { text-decoration: underline; }
+
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+        .badge-red { background: #ffeaea; color: var(--red); }
+        .badge-orange { background: #fff3e0; color: #e65100; }
+        .badge-green { background: #e8f5e9; color: var(--green); }
+        .badge-blue { background: #e3f2fd; color: var(--blue); }
+        .badge-purple { background: #f3e8ff; color: var(--purple); }
+        .badge-gray { background: #f0f0f0; color: #666; }
+
+        .amt-red { color: var(--red); font-weight: 800; }
+        .amt-green { color: var(--green); font-weight: 700; }
+        .amt-gray { color: #999; font-weight: 600; }
+
+        .program-card { border: 1px solid #e0e0e0; border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; }
+        .program-card h4 { font-size: 0.78rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem; }
+        .program-card .p-desc { font-size: 0.7rem; color: #555; }
+
+        .gap-bar { height: 8px; border-radius: 4px; background: #eee; margin: 0.5rem 0; overflow: hidden; }
+        .gap-bar .fill { height: 100%; border-radius: 4px; }
+        .gap-bar .fill-red { background: var(--red); }
+        .gap-bar .fill-orange { background: var(--orange); }
+        .gap-bar .fill-blue { background: var(--blue); }
+
+        .tag-rcg { background: #eaf5fe; color: #0176d3; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; }
+        .tag-mae { background: #ede7f6; color: #7e57c2; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; }
+        .tag-cmrcl { background: #fff8e6; color: #946f00; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; }
+
+        .footer { text-align: center; padding: 3rem 2rem; font-size: 0.65rem; color: #aaa; }
+
+        @media (max-width: 768px) {
+            .chart-row { grid-template-columns: 1fr; }
+            .tiles { grid-template-columns: 1fr 1fr; }
+            .hero-grid { gap: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <h1>Core Cloud — Attrition Analysis</h1>
+    <div class="meta">May FY27 (May 1–31, 2026) · AMER PACE · Opportunities &ge;$100K Attrition</div>
+    <div class="hero-grid">
+        <div class="hero-num"><span class="val red">$10.41M</span><div class="lbl">Total Attrition</div></div>
+        <div class="hero-num"><span class="val white">19</span><div class="lbl">Accounts</div></div>
+        <div class="hero-num"><span class="val red">19</span><div class="lbl">Closed / Lost</div></div>
+        <div class="hero-num"><span class="val amber">0</span><div class="lbl">Still in Play</div></div>
+        <div class="hero-num"><span class="val green">0</span><div class="lbl">Actionable (Swing&gt;$0)</div></div>
+    </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+    <a href="index.html" class="nav-back">&larr; Home</a>
+    <button class="active" onclick="showTab(0)"><span class="q-num">1</span> How Much Taken</button>
+    <button onclick="showTab(1)"><span class="q-num">2</span> What Was Saved</button>
+    <button onclick="showTab(2)"><span class="q-num">3</span> Where Are the Gaps</button>
+    <button onclick="showTab(3)"><span class="q-num">4</span> Emerging Patterns</button>
+</div>
+
+<div class="container">
+
+<!-- TAB 1: HOW MUCH TAKEN -->
+<div class="section active" id="tab0">
+    <div class="q-banner">
+        <div class="q-label">Question 1</div>
+        <h2>How much attrition was taken in Core Cloud for May FY27?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-red">
+            <div class="t-val">$10.41M</div>
+            <div class="t-lbl">Total Attrition</div>
+            <div class="t-sub">19 accounts</div>
+        </div>
+        <div class="tile t-red">
+            <div class="t-val">$7.78M</div>
+            <div class="t-lbl">Logo Loss (Dead)</div>
+            <div class="t-sub">12 accounts / 63%</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-val">$2.62M</div>
+            <div class="t-lbl">Partial (Retained)</div>
+            <div class="t-sub">7 accounts / 37%</div>
+        </div>
+        <div class="tile t-blue">
+            <div class="t-val">$8.87M</div>
+            <div class="t-lbl">On-Cycle (Renewal)</div>
+            <div class="t-sub">14 accounts / 74%</div>
+        </div>
+        <div class="tile t-purple">
+            <div class="t-val">$1.54M</div>
+            <div class="t-lbl">Off-Cycle (KMOD)</div>
+            <div class="t-sub">5 accounts / 26%</div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box">
+            <h4>Logo Loss vs Partial</h4>
+            <canvas id="chart-split"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>On-Cycle vs Off-Cycle</h4>
+            <canvas id="chart-cycle"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box">
+            <h4>Area Breakdown</h4>
+            <canvas id="chart-area"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>Top 10 Accounts — Highest Attrition</h4>
+            <canvas id="chart-top10"></canvas>
+        </div>
+    </div>
+
+    <div class="insight i-red">
+        <div class="i-icon">&#9888;</div>
+        <div class="i-text">
+            <div class="i-title">Shiseido drives 41% of total attrition</div>
+            <div class="i-body">Shiseido Company, Limited accounts for $4.3M — a single logo loss with no documented CSG Notes, no attrition reason given. This one account skews all monthly metrics significantly.</div>
+        </div>
+    </div>
+
+    <div class="insight i-blue">
+        <div class="i-icon">&#128200;</div>
+        <div class="i-text">
+            <div class="i-title">CMRCL leads in account count, RCG leads in dollar impact</div>
+            <div class="i-body">CMRCL has 9 accounts ($2.85M), but RCG's 6 accounts total $6.18M due to Shiseido. MAE contributed 4 accounts at $1.37M.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>All 19 Accounts — Sorted by Attrition</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>#</th><th>Account</th><th>Area</th><th>Renewed</th><th>Attrition</th><th>Swing</th><th>Outcome</th><th>Type</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XMsFAAW/view" target="_blank"><strong>Shiseido Company, Limited</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-gray">$0</td><td class="amt-red">$4,304,160</td><td class="amt-gray">—</td><td><span class="badge badge-red">Logo Loss</span></td><td>Renewal</td></tr>
+                    <tr><td>2</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE8yXAAT/view" target="_blank"><strong>84.51&deg; LLC</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-green">$83,373</td><td class="amt-red">$944,398</td><td class="amt-gray">—</td><td><span class="badge badge-orange">Partial</span></td><td>Renewal</td></tr>
+                    <tr><td>3</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000OhVAnAAN/view" target="_blank"><strong>Pine Gate Renewables</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-gray">$0</td><td class="amt-red">$717,026</td><td class="amt-gray">$0</td><td><span class="badge badge-red">Logo Loss</span></td><td>Off-Cycle Bad Debt</td></tr>
+                    <tr><td>4</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019WkEmAAK/view" target="_blank"><strong>Imperial Dade Canada Inc.</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-gray">$0</td><td class="amt-red">$664,131</td><td class="amt-gray">$0</td><td><span class="badge badge-red">Logo Loss</span></td><td>Renewal</td></tr>
+                    <tr><td>5</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EBzGEAA1/view" target="_blank"><strong>Rich Products Corporation</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-green">$61,986</td><td class="amt-red">$591,719</td><td class="amt-gray">—</td><td><span class="badge badge-orange">Partial</span></td><td>Renewal</td></tr>
+                    <tr><td>6</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019X3jfAAC/view" target="_blank"><strong>Niantic, Inc.</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-gray">$0</td><td class="amt-red">$558,720</td><td class="amt-gray">$0</td><td><span class="badge badge-red">Logo Loss</span></td><td>Renewal</td></tr>
+                    <tr><td>7</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE5sbAAD/view" target="_blank"><strong>TOTO USA, Inc.</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-green">$140,055</td><td class="amt-red">$331,559</td><td class="amt-gray">$0</td><td><span class="badge badge-orange">Partial</span></td><td>Renewal</td></tr>
+                    <tr><td>8</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000alSFRAA2/view" target="_blank"><strong>Vertex Energy</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-gray">$0</td><td class="amt-red">$310,743</td><td class="amt-gray">$0</td><td><span class="badge badge-red">Logo Loss</span></td><td>Off-Cycle Bad Debt</td></tr>
+                    <tr><td>9</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQc70AAD/view" target="_blank"><strong>The Mosaic Company Global Org</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-gray">$0</td><td class="amt-red">$300,000</td><td class="amt-gray">—</td><td><span class="badge badge-red">Logo Loss</span></td><td>Renewal</td></tr>
+                    <tr><td>10</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000D6ahFAAR/view" target="_blank"><strong>Stanley Black &amp; Decker, Inc.</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-green">$18,234</td><td class="amt-red">$262,258</td><td class="amt-gray">$0</td><td><span class="badge badge-orange">Partial</span></td><td>Renewal</td></tr>
+                    <tr><td>11</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019X0BtAAK/view" target="_blank"><strong>CECO Environmental Corp</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-gray">$0</td><td class="amt-red">$212,790</td><td class="amt-gray">—</td><td><span class="badge badge-red">Logo Loss</span></td><td>Renewal</td></tr>
+                    <tr><td>12</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EDsaQAAT/view" target="_blank"><strong>JM Family Automotive LLC - SET Org</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-green">$19,939</td><td class="amt-red">$212,366</td><td class="amt-gray">$0</td><td><span class="badge badge-orange">Partial</span></td><td>Renewal</td></tr>
+                    <tr><td>13</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000b8Wa5AAE/view" target="_blank"><strong>Micro Commercial Components Corp</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-gray">$0</td><td class="amt-red">$197,564</td><td class="amt-gray">$0</td><td><span class="badge badge-red">Logo Loss</span></td><td>Off-Cycle Restructure</td></tr>
+                    <tr><td>14</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000alODSAA2/view" target="_blank"><strong>Vertex Energy - Service Platform</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-gray">$0</td><td class="amt-red">$169,920</td><td class="amt-gray">$0</td><td><span class="badge badge-red">Logo Loss</span></td><td>Off-Cycle Bad Debt</td></tr>
+                    <tr><td>15</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Z5mawAAB/view" target="_blank"><strong>Sysco Corporation</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-green">$712,783</td><td class="amt-red">$143,739</td><td class="amt-gray">$0</td><td><span class="badge badge-orange">Partial</span></td><td>Off-Cycle Restructure</td></tr>
+                    <tr><td>16</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQe0jAAD/view" target="_blank"><strong>CSI Compressco LP (sub of Kodiak)</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-gray">$0</td><td class="amt-red">$142,201</td><td class="amt-gray">—</td><td><span class="badge badge-red">Logo Loss</span></td><td>Renewal</td></tr>
+                    <tr><td>17</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TfwYpAAJ/view" target="_blank"><strong>Abacode</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-green">$97,636</td><td class="amt-red">$138,168</td><td class="amt-gray">—</td><td><span class="badge badge-orange">Partial</span></td><td>Renewal</td></tr>
+                    <tr><td>18</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000U9wQ5AAJ/view" target="_blank"><strong>Molson Coors Beverage Company</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-gray">$0</td><td class="amt-red">$103,320</td><td class="amt-gray">—</td><td><span class="badge badge-red">Logo Loss</span></td><td>Renewal</td></tr>
+                    <tr><td>19</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DN94jAAD/view" target="_blank"><strong>7-Eleven, Inc. (MAIN)</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-gray">$0</td><td class="amt-red">$102,744</td><td class="amt-gray">—</td><td><span class="badge badge-red">Logo Loss</span></td><td>Renewal</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 2: WHAT WAS SAVED -->
+<div class="section" id="tab1">
+    <div class="q-banner">
+        <div class="q-label">Question 2</div>
+        <h2>How much was saved &amp; which programs were deployed?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-green">
+            <div class="t-val">0</div>
+            <div class="t-lbl">Confirmed Saves</div>
+            <div class="t-sub">No program hashtags found</div>
+        </div>
+        <div class="tile t-blue">
+            <div class="t-val">0</div>
+            <div class="t-lbl">Active Programs</div>
+            <div class="t-sub">No #ARI, #SWAP, #SIGTRIAL, etc.</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-val">100%</div>
+            <div class="t-lbl">No Program Deployed</div>
+            <div class="t-sub">19 of 19 accounts</div>
+        </div>
+    </div>
+
+    <div class="insight i-red">
+        <div class="i-icon">&#9888;</div>
+        <div class="i-text">
+            <div class="i-title">Zero program hashtags across all 19 accounts</div>
+            <div class="i-body">No records contain #ARI, #SWAP, #SIGTRIAL, #RFP, #REVIVE, #SWE, #IMPLEMENT, or #ADOPT in their CSG Notes. This means either no save programs were deployed, or they were deployed but not documented with the standard hashtags.</div>
+        </div>
+    </div>
+
+    <div class="insight i-blue">
+        <div class="i-icon">&#128270;</div>
+        <div class="i-text">
+            <div class="i-title">Some engagement signals exist — but no formal programs</div>
+            <div class="i-body">A few accounts show informal save activity: Rich Products mentions "AF/DC licenses courtesy extension," Stanley Black &amp; Decker mentions "offer signature swap," Imperial Dade mentions "requesting ROR." These efforts were not tagged with program hashtags.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Program Hashtag Summary</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Program</th><th>Accounts</th><th>$ at Risk</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>#ARI (At-Risk Intervention)</td><td>0</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#SWAP (Product Swap)</td><td>0</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#SIGTRIAL (Signature Trial)</td><td>0</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#RFP (Competitive Response)</td><td>0</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#REVIVE</td><td>0</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#SWE (Strategic Win Engagement)</td><td>0</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#IMPLEMENT</td><td>0</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#ADOPT</td><td>0</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Informal Save Activity (Not Tagged)</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Account</th><th>Activity Noted</th><th>Attrition</th><th>Outcome</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EBzGEAA1/view" target="_blank">Rich Products Corporation</a></td><td>AF/DC courtesy extension through Aug 2026; customer confirms Sig value but no budget</td><td class="amt-red">$591,719</td><td><span class="badge badge-orange">Partial</span></td></tr>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000D6ahFAAR/view" target="_blank">Stanley Black &amp; Decker, Inc.</a></td><td>Plan to offer signature swap and co-term with main renewal in Jan 2027</td><td class="amt-red">$262,258</td><td><span class="badge badge-orange">Partial</span></td></tr>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019WkEmAAK/view" target="_blank">Imperial Dade Canada Inc.</a></td><td>Requesting ROR; president says trust was eroded by previous team</td><td class="amt-red">$664,131</td><td><span class="badge badge-red">Logo Loss</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- TAB 3: WHERE ARE THE GAPS -->
+<div class="section" id="tab2">
+    <div class="q-banner">
+        <div class="q-label">Question 3</div>
+        <h2>Where are the gaps in coverage and documentation?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-red">
+            <div class="t-val">9 / 19</div>
+            <div class="t-lbl">No CSG Notes</div>
+            <div class="t-sub">47% of accounts — completely silent</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-val">8</div>
+            <div class="t-lbl">Silent Logo Losses</div>
+            <div class="t-sub">Dead Attrition with no documentation</div>
+        </div>
+        <div class="tile t-purple">
+            <div class="t-val">3</div>
+            <div class="t-lbl">No Attrition Reason</div>
+            <div class="t-sub">License_At_Risk_Reason__c is null</div>
+        </div>
+    </div>
+
+    <div class="insight i-red">
+        <div class="i-icon">&#128683;</div>
+        <div class="i-text">
+            <div class="i-title">8 Logo Losses with zero documentation</div>
+            <div class="i-body">These accounts left with no CSG Notes: Niantic ($559K), Vertex Energy ($311K), CECO Environmental ($213K), Micro Commercial ($198K), Vertex Energy - Service Platform ($170K), Molson Coors ($103K), 7-Eleven ($103K), and Shiseido ($4.3M). Combined: $5.96M in undocumented losses.</div>
+        </div>
+    </div>
+
+    <div class="insight i-orange">
+        <div class="i-icon">&#128196;</div>
+        <div class="i-text">
+            <div class="i-title">Notes exist but no program deployed on any account</div>
+            <div class="i-body">10 accounts have CSG Notes but none contain formal program hashtags. Even where engagement occurred (Rich Products, Stanley B&amp;D, Imperial Dade), it was not tagged with standard save programs (#ARI, #SWAP, etc.).</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Engagement Funnel</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Level</th><th>Accounts</th><th>%</th><th>Attrition $</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Total Accounts</td><td>19</td><td>100%</td><td>$10,407,526</td></tr>
+                <tr><td>Has CSG Notes</td><td>10</td><td>53%</td><td>$4,451,025</td></tr>
+                <tr><td>Has Program Hashtag</td><td>0</td><td>0%</td><td>$0</td></tr>
+                <tr><td>Confirmed Save</td><td>0</td><td>0%</td><td>$0</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Silent Losses — Dead Attrition, No CSG Notes</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>#</th><th>Account</th><th>Area</th><th>Attrition</th><th>Reason</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XMsFAAW/view" target="_blank">Shiseido Company, Limited</a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$4,304,160</td><td>Unspecified</td></tr>
+                <tr><td>2</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019X3jfAAC/view" target="_blank">Niantic, Inc.</a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$558,720</td><td>Business Change &amp; Distress</td></tr>
+                <tr><td>3</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000alSFRAA2/view" target="_blank">Vertex Energy</a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$310,743</td><td>—</td></tr>
+                <tr><td>4</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019X0BtAAK/view" target="_blank">CECO Environmental Corp</a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$212,790</td><td>Product Feature Gap</td></tr>
+                <tr><td>5</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000b8Wa5AAE/view" target="_blank">Micro Commercial Components</a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$197,564</td><td>Security Policies</td></tr>
+                <tr><td>6</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000alODSAA2/view" target="_blank">Vertex Energy - Service Platform</a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$169,920</td><td>—</td></tr>
+                <tr><td>7</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQe0jAAD/view" target="_blank">CSI Compressco LP</a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$142,201</td><td>Implementation Issue</td></tr>
+                <tr><td>8</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000U9wQ5AAJ/view" target="_blank">Molson Coors Beverage Company</a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$103,320</td><td>Limited Life Licenses</td></tr>
+                <tr><td>9</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DN94jAAD/view" target="_blank">7-Eleven, Inc. (MAIN)</a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$102,744</td><td>Unspecified</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Accounts with Invalid or Outdated Hashtags</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Account</th><th>Tag Found</th><th>Issue</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE8yXAAT/view" target="_blank">84.51&deg; LLC</a></td><td>#NoAttrit</td><td>Invalid — not a recognized PACE hashtag</td></tr>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000OhVAnAAN/view" target="_blank">Pine Gate Renewables</a></td><td>#FullAttrit</td><td>Invalid — should be #LicFullAttrit</td></tr>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000EE5sbAAD/view" target="_blank">TOTO USA, Inc.</a></td><td>#fullattrit</td><td>Invalid — wrong case and format</td></tr>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000TfwYpAAJ/view" target="_blank">Abacode</a></td><td>#PartialAttrit</td><td>Invalid — should be #LicPartialAttrit</td></tr>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DQc70AAD/view" target="_blank">The Mosaic Company</a></td><td>#Non-Actionable</td><td>Invalid — not a recognized PACE hashtag</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- TAB 4: EMERGING PATTERNS -->
+<div class="section" id="tab3">
+    <div class="q-banner">
+        <div class="q-label">Question 4</div>
+        <h2>What patterns are emerging?</h2>
+    </div>
+
+    <div class="insight i-blue">
+        <div class="i-icon">1</div>
+        <div class="i-text">
+            <div class="i-title">Business Change &amp; Distress is the dominant reason</div>
+            <div class="i-body">6 of 19 accounts (32%) cite Business Change &amp; Distress, driving $6.09M in attrition. Sub-reasons: "Product No Longer Relevant" (3), "Transfer of Users to New Org" (1), "Out of Business/Bankruptcy" (1), "Restructuring" (1).</div>
+        </div>
+    </div>
+
+    <div class="insight i-orange">
+        <div class="i-icon">2</div>
+        <div class="i-text">
+            <div class="i-title">Financial distress &amp; bankruptcy driving off-cycle losses</div>
+            <div class="i-body">All 3 Off-Cycle Bad Debt records (Pine Gate $717K, Vertex Energy $311K + $170K) stem from bankruptcy/financial distress — non-actionable by nature, but documentation is still needed for the record.</div>
+        </div>
+    </div>
+
+    <div class="insight i-purple">
+        <div class="i-icon">3</div>
+        <div class="i-text">
+            <div class="i-title">CMRCL concentration — 9 of 19 accounts</div>
+            <div class="i-body">The Commercial segment has the most attrition events (47% of accounts) but at lower dollar amounts per account ($317K avg vs. $1.03M for RCG). Many CMRCL losses are smaller companies going bankrupt or leaving for feature gaps.</div>
+        </div>
+    </div>
+
+    <div class="insight i-red">
+        <div class="i-icon">4</div>
+        <div class="i-text">
+            <div class="i-title">Logo Loss ratio is high — 63% of accounts fully left</div>
+            <div class="i-body">12 of 19 accounts are full logo losses, representing $7.78M (75% of total attrition). This is a significantly higher loss rate than partial attrition, indicating these customers are choosing to exit entirely rather than downsize.</div>
+        </div>
+    </div>
+
+    <div class="insight i-green">
+        <div class="i-icon">5</div>
+        <div class="i-text">
+            <div class="i-title">Competitive displacement in JM Family</div>
+            <div class="i-body">JM Family Automotive ($212K) is the only account with a "Switched to a Direct Competitor" reason — the only competitive loss this month. No competitor name documented.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Attrition by Reason Category</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>Reason</th><th>Accounts</th><th>Attrition $</th><th>% of Total</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Business Change &amp; Distress</td><td>6</td><td>$6,087,049</td><td>58%</td></tr>
+                    <tr><td>Unspecified / No Reason</td><td>2</td><td>$4,406,904</td><td>42%</td></tr>
+                    <tr><td>Null (not populated)</td><td>3</td><td>$624,402</td><td>6%</td></tr>
+                    <tr><td>Adoption</td><td>1</td><td>$591,719</td><td>6%</td></tr>
+                    <tr><td>Product</td><td>2</td><td>$544,349</td><td>5%</td></tr>
+                    <tr><td>Competitive</td><td>1</td><td>$212,366</td><td>2%</td></tr>
+                    <tr><td>Policy &amp; Compliance</td><td>1</td><td>$197,564</td><td>2%</td></tr>
+                    <tr><td>Implementation</td><td>1</td><td>$142,201</td><td>1%</td></tr>
+                    <tr><td>Customer Relationship</td><td>1</td><td>$664,131</td><td>6%</td></tr>
+                    <tr><td>Financial &amp; Contractual</td><td>1</td><td>$103,320</td><td>1%</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box">
+            <h4>Attrition Reason Breakdown</h4>
+            <canvas id="chart-reasons"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>Area Distribution</h4>
+            <canvas id="chart-area2"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Leadership Action Summary</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Action</th><th>Priority</th><th>Detail</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Investigate Shiseido ($4.3M)</td><td><span class="badge badge-red">Critical</span></td><td>Largest single loss with zero documentation — need ROR and root cause analysis</td></tr>
+                <tr><td>Address CSG Notes compliance gap</td><td><span class="badge badge-red">High</span></td><td>47% of accounts have no notes; 100% lack program hashtags</td></tr>
+                <tr><td>CMRCL coaching needed</td><td><span class="badge badge-orange">Medium</span></td><td>9 accounts in Commercial with minimal documentation — coaching opportunity</td></tr>
+                <tr><td>Validate "non-actionable" claims</td><td><span class="badge badge-blue">Info</span></td><td>Mosaic ($300K) and TOTO ($332K) are labeled non-actionable — confirm with CSALs</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+    PACE Attrition Analysis · Core Cloud · May FY27 · Generated from Org62 SOQL · AMER PACE Territory
+</div>
+
+<script>
+function showTab(idx) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab' + idx).classList.add('active');
+    document.querySelectorAll('.nav button')[idx].classList.add('active');
+}
+
+// Chart: Logo Loss vs Partial
+new Chart(document.getElementById('chart-split'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Logo Loss ($7.78M)', 'Partial ($2.62M)'],
+        datasets: [{
+            data: [7783319, 2624207],
+            backgroundColor: ['#ea001e', '#fe9339'],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+
+// Chart: On-Cycle vs Off-Cycle
+new Chart(document.getElementById('chart-cycle'), {
+    type: 'doughnut',
+    data: {
+        labels: ['On-Cycle ($8.87M)', 'Off-Cycle ($1.54M)'],
+        datasets: [{
+            data: [8868534, 1538992],
+            backgroundColor: ['#0176d3', '#7e57c2'],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+
+// Chart: Area Breakdown
+new Chart(document.getElementById('chart-area'), {
+    type: 'doughnut',
+    data: {
+        labels: ['RCG ($6.18M)', 'CMRCL ($2.85M)', 'MAE ($1.37M)'],
+        datasets: [{
+            data: [6184509, 2852889, 1370128],
+            backgroundColor: ['#0176d3', '#fe9339', '#7e57c2'],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+
+// Chart: Top 10
+new Chart(document.getElementById('chart-top10'), {
+    type: 'bar',
+    data: {
+        labels: ['Shiseido', '84.51°', 'Pine Gate', 'Imperial Dade', 'Rich Products', 'Niantic', 'TOTO USA', 'Vertex Energy', 'Mosaic Company', 'Stanley B&D'],
+        datasets: [{
+            data: [4304160, 944398, 717026, 664131, 591719, 558720, 331559, 310743, 300000, 262258],
+            backgroundColor: '#ea001e',
+            barPercentage: 0.6,
+            categoryPercentage: 0.85
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { callback: v => '$' + (v/1000000).toFixed(1) + 'M' } }
+        }
+    }
+});
+
+// Chart: Reasons
+new Chart(document.getElementById('chart-reasons'), {
+    type: 'bar',
+    data: {
+        labels: ['Business Change', 'Unspecified', 'Customer Rel.', 'Null', 'Adoption', 'Product', 'Competitive', 'Policy', 'Implementation', 'Financial'],
+        datasets: [{
+            data: [6087049, 4406904, 664131, 624402, 591719, 544349, 212366, 197564, 142201, 103320],
+            backgroundColor: ['#0176d3', '#706e6b', '#7e57c2', '#999', '#fe9339', '#ea001e', '#2e844a', '#06a59a', '#1b96ff', '#ffd43b'],
+            barPercentage: 0.6,
+            categoryPercentage: 0.85
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { callback: v => '$' + (v/1000000).toFixed(1) + 'M' } }
+        }
+    }
+});
+
+// Chart: Area 2
+new Chart(document.getElementById('chart-area2'), {
+    type: 'doughnut',
+    data: {
+        labels: ['RCG (6 accts)', 'CMRCL (9 accts)', 'MAE (4 accts)'],
+        datasets: [{
+            data: [6, 9, 4],
+            backgroundColor: ['#0176d3', '#fe9339', '#7e57c2'],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+</script>
+
+</body>
+</html>

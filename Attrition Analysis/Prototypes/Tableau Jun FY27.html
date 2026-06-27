@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PACE Attrition Analysis — Tableau Jun FY27</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --navy: #032d60;
+            --dark: #001639;
+            --blue: #0176d3;
+            --blue-light: #1b96ff;
+            --red: #ea001e;
+            --red-soft: #ff5d5d;
+            --orange: #fe9339;
+            --green: #2e844a;
+            --green-light: #45c65a;
+            --purple: #7e57c2;
+            --teal: #06a59a;
+            --gray: #706e6b;
+            --bg: #f3f3f3;
+            --card: #ffffff;
+            --shadow: 0 2px 12px rgba(3,45,96,0.08);
+            --shadow-lg: 0 8px 32px rgba(3,45,96,0.12);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: #181818;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--dark) 0%, #4a148c 40%, #7e57c2 100%);
+            color: #fff;
+            padding: 3rem 2rem 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(126,87,194,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.25rem; }
+        .header .meta { font-size: 0.8rem; opacity: 0.6; margin-bottom: 2rem; }
+
+        .hero-grid { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; }
+        .hero-num { text-align: center; }
+        .hero-num .val { font-size: 2rem; font-weight: 900; display: block; }
+        .hero-num .val.red { color: #ff6b6b; }
+        .hero-num .val.green { color: #69db7c; }
+        .hero-num .val.white { color: #fff; }
+        .hero-num .val.amber { color: #ffd43b; }
+        .hero-num .lbl { font-size: 0.68rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px; }
+
+        .nav { background: var(--card); border-bottom: 1px solid #e0e0e0; display: flex; justify-content: center; gap: 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .nav button { background: none; border: none; padding: 1rem 1.75rem; font-size: 0.78rem; font-weight: 700; color: var(--gray); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+        .nav button:hover { color: var(--purple); }
+        .nav button.active { color: var(--purple); border-bottom-color: var(--purple); }
+        .nav button .q-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #f3e8ff; color: var(--purple); font-size: 0.65rem; font-weight: 800; }
+        .nav button.active .q-num { background: var(--purple); color: #fff; }
+        .nav-back { position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 0.75rem; font-weight: 700; color: var(--gray); text-decoration: none; padding: 0.4rem 0.75rem; border-radius: 6px; transition: all 0.2s; }
+        .nav-back:hover { color: var(--purple); background: #f8f4ff; }
+
+        .container { max-width: 1180px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .q-banner { background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); border: 1px solid #e0d4f5; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 2rem; }
+        .q-banner .q-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--purple); margin-bottom: 0.25rem; }
+        .q-banner h2 { font-size: 1.2rem; font-weight: 800; color: var(--navy); }
+
+        .card { background: var(--card); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; margin-bottom: 1.5rem; }
+        .card h3 { font-size: 0.85rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; }
+
+        .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .tile { background: var(--card); border-radius: 10px; padding: 1.25rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; position: relative; overflow: hidden; }
+        .tile::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .tile.t-red::before { background: var(--red); }
+        .tile.t-green::before { background: var(--green); }
+        .tile.t-orange::before { background: var(--orange); }
+        .tile.t-blue::before { background: var(--blue); }
+        .tile.t-purple::before { background: var(--purple); }
+        .tile .t-val { font-size: 1.5rem; font-weight: 900; color: var(--navy); }
+        .tile .t-lbl { font-size: 0.65rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 4px; }
+        .tile .t-sub { font-size: 0.7rem; color: var(--gray); margin-top: 2px; }
+
+        .insight { border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex; gap: 1rem; align-items: flex-start; }
+        .insight.i-red { background: #fff5f5; border: 1px solid #ffd5d5; }
+        .insight.i-green { background: #f0fff4; border: 1px solid #c3e6cb; }
+        .insight.i-blue { background: #f0f7ff; border: 1px solid #c8dff7; }
+        .insight.i-orange { background: #fff8f0; border: 1px solid #fde2c8; }
+        .insight.i-purple { background: #f8f4ff; border: 1px solid #e0d4f5; }
+        .insight .i-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+        .insight.i-red .i-icon { background: #ffeaea; }
+        .insight.i-green .i-icon { background: #e6f9eb; }
+        .insight.i-blue .i-icon { background: #e3f0ff; }
+        .insight.i-orange .i-icon { background: #fff0e0; }
+        .insight.i-purple .i-icon { background: #f0e8ff; }
+        .insight .i-text { flex: 1; }
+        .insight .i-title { font-size: 0.78rem; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+        .insight .i-body { font-size: 0.72rem; color: #444; line-height: 1.5; }
+
+        .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .chart-box { background: var(--card); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; }
+        .chart-box h4 { font-size: 0.72rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.3px; }
+        .chart-box canvas { max-height: 260px; }
+
+        .tbl { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+        .tbl th { background: #f8f9fa; padding: 0.75rem 1rem; text-align: left; font-weight: 700; color: var(--navy); border-bottom: 2px solid #e0e0e0; text-transform: uppercase; font-size: 0.62rem; letter-spacing: 0.3px; }
+        .tbl td { padding: 0.75rem 1rem; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+        .tbl tr:hover td { background: #f8fbff; }
+        .tbl a { color: var(--blue); text-decoration: none; font-weight: 600; }
+        .tbl a:hover { text-decoration: underline; }
+
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+        .badge-red { background: #ffeaea; color: var(--red); }
+        .badge-orange { background: #fff3e0; color: #e65100; }
+        .badge-green { background: #e8f5e9; color: var(--green); }
+        .badge-blue { background: #e3f2fd; color: var(--blue); }
+        .badge-purple { background: #f3e8ff; color: var(--purple); }
+        .badge-gray { background: #f0f0f0; color: #666; }
+
+        .amt-red { color: var(--red); font-weight: 800; }
+        .amt-green { color: var(--green); font-weight: 700; }
+        .amt-gray { color: #999; font-weight: 600; }
+        .amt-blue { color: var(--blue); font-weight: 700; }
+
+        .tag-rcg { background: #eaf5fe; color: #0176d3; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; }
+        .tag-mae { background: #ede7f6; color: #7e57c2; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; }
+        .tag-cmrcl { background: #fff8e6; color: #946f00; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; }
+
+        .table-divider { margin: 2rem 0 1rem; padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.72rem; font-weight: 700; }
+        .table-divider.closed { background: #f8f9fa; border: 1px solid #e0e0e0; color: var(--gray); }
+        .table-divider.open { background: #f3e8ff; border: 1px solid #e0d4f5; color: var(--purple); }
+
+        .footer { text-align: center; padding: 3rem 2rem; font-size: 0.65rem; color: #aaa; }
+
+        @media (max-width: 768px) {
+            .chart-row { grid-template-columns: 1fr; }
+            .tiles { grid-template-columns: 1fr 1fr; }
+            .hero-grid { gap: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <h1>Tableau — Attrition Analysis</h1>
+    <div class="meta">June FY27 (Jun 1–30, 2026) · AMER PACE · Opportunities &ge;$100K Attrition</div>
+    <div class="hero-grid">
+        <div class="hero-num"><span class="val red">$1.24M</span><div class="lbl">Total Attrition</div></div>
+        <div class="hero-num"><span class="val white">4</span><div class="lbl">Accounts</div></div>
+        <div class="hero-num"><span class="val red">3</span><div class="lbl">Closed / Lost</div></div>
+        <div class="hero-num"><span class="val amber">1</span><div class="lbl">Still in Play</div></div>
+        <div class="hero-num"><span class="val green">0</span><div class="lbl">Actionable (Swing&gt;$0)</div></div>
+    </div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+    <a href="index.html" class="nav-back">&larr; Home</a>
+    <button class="active" onclick="showTab(0)"><span class="q-num">1</span> How Much Taken</button>
+    <button onclick="showTab(1)"><span class="q-num">2</span> What Was Saved</button>
+    <button onclick="showTab(2)"><span class="q-num">3</span> Where Are the Gaps</button>
+    <button onclick="showTab(3)"><span class="q-num">4</span> Emerging Patterns</button>
+</div>
+
+<div class="container">
+
+<!-- TAB 1: HOW MUCH TAKEN -->
+<div class="section active" id="tab0">
+    <div class="q-banner">
+        <div class="q-label">Question 1</div>
+        <h2>How much attrition was taken in Tableau for June FY27?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-red">
+            <div class="t-val">$1.24M</div>
+            <div class="t-lbl">Total Attrition at Risk</div>
+            <div class="t-sub">4 accounts</div>
+        </div>
+        <div class="tile t-red">
+            <div class="t-val">$829K</div>
+            <div class="t-lbl">Confirmed Lost</div>
+            <div class="t-sub">3 accounts — closed</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-val">$411K</div>
+            <div class="t-lbl">Still in Play</div>
+            <div class="t-sub">1 account — open pipeline</div>
+        </div>
+        <div class="tile t-green">
+            <div class="t-val">$0</div>
+            <div class="t-lbl">Actionable (Swing&gt;$0)</div>
+            <div class="t-sub">No accounts with swing</div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box">
+            <h4>Closed vs Still in Play</h4>
+            <canvas id="chart-split"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>Area Breakdown (All 4)</h4>
+            <canvas id="chart-area"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box" style="grid-column: span 2;">
+            <h4>All Accounts — Attrition Amount</h4>
+            <canvas id="chart-top4"></canvas>
+        </div>
+    </div>
+
+    <div class="insight i-red">
+        <div class="i-icon">&#9888;</div>
+        <div class="i-text">
+            <div class="i-title">S.C. Johnson leads with $456K — budget constraints driving partial attrition</div>
+            <div class="i-body">Largest loss this month. Renewal closed on 6/16 with $406K renewed and $456K attrited. CSG Notes cite budget constraints with #LicPartialAttrit #SigRisk #RA tags — properly documented but no save program deployed.</div>
+        </div>
+    </div>
+
+    <div class="insight i-orange">
+        <div class="i-icon">&#128270;</div>
+        <div class="i-text">
+            <div class="i-title">DriveTime ($411K) still in play — migrating to Sigma</div>
+            <div class="i-body">Customer is actively migrating off Tableau to Sigma. Tagged #FullAttrit (invalid hashtag). Close date 6/29 — deal still pending but likely full loss. Competitive displacement in progress.</div>
+        </div>
+    </div>
+
+    <!-- CLOSED / LOST TABLE -->
+    <div class="table-divider closed">Closed / Lost — 3 accounts, $829K confirmed attrition</div>
+    <div class="card">
+        <h3>Confirmed Losses — Already Closed</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>#</th><th>Account</th><th>Area</th><th>Renewed</th><th>Attrition</th><th>Swing</th><th>Outcome</th><th>Type</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019RA9WAAW/view" target="_blank"><strong>S.C. Johnson &amp; Son Inc. **</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-green">$406,080</td><td class="amt-red">$456,059</td><td class="amt-gray">&mdash;</td><td><span class="badge badge-orange">Partial</span></td><td>Renewal</td></tr>
+                    <tr><td>2</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000QWo2kAAD/view" target="_blank"><strong>Colgate-Palmolive Company</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-gray">$0</td><td class="amt-red">$229,890</td><td class="amt-gray">&mdash;</td><td><span class="badge badge-red">Logo Loss</span></td><td>Renewal</td></tr>
+                    <tr><td>3</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000DyvFFAAZ/view" target="_blank"><strong>1-800-Flowers.com Inc. (Tableau)</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-gray">$0</td><td class="amt-red">$143,426</td><td class="amt-gray">&mdash;</td><td><span class="badge badge-red">Logo Loss</span></td><td>Renewal</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- STILL IN PLAY TABLE -->
+    <div class="table-divider open">Still in Play — 1 account, $411K attrition at risk</div>
+    <div class="card">
+        <h3>Open Pipeline — Outcome Pending</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>#</th><th>Account</th><th>Area</th><th>Attrition at Risk</th><th>Swing</th><th>Stage</th><th>Context</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019Y6dlAAC/view" target="_blank"><strong>DriveTime Automotive Group Inc.</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$411,498</td><td class="amt-gray">&mdash;</td><td><span class="badge badge-blue">04 Pending</span></td><td>Migrating off Tableau to Sigma. #FullAttrit tagged — full loss expected.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 2: WHAT WAS SAVED -->
+<div class="section" id="tab1">
+    <div class="q-banner">
+        <div class="q-label">Question 2</div>
+        <h2>How much was saved &amp; which programs were deployed?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-green">
+            <div class="t-val">$0</div>
+            <div class="t-lbl">Actionable (Swing &gt; $0)</div>
+            <div class="t-sub">No deals with swing populated</div>
+        </div>
+        <div class="tile t-blue">
+            <div class="t-val">0</div>
+            <div class="t-lbl">Programs Deployed</div>
+            <div class="t-sub">No program hashtags found</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-val">100%</div>
+            <div class="t-lbl">No Program Deployed</div>
+            <div class="t-sub">4 of 4 accounts</div>
+        </div>
+    </div>
+
+    <div class="insight i-red">
+        <div class="i-icon">&#9888;</div>
+        <div class="i-text">
+            <div class="i-title">Zero programs deployed across all 4 Tableau accounts</div>
+            <div class="i-body">No accounts have a Red Account program hashtag (#ARI, #SWAP, #SIGTRIAL, #RFP, #REVIVE, #IMPLEMENT, #ADOPT). The only hashtag present is #RA on S.C. Johnson, indicating Red Account status but no active save program.</div>
+        </div>
+    </div>
+
+    <div class="insight i-purple">
+        <div class="i-icon">&#128161;</div>
+        <div class="i-text">
+            <div class="i-title">Sigma competitive threat — no #RFP deployed</div>
+            <div class="i-body">DriveTime and 1-800-Flowers are both losing to Sigma, yet neither account has a #RFP (Competitive Response) program in place. This suggests the team may not be engaging the competitive response playbook for Tableau-to-Sigma migrations.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Program Hashtag Summary</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Program</th><th>Accounts</th><th>$ at Risk</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>#RFP (Competitive Response)</td><td>0</td><td>&mdash;</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#ARI (At-Risk Intervention)</td><td>0</td><td>&mdash;</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#SWAP (Product Swap)</td><td>0</td><td>&mdash;</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#SIGTRIAL (Signature Trial)</td><td>0</td><td>&mdash;</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#IMPLEMENT</td><td>0</td><td>&mdash;</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#ADOPT</td><td>0</td><td>&mdash;</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#REVIVE</td><td>0</td><td>&mdash;</td><td><span class="badge badge-gray">None</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- TAB 3: WHERE ARE THE GAPS -->
+<div class="section" id="tab2">
+    <div class="q-banner">
+        <div class="q-label">Question 3</div>
+        <h2>Where are the gaps in coverage and documentation?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-red">
+            <div class="t-val">1 / 4</div>
+            <div class="t-lbl">No CSG Notes</div>
+            <div class="t-sub">Colgate-Palmolive — completely silent</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-val">1</div>
+            <div class="t-lbl">Invalid Hashtags</div>
+            <div class="t-sub">DriveTime — #FullAttrit is not valid</div>
+        </div>
+        <div class="tile t-purple">
+            <div class="t-val">0</div>
+            <div class="t-lbl">Programs Deployed</div>
+            <div class="t-sub">No save programs engaged</div>
+        </div>
+    </div>
+
+    <div class="insight i-red">
+        <div class="i-icon">&#128683;</div>
+        <div class="i-text">
+            <div class="i-title">Colgate-Palmolive: $230K Dead Attrition with zero documentation</div>
+            <div class="i-body">No CSG Notes populated. Dead Attrition (logo loss) with Business Direction Change as reason. No engagement trail, no program attempted, no context for leadership. Closed 6/13 with no visibility into what happened.</div>
+        </div>
+    </div>
+
+    <div class="insight i-orange">
+        <div class="i-icon">&#128196;</div>
+        <div class="i-text">
+            <div class="i-title">Invalid hashtag: #FullAttrit used on DriveTime</div>
+            <div class="i-body">DriveTime's CSG Notes use "#FullAttrit" — this is not a valid PACE hashtag. The correct tag is #LicFullAttrit. This is a recurring compliance issue across clouds.</div>
+        </div>
+    </div>
+
+    <div class="insight i-purple">
+        <div class="i-icon">&#128270;</div>
+        <div class="i-text">
+            <div class="i-title">Sigma compete: 2 accounts losing to same competitor, no #RFP</div>
+            <div class="i-body">Both DriveTime ($411K) and 1-800-Flowers ($143K) cite Sigma as the competitive replacement. Neither has a #RFP tag, suggesting the competitive response playbook was not activated for these Tableau-to-Sigma migrations.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Engagement Funnel</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Level</th><th>Accounts</th><th>%</th><th>Attrition $</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Total Accounts</td><td>4</td><td>100%</td><td>$1,240,873</td></tr>
+                <tr><td>Has CSG Notes</td><td>3</td><td>75%</td><td>$1,010,983</td></tr>
+                <tr><td>Has Program Hashtag</td><td>0</td><td>0%</td><td>&mdash;</td></tr>
+                <tr><td>Actionable (Swing &gt; $0)</td><td>0</td><td>0%</td><td>&mdash;</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Silent Losses — Closed, No CSG Notes</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>#</th><th>Account</th><th>Area</th><th>Attrition</th><th>Reason</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000QWo2kAAD/view" target="_blank">Colgate-Palmolive Company</a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$229,890</td><td>Business Direction Change</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Compliance Issues</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>#</th><th>Account</th><th>Issue</th><th>Detail</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019Y6dlAAC/view" target="_blank">DriveTime Automotive Group Inc.</a></td><td><span class="badge badge-orange">Invalid Hashtag</span></td><td>#FullAttrit — should be #LicFullAttrit</td></tr>
+                <tr><td>2</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000QWo2kAAD/view" target="_blank">Colgate-Palmolive Company</a></td><td><span class="badge badge-red">No CSG Notes</span></td><td>Dead Attrition with zero documentation</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- TAB 4: EMERGING PATTERNS -->
+<div class="section" id="tab3">
+    <div class="q-banner">
+        <div class="q-label">Question 4</div>
+        <h2>What patterns are emerging?</h2>
+    </div>
+
+    <div class="insight i-blue">
+        <div class="i-icon">1</div>
+        <div class="i-text">
+            <div class="i-title">Business Change &amp; Distress: 2 accounts, $686K (55% of total)</div>
+            <div class="i-body">S.C. Johnson ($456K, budget constraints) and Colgate-Palmolive ($230K, business direction change) — both RCG accounts with organizational-level decisions driving attrition. These are structural losses that are difficult to influence.</div>
+        </div>
+    </div>
+
+    <div class="insight i-orange">
+        <div class="i-icon">2</div>
+        <div class="i-text">
+            <div class="i-title">Product / Platform Performance: 1 account, $411K (33%)</div>
+            <div class="i-body">DriveTime is migrating off Tableau entirely due to platform dissatisfaction. Moving to Sigma — a modern BI competitor positioned as faster and more intuitive. This is a competitive product displacement, not a budget decision.</div>
+        </div>
+    </div>
+
+    <div class="insight i-purple">
+        <div class="i-icon">3</div>
+        <div class="i-text">
+            <div class="i-title">Sigma is an emerging competitive threat for Tableau</div>
+            <div class="i-body">Two of four accounts this month (DriveTime $411K + 1-800-Flowers $143K) are migrating to Sigma Computing. Combined $555K in attrition. Sigma positions as a cloud-native alternative to Tableau with a lower TCO. This warrants a competitive response playbook specific to Sigma.</div>
+        </div>
+    </div>
+
+    <div class="insight i-green">
+        <div class="i-icon">4</div>
+        <div class="i-text">
+            <div class="i-title">Financial &amp; Contractual: 1 account, $143K (12%)</div>
+            <div class="i-body">1-800-Flowers ($143K) — Found Less Expensive Alternative (Sigma). While categorized as financial, this is effectively a competitive loss. The customer found a cheaper alternative that met their needs.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Attrition by Reason Category (All 4 Accounts)</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>Reason</th><th>Accounts</th><th>Attrition $</th><th>% of Total</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Business Change &amp; Distress</td><td>2</td><td>$685,949</td><td>55%</td></tr>
+                    <tr><td>Product / Platform Performance</td><td>1</td><td>$411,498</td><td>33%</td></tr>
+                    <tr><td>Financial &amp; Contractual</td><td>1</td><td>$143,426</td><td>12%</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box">
+            <h4>Attrition Reason Breakdown</h4>
+            <canvas id="chart-reasons"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>Area Distribution</h4>
+            <canvas id="chart-area2"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Competitive Landscape</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Competitor</th><th>Accounts</th><th>$ at Risk</th><th>Detail</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Sigma Computing</strong></td><td>2</td><td>$554,924</td><td>DriveTime (full migration) + 1-800-Flowers (cheaper alternative)</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Leadership Action Summary</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Action</th><th>Priority</th><th>Detail</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Develop Sigma competitive response playbook</td><td><span class="badge badge-red">Critical</span></td><td>50% of accounts this month are migrating to Sigma. No #RFP deployed on either. Need a Tableau-specific competitive response for Sigma threats.</td></tr>
+                <tr><td>Document Colgate-Palmolive ($230K, no notes)</td><td><span class="badge badge-orange">Medium</span></td><td>Dead Attrition with zero CSG Notes. Need post-mortem documentation for pattern analysis.</td></tr>
+                <tr><td>Fix DriveTime hashtag compliance</td><td><span class="badge badge-blue">Low</span></td><td>#FullAttrit should be #LicFullAttrit. Coaching opportunity for EA.</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+    PACE Attrition Analysis · Tableau · June FY27 · Generated from Org62 SOQL · AMER PACE Territory
+</div>
+
+<script>
+function showTab(idx) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab' + idx).classList.add('active');
+    document.querySelectorAll('.nav button')[idx].classList.add('active');
+}
+
+// Chart: Closed vs Still in Play
+new Chart(document.getElementById('chart-split'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Closed / Lost ($829K)', 'Still in Play ($411K)'],
+        datasets: [{
+            data: [829375, 411498],
+            backgroundColor: ['#ea001e', '#fe9339'],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+
+// Chart: Area Breakdown
+new Chart(document.getElementById('chart-area'), {
+    type: 'doughnut',
+    data: {
+        labels: ['RCG ($829K, 3 accts)', 'CMRCL ($411K, 1 acct)'],
+        datasets: [{
+            data: [829375, 411498],
+            backgroundColor: ['#0176d3', '#fe9339'],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+
+// Chart: All 4 Accounts
+new Chart(document.getElementById('chart-top4'), {
+    type: 'bar',
+    data: {
+        labels: ['S.C. Johnson & Son', 'DriveTime Automotive', 'Colgate-Palmolive', '1-800-Flowers.com'],
+        datasets: [{
+            data: [456059, 411498, 229890, 143426],
+            backgroundColor: ['#ea001e', '#fe9339', '#ea001e', '#ea001e'],
+            barPercentage: 0.6,
+            categoryPercentage: 0.85
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'K' } }
+        }
+    }
+});
+
+// Chart: Reasons
+new Chart(document.getElementById('chart-reasons'), {
+    type: 'bar',
+    data: {
+        labels: ['Business Change & Distress', 'Product / Platform', 'Financial & Contractual'],
+        datasets: [{
+            data: [685949, 411498, 143426],
+            backgroundColor: ['#7e57c2', '#fe9339', '#0176d3'],
+            barPercentage: 0.6,
+            categoryPercentage: 0.85
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'K' } }
+        }
+    }
+});
+
+// Chart: Area 2
+new Chart(document.getElementById('chart-area2'), {
+    type: 'doughnut',
+    data: {
+        labels: ['RCG (3 accts)', 'CMRCL (1 acct)'],
+        datasets: [{
+            data: [3, 1],
+            backgroundColor: ['#0176d3', '#fe9339'],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+</script>
+
+</body>
+</html>

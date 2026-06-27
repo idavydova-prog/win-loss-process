@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PACE Attrition Analysis — Tableau Jul FY27</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --navy: #032d60;
+            --dark: #001639;
+            --blue: #0176d3;
+            --blue-light: #1b96ff;
+            --red: #ea001e;
+            --red-soft: #ff5d5d;
+            --orange: #fe9339;
+            --green: #2e844a;
+            --green-light: #45c65a;
+            --purple: #7e57c2;
+            --teal: #06a59a;
+            --gray: #706e6b;
+            --bg: #f3f3f3;
+            --card: #ffffff;
+            --shadow: 0 2px 12px rgba(3,45,96,0.08);
+            --shadow-lg: 0 8px 32px rgba(3,45,96,0.12);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: #181818;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--dark) 0%, #4a148c 40%, #7e57c2 100%);
+            color: #fff;
+            padding: 3rem 2rem 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(126,87,194,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.25rem; }
+        .header .meta { font-size: 0.8rem; opacity: 0.6; margin-bottom: 2rem; }
+
+        .hero-grid { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; }
+        .hero-num { text-align: center; }
+        .hero-num .val { font-size: 2rem; font-weight: 900; display: block; }
+        .hero-num .val.red { color: #ff6b6b; }
+        .hero-num .val.green { color: #69db7c; }
+        .hero-num .val.white { color: #fff; }
+        .hero-num .val.amber { color: #ffd43b; }
+        .hero-num .lbl { font-size: 0.68rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px; }
+
+        .warning-banner { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 0.75rem 1.25rem; margin: 1.5rem auto; max-width: 600px; text-align: center; font-size: 0.72rem; font-weight: 600; color: #856404; }
+
+        .nav { background: var(--card); border-bottom: 1px solid #e0e0e0; display: flex; justify-content: center; gap: 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .nav button { background: none; border: none; padding: 1rem 1.75rem; font-size: 0.78rem; font-weight: 700; color: var(--gray); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+        .nav button:hover { color: var(--purple); }
+        .nav button.active { color: var(--purple); border-bottom-color: var(--purple); }
+        .nav button .q-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #f3e8ff; color: var(--purple); font-size: 0.65rem; font-weight: 800; }
+        .nav button.active .q-num { background: var(--purple); color: #fff; }
+        .nav-back { position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 0.75rem; font-weight: 700; color: var(--gray); text-decoration: none; padding: 0.4rem 0.75rem; border-radius: 6px; transition: all 0.2s; }
+        .nav-back:hover { color: var(--purple); background: #f8f4ff; }
+
+        .container { max-width: 1180px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .q-banner { background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); border: 1px solid #e0d4f5; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 2rem; }
+        .q-banner .q-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--purple); margin-bottom: 0.25rem; }
+        .q-banner h2 { font-size: 1.2rem; font-weight: 800; color: var(--navy); }
+
+        .card { background: var(--card); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; margin-bottom: 1.5rem; }
+        .card h3 { font-size: 0.85rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; }
+
+        .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .tile { background: var(--card); border-radius: 10px; padding: 1.25rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; position: relative; overflow: hidden; }
+        .tile::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .tile.t-red::before { background: var(--red); }
+        .tile.t-green::before { background: var(--green); }
+        .tile.t-orange::before { background: var(--orange); }
+        .tile.t-blue::before { background: var(--blue); }
+        .tile.t-purple::before { background: var(--purple); }
+        .tile .t-val { font-size: 1.5rem; font-weight: 900; color: var(--navy); }
+        .tile .t-lbl { font-size: 0.65rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 4px; }
+        .tile .t-sub { font-size: 0.7rem; color: var(--gray); margin-top: 2px; }
+
+        .insight { border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex; gap: 1rem; align-items: flex-start; }
+        .insight.i-red { background: #fff5f5; border: 1px solid #ffd5d5; }
+        .insight.i-green { background: #f0fff4; border: 1px solid #c3e6cb; }
+        .insight.i-blue { background: #f0f7ff; border: 1px solid #c8dff7; }
+        .insight.i-orange { background: #fff8f0; border: 1px solid #fde2c8; }
+        .insight.i-purple { background: #f8f4ff; border: 1px solid #e0d4f5; }
+        .insight .i-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+        .insight.i-red .i-icon { background: #ffeaea; }
+        .insight.i-green .i-icon { background: #e6f9eb; }
+        .insight.i-blue .i-icon { background: #e3f0ff; }
+        .insight.i-orange .i-icon { background: #fff0e0; }
+        .insight.i-purple .i-icon { background: #f0e8ff; }
+        .insight .i-text { flex: 1; }
+        .insight .i-title { font-size: 0.78rem; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+        .insight .i-body { font-size: 0.72rem; color: #444; line-height: 1.5; }
+
+        .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .chart-box { background: var(--card); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; }
+        .chart-box h4 { font-size: 0.72rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.3px; }
+        .chart-box canvas { max-height: 260px; }
+
+        .tbl { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+        .tbl th { background: #f8f9fa; padding: 0.75rem 1rem; text-align: left; font-weight: 700; color: var(--navy); border-bottom: 2px solid #e0e0e0; text-transform: uppercase; font-size: 0.62rem; letter-spacing: 0.3px; }
+        .tbl td { padding: 0.75rem 1rem; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+        .tbl tr:hover td { background: #f8fbff; }
+        .tbl a { color: var(--blue); text-decoration: none; font-weight: 600; }
+        .tbl a:hover { text-decoration: underline; }
+
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+        .badge-red { background: #ffeaea; color: var(--red); }
+        .badge-orange { background: #fff3e0; color: #e65100; }
+        .badge-green { background: #e8f5e9; color: var(--green); }
+        .badge-blue { background: #e3f2fd; color: var(--blue); }
+        .badge-purple { background: #f3e8ff; color: var(--purple); }
+        .badge-gray { background: #f0f0f0; color: #666; }
+
+        .amt-red { color: var(--red); font-weight: 800; }
+        .amt-green { color: var(--green); font-weight: 700; }
+        .amt-gray { color: #999; font-weight: 600; }
+        .amt-blue { color: var(--blue); font-weight: 700; }
+
+        .tag-rcg { background: #eaf5fe; color: #0176d3; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; }
+        .tag-mae { background: #ede7f6; color: #7e57c2; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; }
+        .tag-cmrcl { background: #fff8e6; color: #946f00; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; }
+
+        .table-divider { margin: 2rem 0 1rem; padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.72rem; font-weight: 700; }
+        .table-divider.closed { background: #f8f9fa; border: 1px solid #e0e0e0; color: var(--gray); }
+        .table-divider.open { background: #f3e8ff; border: 1px solid #e0d4f5; color: var(--purple); }
+
+        .footer { text-align: center; padding: 3rem 2rem; font-size: 0.65rem; color: #aaa; }
+
+        @media (max-width: 768px) {
+            .chart-row { grid-template-columns: 1fr; }
+            .tiles { grid-template-columns: 1fr 1fr; }
+            .hero-grid { gap: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <h1>Tableau — Attrition Analysis</h1>
+    <div class="meta">July FY27 (Jul 1–31, 2026) · AMER PACE · Opportunities &ge;$100K Attrition</div>
+    <div class="hero-grid">
+        <div class="hero-num"><span class="val red">$5.25M</span><div class="lbl">Total Attrition</div></div>
+        <div class="hero-num"><span class="val white">7</span><div class="lbl">Accounts</div></div>
+        <div class="hero-num"><span class="val white">0</span><div class="lbl">Closed / Lost</div></div>
+        <div class="hero-num"><span class="val amber">7</span><div class="lbl">Still in Play</div></div>
+        <div class="hero-num"><span class="val green">4</span><div class="lbl">Actionable (Swing&gt;$0)</div></div>
+    </div>
+    <div class="warning-banner">Month in progress — July has not yet closed. All 7 accounts remain in open pipeline.</div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+    <a href="index.html" class="nav-back">&larr; Home</a>
+    <button class="active" onclick="showTab(0)"><span class="q-num">1</span> How Much Taken</button>
+    <button onclick="showTab(1)"><span class="q-num">2</span> What Was Saved</button>
+    <button onclick="showTab(2)"><span class="q-num">3</span> Where Are the Gaps</button>
+    <button onclick="showTab(3)"><span class="q-num">4</span> Emerging Patterns</button>
+</div>
+
+<div class="container">
+
+<!-- TAB 1: HOW MUCH TAKEN -->
+<div class="section active" id="tab0">
+    <div class="q-banner">
+        <div class="q-label">Question 1</div>
+        <h2>How much attrition was taken in Tableau for July FY27?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-red">
+            <div class="t-val">$5.25M</div>
+            <div class="t-lbl">Total Attrition at Risk</div>
+            <div class="t-sub">7 accounts</div>
+        </div>
+        <div class="tile t-red">
+            <div class="t-val">$0</div>
+            <div class="t-lbl">Confirmed Lost</div>
+            <div class="t-sub">0 accounts — none closed yet</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-val">$5.25M</div>
+            <div class="t-lbl">Still in Play</div>
+            <div class="t-sub">7 accounts — open pipeline</div>
+        </div>
+        <div class="tile t-green">
+            <div class="t-val">$2.96M</div>
+            <div class="t-lbl">Actionable (Swing&gt;$0)</div>
+            <div class="t-sub">4 accounts</div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box">
+            <h4>Closed vs Still in Play</h4>
+            <canvas id="chart-split"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>Area Breakdown (All 7)</h4>
+            <canvas id="chart-area"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box" style="grid-column: span 2;">
+            <h4>All 7 Accounts — Attrition at Risk</h4>
+            <canvas id="chart-top7"></canvas>
+        </div>
+    </div>
+
+    <div class="insight i-green">
+        <div class="i-icon">&#9733;</div>
+        <div class="i-text">
+            <div class="i-title">4 accounts with Swing &gt; $0 — $2.96M actionable attrition</div>
+            <div class="i-body">Nissan ($2.0M), Restaurant Brands International ($551K), Oldcastle ($209K), Cars.com ($200K). Active programs exist on Nissan (#swap, #RA) and Cars.com (#ARI). 56% of total attrition is actionable.</div>
+        </div>
+    </div>
+
+    <div class="insight i-orange">
+        <div class="i-icon">&#9888;</div>
+        <div class="i-text">
+            <div class="i-title">All 7 accounts remain open — 0 confirmed losses</div>
+            <div class="i-body">Month is still in progress. Nissan ($3.29M) is the dominant deal, representing 63% of total attrition at risk. Outcome heavily depends on whether the $2M PBI swap proceeds.</div>
+        </div>
+    </div>
+
+    <!-- CLOSED / LOST TABLE -->
+    <div class="table-divider closed">Closed / Lost — No confirmed losses yet</div>
+    <div class="card">
+        <h3>Confirmed Losses</h3>
+        <p style="font-size: 0.75rem; color: var(--gray); padding: 1rem 0;">No confirmed losses yet — all 7 accounts remain in open pipeline.</p>
+    </div>
+
+    <!-- STILL IN PLAY TABLE -->
+    <div class="table-divider open">Still in Play — 7 accounts, $5.25M attrition at risk</div>
+    <div class="card">
+        <h3>Open Pipeline — Outcome Pending</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>#</th><th>Account</th><th>Area</th><th>Attrition at Risk</th><th>Swing</th><th>Stage</th><th>Context</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000081mytAAA/view" target="_blank"><strong>Nissan North America Inc.</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-red">$3,290,297</td><td class="amt-blue">$2,000,000</td><td><span class="badge badge-blue">02 Negotiate</span></td><td>#RA #swap — expecting $2M attrition with PBI replacing Tableau</td></tr>
+                    <tr><td>2</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I0jFhAAJ/view" target="_blank"><strong>Restaurant Brands International US Services LLC</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$551,108</td><td class="amt-blue">$551,108</td><td><span class="badge badge-blue">03 Agreed</span></td><td>#NoSigRisk #LicNoAttrit — AE met with Justin; switched to direct competitor</td></tr>
+                    <tr><td>3</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Gnw4rAAB/view" target="_blank"><strong>Ferrara Candy Company</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$416,394</td><td class="amt-gray">—</td><td><span class="badge badge-blue">01 Initiate</span></td><td>#LicPartialRisk — risk due to lack of engagement</td></tr>
+                    <tr><td>4</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001ArtpmAAB/view" target="_blank"><strong>Shipt Inc.</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$353,968</td><td class="amt-gray">—</td><td><span class="badge badge-blue">04 Pending</span></td><td>#LicPartialRisk — lack of internal sponsorship</td></tr>
+                    <tr><td>5</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000H7tnZAAR/view" target="_blank"><strong>Solventum US LLC</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-red">$230,838</td><td class="amt-gray">$0</td><td><span class="badge badge-blue">01 Initiate</span></td><td>#LicFullAttrit — possible swap to Tab Next or Slack; switched to competitor</td></tr>
+                    <tr><td>6</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018ciknAAA/view" target="_blank"><strong>Oldcastle Services Inc.</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-red">$207,979</td><td class="amt-blue">$209,370</td><td><span class="badge badge-blue">01 Initiate</span></td><td>#NoAttrit — no risk of attrition; trying to expand</td></tr>
+                    <tr><td>7</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018kBStAAM/view" target="_blank"><strong>Cars.com LLC dba Cars Commerce</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$200,406</td><td class="amt-blue">$200,000</td><td><span class="badge badge-blue">02 Negotiate</span></td><td>#ARI #LicPartialAttrit #SigRisk #AFAttrit — financial distress, downsizing</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 2: WHAT WAS SAVED -->
+<div class="section" id="tab1">
+    <div class="q-banner">
+        <div class="q-label">Question 2</div>
+        <h2>How much was saved &amp; which programs were deployed?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-green">
+            <div class="t-val">$2.96M</div>
+            <div class="t-lbl">Actionable (Swing &gt; $0)</div>
+            <div class="t-sub">4 accounts — intervention possible</div>
+        </div>
+        <div class="tile t-blue">
+            <div class="t-val">3</div>
+            <div class="t-lbl">Programs Deployed</div>
+            <div class="t-sub">#swap (1), #ARI (1), #RA (1)</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-val">71%</div>
+            <div class="t-lbl">No Program Deployed</div>
+            <div class="t-sub">5 of 7 accounts</div>
+        </div>
+    </div>
+
+    <div class="insight i-purple">
+        <div class="i-icon">&#128171;</div>
+        <div class="i-text">
+            <div class="i-title">Nissan: $2.0M Swing — #swap + #RA active</div>
+            <div class="i-body">Largest actionable deal. $3.29M attrition at risk with Power BI replacing Tableau. $2M expected attrition with swap program in play. Red Account opened. 02 Negotiate stage — still time to influence outcome.</div>
+        </div>
+    </div>
+
+    <div class="insight i-orange">
+        <div class="i-icon">&#9888;</div>
+        <div class="i-text">
+            <div class="i-title">Cars.com: $200K Swing — #ARI deployed</div>
+            <div class="i-body">Financial distress / downsizing driving attrition. ARI program active with #LicPartialAttrit #SigRisk #AFAttrit tags. Closes 07/31 — time-critical. $4.99M total contract value at renewal.</div>
+        </div>
+    </div>
+
+    <div class="insight i-blue">
+        <div class="i-icon">&#128270;</div>
+        <div class="i-text">
+            <div class="i-title">Restaurant Brands International: $551K Swing — no program yet</div>
+            <div class="i-body">Full swing equals full attrition ($551K). Competitive loss to direct competitor. AE met with Justin but no save program hashtag documented. 03 Agreed stage — deal largely decided unless counter-offer materializes.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Program Hashtag Summary</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Program</th><th>Accounts</th><th>$ at Risk</th><th>Swing</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>#SWAP (Product Swap)</td><td>1</td><td>$3,290,297</td><td>$2,000,000</td><td><span class="badge badge-blue">Active</span></td></tr>
+                <tr><td>#ARI (At-Risk Intervention)</td><td>1</td><td>$200,406</td><td>$200,000</td><td><span class="badge badge-blue">Active</span></td></tr>
+                <tr><td>#RA (Red Account)</td><td>1</td><td>$3,290,297</td><td>$2,000,000</td><td><span class="badge badge-blue">Active</span></td></tr>
+                <tr><td>#SIGTRIAL (Signature Trial)</td><td>0</td><td>—</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#SWE (Strategic Win Engagement)</td><td>0</td><td>—</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#RFP (Competitive Response)</td><td>0</td><td>—</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#IMPLEMENT</td><td>0</td><td>—</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#ADOPT</td><td>0</td><td>—</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#REVIVE</td><td>0</td><td>—</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Accounts with Swing &gt; $0 — Full Detail</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>#</th><th>Account</th><th>Attrition</th><th>Swing</th><th>Program</th><th>Context</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000081mytAAA/view" target="_blank">Nissan North America Inc.</a></td><td class="amt-red">$3,290,297</td><td class="amt-blue">$2,000,000</td><td><span class="badge badge-green">#swap #RA</span></td><td>PBI replacing Tableau; $2M expected attrition</td></tr>
+                    <tr><td>2</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I0jFhAAJ/view" target="_blank">Restaurant Brands International</a></td><td class="amt-red">$551,108</td><td class="amt-blue">$551,108</td><td><span class="badge badge-gray">None</span></td><td>Switched to direct competitor; AE engagement only</td></tr>
+                    <tr><td>3</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018ciknAAA/view" target="_blank">Oldcastle Services Inc.</a></td><td class="amt-red">$207,979</td><td class="amt-blue">$209,370</td><td><span class="badge badge-gray">None</span></td><td>No risk per CSM; trying to expand</td></tr>
+                    <tr><td>4</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018kBStAAM/view" target="_blank">Cars.com LLC</a></td><td class="amt-red">$200,406</td><td class="amt-blue">$200,000</td><td><span class="badge badge-green">#ARI</span></td><td>Financial distress; ARI ProServ in play</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 3: WHERE ARE THE GAPS -->
+<div class="section" id="tab2">
+    <div class="q-banner">
+        <div class="q-label">Question 3</div>
+        <h2>Where are the gaps in coverage and documentation?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-green">
+            <div class="t-val">0 / 7</div>
+            <div class="t-lbl">No CSG Notes</div>
+            <div class="t-sub">100% have some documentation</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-val">3</div>
+            <div class="t-lbl">Invalid Hashtags</div>
+            <div class="t-sub">Nissan, Ferrara, Shipt, Oldcastle</div>
+        </div>
+        <div class="tile t-purple">
+            <div class="t-val">5 / 7</div>
+            <div class="t-lbl">No Program Hashtag</div>
+            <div class="t-sub">Documented but no formal save play</div>
+        </div>
+    </div>
+
+    <div class="insight i-green">
+        <div class="i-icon">&#10003;</div>
+        <div class="i-text">
+            <div class="i-title">100% documentation rate — all 7 accounts have CSG Notes</div>
+            <div class="i-body">Unlike other clouds, Tableau has zero blank CSG Notes this month. Every account has at least a date stamp and some context. This is a strong compliance signal for the CSAL team.</div>
+        </div>
+    </div>
+
+    <div class="insight i-orange">
+        <div class="i-icon">&#128196;</div>
+        <div class="i-text">
+            <div class="i-title">Invalid hashtags on 4 accounts — non-standard tags in use</div>
+            <div class="i-body"><strong>#PBI</strong> (Nissan) — not a valid PACE hashtag; should use competitor field instead. <strong>#LicPartialRisk</strong> (Ferrara, Shipt) — not standard; should be #LicPartialAttrit. <strong>#NoAttrit</strong> (Oldcastle) — invalid; should be #LicNoAttrit.</div>
+        </div>
+    </div>
+
+    <div class="insight i-blue">
+        <div class="i-icon">&#128270;</div>
+        <div class="i-text">
+            <div class="i-title">Engagement Funnel: 100% documented, 29% with programs, 57% actionable</div>
+            <div class="i-body">All 7 accounts have notes. 2 of 7 have program hashtags (#swap/#RA on Nissan, #ARI on Cars.com). 4 of 7 have Swing > $0. High coverage rate but low program deployment relative to actionable deals.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Engagement Funnel</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Level</th><th>Accounts</th><th>%</th><th>Attrition $</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Total Accounts</td><td>7</td><td>100%</td><td>$5,250,990</td></tr>
+                <tr><td>Has CSG Notes</td><td>7</td><td>100%</td><td>$5,250,990</td></tr>
+                <tr><td>Has Program Hashtag</td><td>2</td><td>29%</td><td>$3,490,703</td></tr>
+                <tr><td>Actionable (Swing &gt; $0)</td><td>4</td><td>57%</td><td>$2,960,478</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Accounts with Invalid Hashtags</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Account</th><th>Tag Found</th><th>Issue</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed0000081mytAAA/view" target="_blank">Nissan North America Inc.</a></td><td>#PBI</td><td>Invalid — not a PACE hashtag; use Competitor field</td></tr>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000Gnw4rAAB/view" target="_blank">Ferrara Candy Company</a></td><td>#LicPartialRisk</td><td>Invalid — should be #LicPartialAttrit</td></tr>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y00001ArtpmAAB/view" target="_blank">Shipt Inc.</a></td><td>#LicPartialRisk</td><td>Invalid — should be #LicPartialAttrit</td></tr>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018ciknAAA/view" target="_blank">Oldcastle Services Inc.</a></td><td>#NoAttrit</td><td>Invalid — should be #LicNoAttrit</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- TAB 4: EMERGING PATTERNS -->
+<div class="section" id="tab3">
+    <div class="q-banner">
+        <div class="q-label">Question 4</div>
+        <h2>What patterns are emerging?</h2>
+    </div>
+
+    <div class="insight i-blue">
+        <div class="i-icon">1</div>
+        <div class="i-text">
+            <div class="i-title">Business Change &amp; Distress dominates — 2 accounts, $3.49M (66%)</div>
+            <div class="i-body">Nissan ($3.29M) driving the majority — PBI replacing Tableau as part of financial distress/downsizing. Cars.com ($200K) also financial distress. These represent structural budget decisions that are difficult to influence without product-level intervention (swap).</div>
+        </div>
+    </div>
+
+    <div class="insight i-red">
+        <div class="i-icon">2</div>
+        <div class="i-text">
+            <div class="i-title">Competitive — 2 accounts, $782K: Power BI is the dominant threat</div>
+            <div class="i-body">Restaurant Brands International ($551K) switched to a direct competitor. Solventum ($231K) also competitive loss with possible swap to Tableau Next or Slack. Nissan's PBI reference reinforces Power BI as the primary competitive threat to Tableau across the portfolio.</div>
+        </div>
+    </div>
+
+    <div class="insight i-orange">
+        <div class="i-icon">3</div>
+        <div class="i-text">
+            <div class="i-title">Customer Relationship — 1 account ($416K): engagement gap driving risk</div>
+            <div class="i-body">Ferrara Candy Company at risk due to lack of responsiveness/engagement. This is a preventable attrition category — earlier intervention could have changed the trajectory. Pattern: relationship issues surface late in the renewal cycle.</div>
+        </div>
+    </div>
+
+    <div class="insight i-purple">
+        <div class="i-icon">4</div>
+        <div class="i-text">
+            <div class="i-title">MAE leads in total attrition: $3.73M (71%) from 3 accounts</div>
+            <div class="i-body">Nissan ($3.29M), Solventum ($231K), Oldcastle ($208K). RCG has 3 accounts at $1.32M. CMRCL has 1 account at $200K. The MAE concentration is driven entirely by the Nissan mega-deal.</div>
+        </div>
+    </div>
+
+    <div class="insight i-green">
+        <div class="i-icon">5</div>
+        <div class="i-text">
+            <div class="i-title">Power BI continues to be the dominant competitive threat for Tableau</div>
+            <div class="i-body">Nissan explicitly replacing Tableau with PBI ($3.29M). Combined with competitive switches at RBI and Solventum, the Tableau book is under sustained pressure from Microsoft's analytics stack. The #swap program on Nissan is the primary counter-strategy.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Attrition by Reason Category (All 7 Accounts)</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>Reason</th><th>Accounts</th><th>Attrition $</th><th>% of Total</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Business Change &amp; Distress</td><td>2</td><td>$3,490,703</td><td>66%</td></tr>
+                    <tr><td>Competitive</td><td>2</td><td>$781,946</td><td>15%</td></tr>
+                    <tr><td>Customer Relationship</td><td>1</td><td>$416,394</td><td>8%</td></tr>
+                    <tr><td>Adoption</td><td>1</td><td>$353,968</td><td>7%</td></tr>
+                    <tr><td>Product</td><td>1</td><td>$207,979</td><td>4%</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box">
+            <h4>Attrition Reason Breakdown</h4>
+            <canvas id="chart-reasons"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>Area Distribution</h4>
+            <canvas id="chart-area2"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Leadership Action Summary</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Action</th><th>Priority</th><th>Detail</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Support Nissan #swap/$RA ($2.0M Swing)</td><td><span class="badge badge-red">Critical</span></td><td>Largest deal at $3.29M. PBI replacing Tableau. Swap program active. 02 Negotiate — outcome still influenceable. Closes 07/24.</td></tr>
+                <tr><td>Assess RBI competitive loss ($551K)</td><td><span class="badge badge-orange">High</span></td><td>Full swing = full attrition. Switched to competitor. 03 Agreed — limited time. No save program deployed yet. Closes 07/30.</td></tr>
+                <tr><td>Accelerate Cars.com #ARI ($200K)</td><td><span class="badge badge-orange">High</span></td><td>Financial distress/downsizing. ARI active. #SigRisk + #AFAttrit flagged. $4.99M renewal value at stake. Closes 07/31.</td></tr>
+                <tr><td>Coach on invalid hashtag usage</td><td><span class="badge badge-blue">Info</span></td><td>4 accounts with non-standard tags: #PBI, #LicPartialRisk (x2), #NoAttrit. Educate CSALs on correct PACE tagging.</td></tr>
+                <tr><td>Validate Oldcastle "no risk" claim</td><td><span class="badge badge-blue">Info</span></td><td>CSM says #NoAttrit and "trying to expand" but $208K attrition forecasted with $209K swing. Possible data mismatch — verify.</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+    PACE Attrition Analysis · Tableau · July FY27 (partial — month in progress) · Generated from Org62 SOQL · AMER PACE Territory
+</div>
+
+<script>
+function showTab(idx) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab' + idx).classList.add('active');
+    document.querySelectorAll('.nav button')[idx].classList.add('active');
+}
+
+// Chart: Closed vs Still in Play
+new Chart(document.getElementById('chart-split'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Closed / Lost ($0)', 'Still in Play ($5.25M)'],
+        datasets: [{
+            data: [0, 5250990],
+            backgroundColor: ['#ea001e', '#fe9339'],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+
+// Chart: Area Breakdown
+new Chart(document.getElementById('chart-area'), {
+    type: 'doughnut',
+    data: {
+        labels: ['MAE ($3.73M, 3 accts)', 'RCG ($1.32M, 3 accts)', 'CMRCL ($200K, 1 acct)'],
+        datasets: [{
+            data: [3729114, 1321470, 200406],
+            backgroundColor: ['#7e57c2', '#0176d3', '#fe9339'],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+
+// Chart: All 7 accounts
+new Chart(document.getElementById('chart-top7'), {
+    type: 'bar',
+    data: {
+        labels: ['Nissan North America', 'Restaurant Brands Intl', 'Ferrara Candy', 'Shipt Inc.', 'Solventum US', 'Oldcastle Services', 'Cars.com'],
+        datasets: [{
+            data: [3290297, 551108, 416394, 353968, 230838, 207979, 200406],
+            backgroundColor: ['#7e57c2','#0176d3','#0176d3','#0176d3','#7e57c2','#7e57c2','#fe9339'],
+            barPercentage: 0.6,
+            categoryPercentage: 0.85
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { callback: v => '$' + (v/1000000).toFixed(1) + 'M' } }
+        }
+    }
+});
+
+// Chart: Reasons
+new Chart(document.getElementById('chart-reasons'), {
+    type: 'bar',
+    data: {
+        labels: ['Business Change', 'Competitive', 'Customer Rel.', 'Adoption', 'Product'],
+        datasets: [{
+            data: [3490703, 781946, 416394, 353968, 207979],
+            backgroundColor: ['#7e57c2', '#ea001e', '#ff5d5d', '#fe9339', '#06a59a'],
+            barPercentage: 0.6,
+            categoryPercentage: 0.85
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { callback: v => '$' + (v/1000000).toFixed(1) + 'M' } }
+        }
+    }
+});
+
+// Chart: Area Distribution
+new Chart(document.getElementById('chart-area2'), {
+    type: 'doughnut',
+    data: {
+        labels: ['MAE (3 accts, $3.73M)', 'RCG (3 accts, $1.32M)', 'CMRCL (1 acct, $200K)'],
+        datasets: [{
+            data: [3729114, 1321470, 200406],
+            backgroundColor: ['#7e57c2', '#0176d3', '#fe9339'],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+</script>
+
+</body>
+</html>

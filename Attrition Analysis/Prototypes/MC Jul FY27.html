@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PACE Attrition Analysis — MC Jul FY27</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --navy: #032d60;
+            --dark: #001639;
+            --blue: #0176d3;
+            --blue-light: #1b96ff;
+            --red: #ea001e;
+            --red-soft: #ff5d5d;
+            --orange: #fe9339;
+            --green: #2e844a;
+            --green-light: #45c65a;
+            --purple: #7e57c2;
+            --teal: #06a59a;
+            --gray: #706e6b;
+            --bg: #f3f3f3;
+            --card: #ffffff;
+            --shadow: 0 2px 12px rgba(3,45,96,0.08);
+            --shadow-lg: 0 8px 32px rgba(3,45,96,0.12);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: #181818;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--dark) 0%, #0d47a1 40%, #1976d2 100%);
+            color: #fff;
+            padding: 3rem 2rem 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(1,118,211,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.25rem; }
+        .header .meta { font-size: 0.8rem; opacity: 0.6; margin-bottom: 2rem; }
+
+        .hero-grid { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; }
+        .hero-num { text-align: center; }
+        .hero-num .val { font-size: 2rem; font-weight: 900; display: block; }
+        .hero-num .val.red { color: #ff6b6b; }
+        .hero-num .val.green { color: #69db7c; }
+        .hero-num .val.white { color: #fff; }
+        .hero-num .val.amber { color: #ffd43b; }
+        .hero-num .lbl { font-size: 0.68rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px; }
+
+        .warning-banner { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 0.75rem 1.25rem; margin: 1.5rem auto; max-width: 600px; text-align: center; font-size: 0.72rem; font-weight: 600; color: #856404; }
+
+        .nav { background: var(--card); border-bottom: 1px solid #e0e0e0; display: flex; justify-content: center; gap: 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .nav button { background: none; border: none; padding: 1rem 1.75rem; font-size: 0.78rem; font-weight: 700; color: var(--gray); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem; }
+        .nav button:hover { color: var(--blue); }
+        .nav button.active { color: var(--blue); border-bottom-color: var(--blue); }
+        .nav button .q-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: #eef6ff; color: var(--blue); font-size: 0.65rem; font-weight: 800; }
+        .nav button.active .q-num { background: var(--blue); color: #fff; }
+        .nav-back { position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 0.75rem; font-weight: 700; color: var(--gray); text-decoration: none; padding: 0.4rem 0.75rem; border-radius: 6px; transition: all 0.2s; }
+        .nav-back:hover { color: var(--blue); background: #f0f7ff; }
+
+        .container { max-width: 1180px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .q-banner { background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%); border: 1px solid #d4e5f7; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 2rem; }
+        .q-banner .q-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--blue); margin-bottom: 0.25rem; }
+        .q-banner h2 { font-size: 1.2rem; font-weight: 800; color: var(--navy); }
+
+        .card { background: var(--card); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; margin-bottom: 1.5rem; }
+        .card h3 { font-size: 0.85rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; }
+
+        .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .tile { background: var(--card); border-radius: 10px; padding: 1.25rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; position: relative; overflow: hidden; }
+        .tile::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+        .tile.t-red::before { background: var(--red); }
+        .tile.t-green::before { background: var(--green); }
+        .tile.t-orange::before { background: var(--orange); }
+        .tile.t-blue::before { background: var(--blue); }
+        .tile.t-purple::before { background: var(--purple); }
+        .tile .t-val { font-size: 1.5rem; font-weight: 900; color: var(--navy); }
+        .tile .t-lbl { font-size: 0.65rem; color: var(--gray); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 4px; }
+        .tile .t-sub { font-size: 0.7rem; color: var(--gray); margin-top: 2px; }
+
+        .insight { border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex; gap: 1rem; align-items: flex-start; }
+        .insight.i-red { background: #fff5f5; border: 1px solid #ffd5d5; }
+        .insight.i-green { background: #f0fff4; border: 1px solid #c3e6cb; }
+        .insight.i-blue { background: #f0f7ff; border: 1px solid #c8dff7; }
+        .insight.i-orange { background: #fff8f0; border: 1px solid #fde2c8; }
+        .insight.i-purple { background: #f8f4ff; border: 1px solid #e0d4f5; }
+        .insight .i-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+        .insight.i-red .i-icon { background: #ffeaea; }
+        .insight.i-green .i-icon { background: #e6f9eb; }
+        .insight.i-blue .i-icon { background: #e3f0ff; }
+        .insight.i-orange .i-icon { background: #fff0e0; }
+        .insight.i-purple .i-icon { background: #f0e8ff; }
+        .insight .i-text { flex: 1; }
+        .insight .i-title { font-size: 0.78rem; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
+        .insight .i-body { font-size: 0.72rem; color: #444; line-height: 1.5; }
+
+        .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .chart-box { background: var(--card); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid #eaeaea; }
+        .chart-box h4 { font-size: 0.72rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.3px; }
+        .chart-box canvas { max-height: 260px; }
+
+        .tbl { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+        .tbl th { background: #f8f9fa; padding: 0.75rem 1rem; text-align: left; font-weight: 700; color: var(--navy); border-bottom: 2px solid #e0e0e0; text-transform: uppercase; font-size: 0.62rem; letter-spacing: 0.3px; }
+        .tbl td { padding: 0.75rem 1rem; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+        .tbl tr:hover td { background: #f8fbff; }
+        .tbl a { color: var(--blue); text-decoration: none; font-weight: 600; }
+        .tbl a:hover { text-decoration: underline; }
+
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+        .badge-red { background: #ffeaea; color: var(--red); }
+        .badge-orange { background: #fff3e0; color: #e65100; }
+        .badge-green { background: #e8f5e9; color: var(--green); }
+        .badge-blue { background: #e3f2fd; color: var(--blue); }
+        .badge-purple { background: #f3e8ff; color: var(--purple); }
+        .badge-gray { background: #f0f0f0; color: #666; }
+
+        .amt-red { color: var(--red); font-weight: 800; }
+        .amt-green { color: var(--green); font-weight: 700; }
+        .amt-gray { color: #999; font-weight: 600; }
+        .amt-blue { color: var(--blue); font-weight: 700; }
+
+        .tag-rcg { background: #eaf5fe; color: #0176d3; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; }
+        .tag-mae { background: #ede7f6; color: #7e57c2; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; }
+        .tag-cmrcl { background: #fff8e6; color: #946f00; display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.6rem; font-weight: 700; }
+
+        .table-divider { margin: 2rem 0 1rem; padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.72rem; font-weight: 700; }
+        .table-divider.closed { background: #f8f9fa; border: 1px solid #e0e0e0; color: var(--gray); }
+        .table-divider.open { background: #e8f5e9; border: 1px solid #c3e6cb; color: var(--green); }
+
+        .footer { text-align: center; padding: 3rem 2rem; font-size: 0.65rem; color: #aaa; }
+
+        @media (max-width: 768px) {
+            .chart-row { grid-template-columns: 1fr; }
+            .tiles { grid-template-columns: 1fr 1fr; }
+            .hero-grid { gap: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <h1>Marketing Cloud — Attrition Analysis</h1>
+    <div class="meta">July FY27 (Jul 1–31, 2026) · AMER PACE · Opportunities &ge;$100K Attrition</div>
+    <div class="hero-grid">
+        <div class="hero-num"><span class="val red">$18.94M</span><div class="lbl">Total Attrition</div></div>
+        <div class="hero-num"><span class="val white">25</span><div class="lbl">Accounts</div></div>
+        <div class="hero-num"><span class="val red">3</span><div class="lbl">Closed / Lost</div></div>
+        <div class="hero-num"><span class="val amber">22</span><div class="lbl">Still in Play</div></div>
+        <div class="hero-num"><span class="val green">4</span><div class="lbl">Actionable (Swing&gt;$0)</div></div>
+    </div>
+    <div class="warning-banner">Month in progress — July has not yet closed. 22 of 25 accounts are still open pipeline.</div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+    <a href="index.html" class="nav-back">&larr; Home</a>
+    <button class="active" onclick="showTab(0)"><span class="q-num">1</span> How Much Taken</button>
+    <button onclick="showTab(1)"><span class="q-num">2</span> What Was Saved</button>
+    <button onclick="showTab(2)"><span class="q-num">3</span> Where Are the Gaps</button>
+    <button onclick="showTab(3)"><span class="q-num">4</span> Emerging Patterns</button>
+</div>
+
+<div class="container">
+
+<!-- TAB 1: HOW MUCH TAKEN -->
+<div class="section active" id="tab0">
+    <div class="q-banner">
+        <div class="q-label">Question 1</div>
+        <h2>How much attrition was taken in Marketing Cloud for July FY27?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-red">
+            <div class="t-val">$18.94M</div>
+            <div class="t-lbl">Total Attrition at Risk</div>
+            <div class="t-sub">25 accounts</div>
+        </div>
+        <div class="tile t-red">
+            <div class="t-val">$751K</div>
+            <div class="t-lbl">Confirmed Lost</div>
+            <div class="t-sub">3 accounts — closed</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-val">$18.19M</div>
+            <div class="t-lbl">Still in Play</div>
+            <div class="t-sub">22 accounts — open pipeline</div>
+        </div>
+        <div class="tile t-green">
+            <div class="t-val">$2.59M</div>
+            <div class="t-lbl">Actionable (Swing&gt;$0)</div>
+            <div class="t-sub">4 accounts</div>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box">
+            <h4>Closed vs Still in Play</h4>
+            <canvas id="chart-split"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>Area Breakdown (All 25)</h4>
+            <canvas id="chart-area"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box" style="grid-column: span 2;">
+            <h4>Top 10 Accounts — Highest Attrition</h4>
+            <canvas id="chart-top10"></canvas>
+        </div>
+    </div>
+
+    <div class="insight i-red">
+        <div class="i-icon">&#9888;</div>
+        <div class="i-text">
+            <div class="i-title">Penney OpCo ($5.24M) leads — transitioning to Attentive</div>
+            <div class="i-body">Single largest MC attrition event this month. Full license attrit confirmed in CSG Notes. Competitive displacement by Attentive for email/SMS. Combined with Sunrun ($3.11M) and GNC ($1.98M), the top 3 accounts represent 55% of total attrition.</div>
+        </div>
+    </div>
+
+    <div class="insight i-green">
+        <div class="i-icon">&#9733;</div>
+        <div class="i-text">
+            <div class="i-title">4 accounts with Swing &gt; $0 — $2.59M actionable</div>
+            <div class="i-body">Sunrun ($2.11M), Raley's ($400K), LAV US ($57.5K), and Weisiger ($20K). Active save programs exist on Sunrun (#ARI #SWE). Raley's targeting D360/Signature/Agentforce expansion.</div>
+        </div>
+    </div>
+
+    <!-- CLOSED / LOST TABLE -->
+    <div class="table-divider closed">Closed / Lost — 3 accounts, $751K confirmed attrition</div>
+    <div class="card">
+        <h3>Confirmed Losses — Already Closed</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>#</th><th>Account</th><th>Area</th><th>Renewed</th><th>Attrition</th><th>Swing</th><th>Outcome</th><th>Type</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bJscAAE/view" target="_blank"><strong>Turntide Technologies Inc.</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-green">$157,334</td><td class="amt-red">$386,703</td><td class="amt-gray">$0</td><td><span class="badge badge-orange">Partial</span></td><td>Renewal</td></tr>
+                    <tr><td>2</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I3WnNAAV/view" target="_blank"><strong>Tangram Interiors</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-gray">$0</td><td class="amt-red">$235,841</td><td class="amt-gray">—</td><td><span class="badge badge-red">Logo Loss</span></td><td>Renewal</td></tr>
+                    <tr><td>3</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bKLfAAM/view" target="_blank"><strong>Belden Inc.</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-green">$2,237,375</td><td class="amt-red">$127,945</td><td class="amt-gray">—</td><td><span class="badge badge-orange">Partial</span></td><td>Renewal</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- STILL IN PLAY TABLE -->
+    <div class="table-divider open">Still in Play — 22 accounts, $18.19M attrition at risk</div>
+    <div class="card">
+        <h3>Open Pipeline — Outcome Pending</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>#</th><th>Account</th><th>Area</th><th>Attrition at Risk</th><th>Swing</th><th>Stage</th><th>Context</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bK6wAAE/view" target="_blank"><strong>Penney OpCo LLC</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$5,236,228</td><td class="amt-gray">—</td><td><span class="badge badge-blue">04 Pending</span></td><td>Transitioning to Attentive; #LicFullAttrit #SigRisk</td></tr>
+                    <tr><td>2</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I2qRZAAZ/view" target="_blank"><strong>Sunrun Inc.</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-red">$3,111,210</td><td class="amt-blue">$2,111,210</td><td><span class="badge badge-blue">02 Negotiate</span></td><td>#ARI #SWE ($750K); #LicPartialAttrit #NoSigRisk</td></tr>
+                    <tr><td>3</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019eW1tAAE/view" target="_blank"><strong>GNC Holdings LLC</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$1,976,998</td><td class="amt-gray">—</td><td><span class="badge badge-blue">04 Pending</span></td><td>Customer intent to cancel MC; #RFP not selected; #nonactionable</td></tr>
+                    <tr><td>4</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000IRDTRAA5/view" target="_blank"><strong>The Kroger Co.</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$1,643,588</td><td class="amt-gray">—</td><td><span class="badge badge-blue">03 Agreed</span></td><td>#LicPartialAttrit #RA — SuperMessage consumption restructure</td></tr>
+                    <tr><td>5</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019ejlcAAA/view" target="_blank"><strong>Lowe's Companies Inc.</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$1,178,802</td><td class="amt-gray">—</td><td><span class="badge badge-blue">02 Negotiate</span></td><td>Replaced with in-house solution; forecasting price risk</td></tr>
+                    <tr><td>6</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000eb7LFAAY/view" target="_blank"><strong>SharkNinja Operating LLC</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$1,074,900</td><td class="amt-gray">—</td><td><span class="badge badge-blue">02 Negotiate</span></td><td>Off-Cycle Restructure; Customer Issue; no CSG Notes</td></tr>
+                    <tr><td>7</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000HhCAeAAN/view" target="_blank"><strong>TSI Inc.</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$422,512</td><td class="amt-gray">—</td><td><span class="badge badge-blue">01 Initiate</span></td><td>Signed with new vendors; #fullattrit (invalid)</td></tr>
+                    <tr><td>8</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018kBKFAA2/view" target="_blank"><strong>Raley's</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$399,880</td><td class="amt-blue">$399,880</td><td><span class="badge badge-blue">02 Negotiate</span></td><td>High CPM risk; targeting D360, Signature, Agentforce</td></tr>
+                    <tr><td>9</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000RTCELAA5/view" target="_blank"><strong>The Scotts Company LLC.</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-red">$393,710</td><td class="amt-gray">$0</td><td><span class="badge badge-blue">04 Pending</span></td><td>#LicFullAttrit risk; MC Next LIVE in production</td></tr>
+                    <tr><td>10</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000dvVzxAAE/view" target="_blank"><strong>Greenworks North America LLC</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$368,438</td><td class="amt-gray">—</td><td><span class="badge badge-blue">02 Negotiate</span></td><td>Moving to Klaviyo; #FullAttrit #LicFullAttrit</td></tr>
+                    <tr><td>11</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018k90TAAQ/view" target="_blank"><strong>The Scotts Company LLC</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-red">$321,671</td><td class="amt-gray">$0</td><td><span class="badge badge-blue">04 Pending</span></td><td>#LicFullAttrit on Pardot/MCAE</td></tr>
+                    <tr><td>12</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000HozGDAAZ/view" target="_blank"><strong>Zoro Tools Inc.</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-red">$275,000</td><td class="amt-gray">$0</td><td><span class="badge badge-blue">04 Pending</span></td><td>#SigRisk #LicNoAttrit #RA — precautionary red</td></tr>
+                    <tr><td>13</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018k6iRAAQ/view" target="_blank"><strong>Rehrig Pacific Company</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$246,688</td><td class="amt-gray">—</td><td><span class="badge badge-blue">02 Negotiate</span></td><td>Product Feature Gap; no CSG Notes</td></tr>
+                    <tr><td>14</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000RSk6pAAD/view" target="_blank"><strong>The Scotts Company LLC</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-red">$238,656</td><td class="amt-gray">$0</td><td><span class="badge badge-blue">03 Agreed</span></td><td>#LicFullAttrit — Datorama (MCI) moved to Klaviyo</td></tr>
+                    <tr><td>15</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018jj1IAAQ/view" target="_blank"><strong>Marvin Windows Inc.</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$223,842</td><td class="amt-gray">—</td><td><span class="badge badge-blue">04 Pending</span></td><td>Lack of Internal Expertise; no CSG Notes</td></tr>
+                    <tr><td>16</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XA93AAG/view" target="_blank"><strong>Rehrig Pacific Company</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$158,400</td><td class="amt-gray">—</td><td><span class="badge badge-blue">03 Agreed</span></td><td>Product Feature Gap; no CSG Notes</td></tr>
+                    <tr><td>17</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018jj6IAAQ/view" target="_blank"><strong>Cryogenic Industries Inc.</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$134,574</td><td class="amt-gray">$0</td><td><span class="badge badge-blue">01 Initiate</span></td><td>#partialAttrit #LicensePartialAttrit (both invalid)</td></tr>
+                    <tr><td>18</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000HxONvAAN/view" target="_blank"><strong>The Mosaic Company</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-red">$127,620</td><td class="amt-gray">—</td><td><span class="badge badge-blue">03 Agreed</span></td><td>#SigRisk — dissatisfaction with technical support</td></tr>
+                    <tr><td>19</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000HntZRAAZ/view" target="_blank"><strong>LAV US</strong></a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$111,255</td><td class="amt-blue">$57,500</td><td><span class="badge badge-blue">02 Negotiate</span></td><td>Lack of Internal Expertise; no CSG Notes</td></tr>
+                    <tr><td>20</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019ecOoAAI/view" target="_blank"><strong>Duke Energy Business Services LLC</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-red">$106,352</td><td class="amt-gray">—</td><td><span class="badge badge-blue">04 Pending</span></td><td>#LicFullAttrit — org being sunset</td></tr>
+                    <tr><td>21</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000b6GsnAAE/view" target="_blank"><strong>Weisiger Group Inc.</strong></a></td><td><span class="tag-mae">MAE</span></td><td class="amt-red">$105,427</td><td class="amt-blue">$20,000</td><td><span class="badge badge-blue">02 Negotiate</span></td><td>No reason given; no CSG Notes</td></tr>
+                    <tr><td>22</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000d5JZrAAM/view" target="_blank"><strong>Landus Cooperative</strong></a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$100,320</td><td class="amt-gray">—</td><td><span class="badge badge-blue">01 Initiate</span></td><td>Off-Cycle Bad Debt; no CSG Notes</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 2: WHAT WAS SAVED -->
+<div class="section" id="tab1">
+    <div class="q-banner">
+        <div class="q-label">Question 2</div>
+        <h2>How much was saved &amp; which programs were deployed?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-green">
+            <div class="t-val">$2.59M</div>
+            <div class="t-lbl">Actionable (Swing &gt; $0)</div>
+            <div class="t-sub">4 accounts — intervention possible</div>
+        </div>
+        <div class="tile t-blue">
+            <div class="t-val">3</div>
+            <div class="t-lbl">Programs Referenced</div>
+            <div class="t-sub">#ARI (1), #SWE (1), #RFP (1), #RA (2)</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-val">84%</div>
+            <div class="t-lbl">No Program Deployed</div>
+            <div class="t-sub">21 of 25 accounts</div>
+        </div>
+    </div>
+
+    <div class="insight i-green">
+        <div class="i-icon">&#9733;</div>
+        <div class="i-text">
+            <div class="i-title">Sunrun: $2.11M Swing — #ARI + #SWE active ($750K SWE pursued)</div>
+            <div class="i-body">Largest actionable deal. $3.11M total attrition. ARI and SWE programs both deployed. Partial attrit confirmed but significant swing opportunity remains. Customer engagement ongoing.</div>
+        </div>
+    </div>
+
+    <div class="insight i-blue">
+        <div class="i-icon">&#128270;</div>
+        <div class="i-text">
+            <div class="i-title">Raley's: $400K Swing — targeting D360, Signature, Service Cloud + Agentforce</div>
+            <div class="i-body">High CPM risk but customer is green. Active expansion play targeting Data Cloud, Signature upgrade, and Agentforce. If upsell lands, full $400K swing could be recovered or offset by growth.</div>
+        </div>
+    </div>
+
+    <div class="insight i-orange">
+        <div class="i-icon">&#9888;</div>
+        <div class="i-text">
+            <div class="i-title">GNC: #RFP deployed but not selected — $1.98M non-actionable</div>
+            <div class="i-body">Competitive response program was attempted but customer chose the competitor. The RFP was not selected, making this account #nonactionable. $1.98M lost despite program deployment.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Program Hashtag Summary</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Program</th><th>Accounts</th><th>$ at Risk</th><th>Swing</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>#ARI (At-Risk Intervention)</td><td>1</td><td>$3,111,210</td><td>$2,111,210</td><td><span class="badge badge-blue">Active</span></td></tr>
+                <tr><td>#SWE (Strategic Win Engagement)</td><td>1</td><td>$3,111,210</td><td>$2,111,210</td><td><span class="badge badge-blue">Active ($750K)</span></td></tr>
+                <tr><td>#RFP (Competitive Response)</td><td>1</td><td>$1,976,998</td><td>—</td><td><span class="badge badge-red">Not Selected</span></td></tr>
+                <tr><td>#RA (Red Account)</td><td>2</td><td>$1,918,588</td><td>—</td><td><span class="badge badge-blue">Active</span></td></tr>
+                <tr><td>#SIGTRIAL</td><td>0</td><td>—</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#SWAP</td><td>0</td><td>—</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#IMPLEMENT</td><td>0</td><td>—</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#ADOPT</td><td>0</td><td>—</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+                <tr><td>#REVIVE</td><td>0</td><td>—</td><td>—</td><td><span class="badge badge-gray">None</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Accounts with Swing &gt; $0 — Full Detail</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>#</th><th>Account</th><th>Attrition</th><th>Swing</th><th>Program</th><th>Context</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I2qRZAAZ/view" target="_blank">Sunrun Inc.</a></td><td class="amt-red">$3,111,210</td><td class="amt-blue">$2,111,210</td><td><span class="badge badge-green">#ARI #SWE</span></td><td>ARI + $750K SWE pursued; #LicPartialAttrit</td></tr>
+                    <tr><td>2</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018kBKFAA2/view" target="_blank">Raley's</a></td><td class="amt-red">$399,880</td><td class="amt-blue">$399,880</td><td><span class="badge badge-gray">None</span></td><td>D360, Signature, Service Cloud + Agentforce expansion</td></tr>
+                    <tr><td>3</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000HntZRAAZ/view" target="_blank">LAV US</a></td><td class="amt-red">$111,255</td><td class="amt-blue">$57,500</td><td><span class="badge badge-gray">None</span></td><td>Lack of Internal Expertise; no notes</td></tr>
+                    <tr><td>4</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000b6GsnAAE/view" target="_blank">Weisiger Group Inc.</a></td><td class="amt-red">$105,427</td><td class="amt-blue">$20,000</td><td><span class="badge badge-gray">None</span></td><td>No reason given; no notes</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- TAB 3: WHERE ARE THE GAPS -->
+<div class="section" id="tab2">
+    <div class="q-banner">
+        <div class="q-label">Question 3</div>
+        <h2>Where are the gaps in coverage and documentation?</h2>
+    </div>
+
+    <div class="tiles">
+        <div class="tile t-red">
+            <div class="t-val">7 / 25</div>
+            <div class="t-lbl">No CSG Notes</div>
+            <div class="t-sub">28% of accounts — completely silent</div>
+        </div>
+        <div class="tile t-orange">
+            <div class="t-val">6</div>
+            <div class="t-lbl">Invalid Hashtags</div>
+            <div class="t-sub">#nonactionable, #fullattrit, #PartialAttrit, etc.</div>
+        </div>
+        <div class="tile t-purple">
+            <div class="t-val">3</div>
+            <div class="t-lbl">Competitors Named</div>
+            <div class="t-sub">Attentive, Klaviyo, In-house</div>
+        </div>
+    </div>
+
+    <div class="insight i-red">
+        <div class="i-icon">&#128683;</div>
+        <div class="i-text">
+            <div class="i-title">7 accounts with no CSG Notes — $2.05M at risk undocumented</div>
+            <div class="i-body">SharkNinja ($1.07M), Rehrig Pacific x2 ($246K + $158K), Tangram ($236K — already closed), Marvin Windows ($224K), LAV US ($111K), and Landus ($100K). SharkNinja is the most concerning — a $1M+ off-cycle restructure with zero documentation.</div>
+        </div>
+    </div>
+
+    <div class="insight i-orange">
+        <div class="i-icon">&#128196;</div>
+        <div class="i-text">
+            <div class="i-title">6 accounts with invalid hashtags — recurring compliance issue</div>
+            <div class="i-body">GNC (#nonactionable), TSI (#fullattrit), Lowe's (#PartialAttrit), Turntide (#partialattrit), Greenworks (#FullAttrit), Cryogenic (#partialAttrit + #LicensePartialAttrit). These are all non-standard variations — correct tags are #LicFullAttrit / #LicPartialAttrit / #LicNoAttrit.</div>
+        </div>
+    </div>
+
+    <div class="insight i-blue">
+        <div class="i-icon">&#128270;</div>
+        <div class="i-text">
+            <div class="i-title">Competitive displacement: Attentive, Klaviyo, and in-house solutions</div>
+            <div class="i-body">Penney OpCo ($5.24M) moving to Attentive. Greenworks ($368K) and Scotts/Datorama ($239K) moving to Klaviyo. Lowe's ($1.18M) replacing with in-house. Combined $7.02M in competitive attrition — 37% of total.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Accounts with No CSG Notes (Urgent)</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>#</th><th>Account</th><th>Area</th><th>Attrition</th><th>Stage</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000eb7LFAAY/view" target="_blank">SharkNinja Operating LLC</a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$1,074,900</td><td>02 Negotiate</td><td><span class="badge badge-orange">Still in Play</span></td></tr>
+                    <tr><td>2</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018k6iRAAQ/view" target="_blank">Rehrig Pacific Company</a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$246,688</td><td>02 Negotiate</td><td><span class="badge badge-orange">Still in Play</span></td></tr>
+                    <tr><td>3</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000I3WnNAAV/view" target="_blank">Tangram Interiors</a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$235,841</td><td>Dead Attrition</td><td><span class="badge badge-red">Closed/Lost</span></td></tr>
+                    <tr><td>4</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018jj1IAAQ/view" target="_blank">Marvin Windows Inc.</a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$223,842</td><td>04 Pending</td><td><span class="badge badge-orange">Still in Play</span></td></tr>
+                    <tr><td>5</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019XA93AAG/view" target="_blank">Rehrig Pacific Company (2)</a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$158,400</td><td>03 Agreed</td><td><span class="badge badge-orange">Still in Play</span></td></tr>
+                    <tr><td>6</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000HntZRAAZ/view" target="_blank">LAV US</a></td><td><span class="tag-rcg">RCG</span></td><td class="amt-red">$111,255</td><td>02 Negotiate</td><td><span class="badge badge-orange">Still in Play</span></td></tr>
+                    <tr><td>7</td><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000d5JZrAAM/view" target="_blank">Landus Cooperative</a></td><td><span class="tag-cmrcl">CMRCL</span></td><td class="amt-red">$100,320</td><td>01 Initiate</td><td><span class="badge badge-orange">Still in Play</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Accounts with Invalid Hashtags</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Account</th><th>Tag Found</th><th>Issue</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019eW1tAAE/view" target="_blank">GNC Holdings LLC</a></td><td>#nonactionable</td><td>Invalid — not a recognized PACE hashtag</td></tr>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000HhCAeAAN/view" target="_blank">TSI Inc.</a></td><td>#fullattrit</td><td>Invalid — should be #LicFullAttrit</td></tr>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000019ejlcAAA/view" target="_blank">Lowe's Companies Inc.</a></td><td>#PartialAttrit</td><td>Invalid — should be #LicPartialAttrit</td></tr>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000017bJscAAE/view" target="_blank">Turntide Technologies Inc.</a></td><td>#partialattrit</td><td>Invalid — should be #LicPartialAttrit</td></tr>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/006ed00000dvVzxAAE/view" target="_blank">Greenworks North America LLC</a></td><td>#FullAttrit</td><td>Invalid — should be #LicFullAttrit</td></tr>
+                <tr><td><a href="https://org62.lightning.force.com/lightning/r/Opportunity/0063y000018jj6IAAQ/view" target="_blank">Cryogenic Industries Inc.</a></td><td>#partialAttrit, #LicensePartialAttrit</td><td>Invalid — should be #LicPartialAttrit</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- TAB 4: EMERGING PATTERNS -->
+<div class="section" id="tab3">
+    <div class="q-banner">
+        <div class="q-label">Question 4</div>
+        <h2>What patterns are emerging?</h2>
+    </div>
+
+    <div class="insight i-blue">
+        <div class="i-icon">1</div>
+        <div class="i-text">
+            <div class="i-title">Financial &amp; Contractual dominates — 9 accounts, $13.0M (69%)</div>
+            <div class="i-body">Low Perceived ROI is the leading reason detail (Penney $5.24M, Sunrun $3.11M, GNC $1.98M, Raley's $400K). Combined with pricing dissatisfaction (Turntide $387K) and Limited Life Licenses (Zoro $275K), financial drivers represent the overwhelming majority of MC attrition this month.</div>
+        </div>
+    </div>
+
+    <div class="insight i-orange">
+        <div class="i-icon">2</div>
+        <div class="i-text">
+            <div class="i-title">Competitive displacement accelerating — 4 accounts, $6.86M</div>
+            <div class="i-body">Attentive (Penney $5.24M — email/SMS), Klaviyo (Greenworks $368K, Scotts/Datorama $239K), and in-house solution (Lowe's $1.18M). The pattern is clear: ESP/CDP competitors are winning on perceived value, especially in RCG segment where brand marketers evaluate alternatives aggressively.</div>
+        </div>
+    </div>
+
+    <div class="insight i-purple">
+        <div class="i-icon">3</div>
+        <div class="i-text">
+            <div class="i-title">RCG segment bears heaviest burden — 8 accounts, $11.85M (63%)</div>
+            <div class="i-body">RCG accounts represent the bulk of MC attrition. Penney ($5.24M), GNC ($1.98M), Kroger ($1.64M), Lowe's ($1.18M), and SharkNinja ($1.07M) are all RCG. Enterprise retail and CPG customers are actively rationalizing their MC spend.</div>
+        </div>
+    </div>
+
+    <div class="insight i-green">
+        <div class="i-icon">4</div>
+        <div class="i-text">
+            <div class="i-title">Adoption issues: 5 accounts using "lack of expertise/sponsorship" as reason</div>
+            <div class="i-body">Scotts x3 ($954K combined — internal enablement/sponsorship), Marvin Windows ($224K — lack of expertise), LAV US ($111K — expertise). These are potentially saveable with CSM intervention, adoption programs, or training investments.</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Attrition by Reason Category (All 25 Accounts)</h3>
+        <div style="overflow-x:auto;">
+            <table class="tbl">
+                <thead>
+                    <tr><th>Reason</th><th>Accounts</th><th>Attrition $</th><th>% of Total</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Financial &amp; Contractual</td><td>9</td><td>$13,035,832</td><td>69%</td></tr>
+                    <tr><td>Competitive</td><td>4</td><td>$1,782,280</td><td>9%</td></tr>
+                    <tr><td>Adoption</td><td>5</td><td>$1,288,807</td><td>7%</td></tr>
+                    <tr><td>Product</td><td>2</td><td>$405,088</td><td>2%</td></tr>
+                    <tr><td>Implementation</td><td>1</td><td>$1,074,900</td><td>6%</td></tr>
+                    <tr><td>Business Change &amp; Distress</td><td>2</td><td>$234,297</td><td>1%</td></tr>
+                    <tr><td>Success Plan &amp; Support</td><td>1</td><td>$127,620</td><td>1%</td></tr>
+                    <tr><td>Unspecified / None</td><td>1</td><td>$105,427</td><td>1%</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="chart-row">
+        <div class="chart-box">
+            <h4>Attrition Reason Breakdown</h4>
+            <canvas id="chart-reasons"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>Area Distribution</h4>
+            <canvas id="chart-area2"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Leadership Action Summary</h3>
+        <table class="tbl">
+            <thead>
+                <tr><th>Action</th><th>Priority</th><th>Detail</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Support Sunrun #ARI/#SWE ($2.11M Swing)</td><td><span class="badge badge-red">Critical</span></td><td>Largest actionable deal. ARI + $750K SWE pursued. Partial attrit confirmed but significant swing remains.</td></tr>
+                <tr><td>Document SharkNinja ($1.07M, zero notes)</td><td><span class="badge badge-red">Critical</span></td><td>$1M+ off-cycle restructure with no documentation. Customer issue cited but no CSAL engagement visible.</td></tr>
+                <tr><td>Land Raley's expansion ($400K Swing)</td><td><span class="badge badge-orange">High</span></td><td>Customer is green. Targeting D360, Signature, Service Cloud + Agentforce. If expansion lands, full swing recoverable.</td></tr>
+                <tr><td>Address competitive losses: Attentive &amp; Klaviyo</td><td><span class="badge badge-orange">High</span></td><td>Penney ($5.24M) to Attentive, Greenworks/Scotts to Klaviyo. Pattern of ESP/CDP competitive displacement in RCG.</td></tr>
+                <tr><td>Fill 7 empty CSG Notes</td><td><span class="badge badge-blue">Medium</span></td><td>SharkNinja, Rehrig x2, Tangram (closed), Marvin, LAV, Landus. 28% of accounts with no documentation.</td></tr>
+                <tr><td>Coach on invalid hashtags (6 accounts)</td><td><span class="badge badge-blue">Info</span></td><td>#nonactionable, #fullattrit, #PartialAttrit, #partialattrit, #FullAttrit, #LicensePartialAttrit — all non-standard.</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+    PACE Attrition Analysis · Marketing Cloud · July FY27 (partial — month in progress) · Generated from Org62 SOQL · AMER PACE Territory
+</div>
+
+<script>
+function showTab(idx) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab' + idx).classList.add('active');
+    document.querySelectorAll('.nav button')[idx].classList.add('active');
+}
+
+// Chart: Closed vs Still in Play
+new Chart(document.getElementById('chart-split'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Closed / Lost ($751K)', 'Still in Play ($18.19M)'],
+        datasets: [{
+            data: [750489, 18189511],
+            backgroundColor: ['#ea001e', '#fe9339'],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+
+// Chart: Area Breakdown
+new Chart(document.getElementById('chart-area'), {
+    type: 'doughnut',
+    data: {
+        labels: ['RCG ($11.85M, 8 accts)', 'MAE ($4.81M, 9 accts)', 'CMRCL ($2.05M, 8 accts)'],
+        datasets: [{
+            data: [11845493, 4807591, 2053476],
+            backgroundColor: ['#0176d3', '#7e57c2', '#fe9339'],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+
+// Chart: Top 10
+new Chart(document.getElementById('chart-top10'), {
+    type: 'bar',
+    data: {
+        labels: ['Penney OpCo', 'Sunrun', 'GNC Holdings', 'Kroger', 'Lowe\'s', 'SharkNinja', 'TSI Inc.', 'Raley\'s', 'Scotts (MC)', 'Turntide'],
+        datasets: [{
+            data: [5236228, 3111210, 1976998, 1643588, 1178802, 1074900, 422512, 399880, 393710, 386703],
+            backgroundColor: ['#fe9339','#2e844a','#fe9339','#fe9339','#fe9339','#fe9339','#fe9339','#2e844a','#fe9339','#ea001e'],
+            barPercentage: 0.6,
+            categoryPercentage: 0.85
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { callback: v => '$' + (v/1000000).toFixed(1) + 'M' } }
+        }
+    }
+});
+
+// Chart: Reasons
+new Chart(document.getElementById('chart-reasons'), {
+    type: 'bar',
+    data: {
+        labels: ['Financial & Contractual', 'Competitive', 'Adoption', 'Implementation', 'Product', 'Business Change', 'Support', 'Unspecified'],
+        datasets: [{
+            data: [13035832, 1782280, 1288807, 1074900, 405088, 234297, 127620, 105427],
+            backgroundColor: ['#0176d3', '#ea001e', '#7e57c2', '#06a59a', '#fe9339', '#ff5d5d', '#1b96ff', '#706e6b'],
+            barPercentage: 0.6,
+            categoryPercentage: 0.85
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { callback: v => '$' + (v/1000000).toFixed(1) + 'M' } }
+        }
+    }
+});
+
+// Chart: Area 2
+new Chart(document.getElementById('chart-area2'), {
+    type: 'doughnut',
+    data: {
+        labels: ['RCG (8 accts, $11.85M)', 'MAE (9 accts, $4.81M)', 'CMRCL (8 accts, $2.05M)'],
+        datasets: [{
+            data: [11845493, 4807591, 2053476],
+            backgroundColor: ['#0176d3', '#7e57c2', '#fe9339'],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+});
+</script>
+
+</body>
+</html>
